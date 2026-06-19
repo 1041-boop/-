@@ -951,8 +951,8 @@
       </div>
     </div>
     <div style="display:flex;gap:10px;margin-top:8px;">
-      <button class="btn btn-secondary" style="flex:1;justify-content:center;" onclick="closeModal('modal-schedule')">キャンセル</button>
-      <button class="btn btn-primary" style="flex:2;justify-content:center;" onclick="saveSchedule()">保存する</button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-schedule')">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveSchedule()">保存</button>
     </div>
     <button id="delete-schedule-btn" class="btn btn-danger" style="width:100%;justify-content:center;margin-top:8px;display:none;" onclick="deleteSchedule()">この予定を削除</button>
   </div>
@@ -1195,8 +1195,8 @@
     </div>
 
     <div style="display:flex;gap:10px;margin-top:8px;">
-      <button class="btn btn-secondary" style="flex:1;justify-content:center;" onclick="closeModal('modal-memo')">閉じる</button>
-      <button class="btn btn-primary" style="flex:2;justify-content:center;" onclick="saveMemo()">保存する</button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-memo')">閉じる</button>
+      <button class="btn btn-primary" onclick="saveMemo()">保存</button>
     </div>
     <button id="delete-memo-btn" class="btn btn-danger" style="width:100%;justify-content:center;margin-top:8px;display:none;" onclick="deleteMemo()">このメモを削除</button>
   </div>
@@ -1304,8 +1304,8 @@
     </div>
 
     <div style="display:flex;gap:10px;margin-top:16px;">
-      <button class="btn btn-secondary" style="flex:1;justify-content:center;" onclick="closeModal('modal-entry')">キャンセル</button>
-      <button class="btn btn-primary" style="flex:2;justify-content:center;" onclick="saveEntry()">保存する</button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-entry')">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveEntry()">保存</button>
     </div>
   </div>
 </div>
@@ -1391,7 +1391,6 @@ function initDB() {
       if (!d.objectStoreNames.contains('schedules')) {
         const ss = d.createObjectStore('schedules', { keyPath: 'id' });
         ss.createIndex('date', 'date', { unique: false });
-      });
       }
       if (!d.objectStoreNames.contains('albums')) {
         d.createObjectStore('albums', { keyPath: 'id' });
