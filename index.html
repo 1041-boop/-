@@ -1,0 +1,4431 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MyLifeLog">
+<meta name="theme-color" content="#1a1a2e">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon.svg">
+<title>My Life Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500&family=Yomogi&family=Hachi+Maru+Pop&family=Kaisei+Decol:wght@400;700&family=Pacifico&family=Caveat:wght@400;600&family=Dancing+Script:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #f8f8f8;
+    --bg2: #efefef;
+    --bg3: #e5e5e5;
+    --card: #ffffff;
+    --accent: #7c6ff7;
+    --accent2: #a78bfa;
+    --accent3: #c4b5fd;
+    --accent-rgb: 124,111,247;
+    --text: #1a1a1a;
+    --text2: #555555;
+    --text3: #999999;
+    --border: #e0e0e0;
+    --mood1: #ef4444;
+    --mood2: #f97316;
+    --mood3: #eab308;
+    --mood4: #22c55e;
+    --mood5: #6366f1;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --shadow: 0 4px 24px rgba(var(--accent-rgb),0.08);
+  }
+
+  /* ホーム画面追加バナー */
+  #pwa-banner {
+    display: none;
+    position: fixed;
+    bottom: 80px;
+    left: 16px; right: 16px;
+    background: #ffffff;
+    color: #333;
+    border-radius: 16px;
+    padding: 14px 16px;
+    z-index: 9999;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.35);
+    font-size: 13px;
+    line-height: 1.5;
+    align-items: center;
+    gap: 12px;
+  }
+  #pwa-banner.show { display: flex; }
+  #pwa-banner-text { flex: 1; }
+  #pwa-banner-text strong { display: block; font-size: 14px; margin-bottom: 2px; }
+  #pwa-banner-close {
+    background: none; border: none; color: #aaa;
+    font-size: 20px; cursor: pointer; padding: 0 4px;
+  }
+  #pwa-banner-arrow {
+    text-align: center;
+    font-size: 11px;
+    color: #bbb;
+    margin-top: 6px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 80px;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ナビゲーション */
+  .nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    display: flex;
+    z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .nav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 10px 4px 8px;
+    background: none;
+    border: none;
+    color: var(--text3);
+    font-size: 10px;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .nav-btn.active { color: var(--accent2); }
+  .nav-btn svg { width: 22px; height: 22px; }
+
+  /* ページ */
+  .page { display: none; padding: 0 16px; }
+  .page.active { display: block; }
+
+  /* ヘッダー */
+  .page-header {
+    padding: 56px 0 20px;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 10;
+  }
+  .page-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+  .page-subtitle { font-size: 13px; color: var(--text3); margin-top: 2px; }
+
+  /* カード */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+
+  /* ボタン */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border-radius: var(--radius-sm);
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-secondary { background: var(--border); color: var(--text2); }
+  .btn-danger { background: #3a1a1a; color: #ef4444; }
+
+  /* FAB */
+  .fab {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: none;
+    color: #fff;
+    font-size: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(var(--accent-rgb),0.4);
+    z-index: 50;
+    transition: transform 0.2s;
+  }
+  .fab:active { transform: scale(0.93); }
+
+  /* モーダル */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg2);
+    border-radius: var(--radius) var(--radius) 0 0;
+    width: 100%;
+    max-height: 92vh;
+    overflow-y: auto;
+    padding: 20px 16px 40px;
+    animation: slideUp 0.25s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .modal-handle {
+    width: 36px; height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 0 auto 20px;
+  }
+  .modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--text);
+  }
+
+  /* フォーム */
+  .form-group { margin-bottom: 16px; }
+  .form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text2);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .form-input, .form-textarea, .form-select {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 15px;
+    padding: 12px;
+    font-family: inherit;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .form-input:focus, .form-textarea:focus { border-color: var(--accent); }
+  .form-textarea { min-height: 140px; resize: vertical; line-height: 1.6; }
+
+  /* 気分セレクター */
+  .mood-selector {
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+  }
+  .mood-btn {
+    flex: 1;
+    aspect-ratio: 1;
+    border-radius: var(--radius-sm);
+    border: 2px solid transparent;
+    background: var(--bg3);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    padding: 6px;
+  }
+  .mood-btn.selected { border-color: var(--accent); background: rgba(var(--accent-rgb),0.12); }
+  .mood-btn svg { width: 100%; height: 100%; }
+
+  /* 写真プレビュー */
+  .photo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .photo-thumb {
+    aspect-ratio: 1;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+    width: 100%;
+  }
+  .photo-add-btn {
+    aspect-ratio: 1;
+    border-radius: var(--radius-sm);
+    border: 2px dashed var(--border);
+    background: var(--bg3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: var(--text3);
+    cursor: pointer;
+  }
+
+  /* 日記カード */
+  .diary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .diary-card:active { border-color: var(--accent); }
+  .diary-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .diary-date { font-size: 12px; color: var(--text3); }
+  .diary-mood { font-size: 20px; }
+  .diary-text {
+    color: var(--text2);
+    font-size: 14px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    line-height: 1.5;
+  }
+  .diary-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .tag {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  .tag-book { background: rgba(34,197,94,0.15); color: #22c55e; }
+  .tag-movie { background: rgba(239,68,68,0.15); color: #ef4444; }
+  .tag-photo { background: rgba(var(--accent-rgb),0.15); color: var(--accent2); }
+
+  /* カレンダー */
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+    margin-top: 12px;
+  }
+  .cal-day-label {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text3);
+    padding: 4px 0;
+    font-weight: 600;
+  }
+  .cal-day {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+    position: relative;
+    gap: 1px;
+  }
+  .cal-day.has-entry { background: rgba(var(--accent-rgb),0.12); }
+  .cal-day.today { border: 1px solid var(--accent); }
+  .cal-day.other-month { opacity: 0.3; }
+  .cal-day-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
+
+  /* 検索バー */
+  .search-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    margin-bottom: 16px;
+  }
+  .search-bar input {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 15px;
+    outline: none;
+  }
+  .search-bar svg { color: var(--text3); flex-shrink: 0; }
+
+  /* 本・映画カード */
+  .media-card {
+    display: flex;
+    gap: 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .media-card:active { border-color: var(--accent); }
+  .media-thumb {
+    width: 52px;
+    height: 72px;
+    border-radius: 6px;
+    object-fit: cover;
+    background: var(--bg3);
+    flex-shrink: 0;
+  }
+  .media-thumb-placeholder {
+    width: 52px;
+    height: 72px;
+    border-radius: 6px;
+    background: var(--bg3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .media-info { flex: 1; min-width: 0; }
+  .media-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .media-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
+  .media-rating { font-size: 13px; color: #eab308; margin-top: 4px; }
+
+  /* 分析 */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-num {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent2);
+    letter-spacing: -1px;
+  }
+  .stat-label { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+  /* ワードクラウド */
+  .word-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 0;
+    justify-content: center;
+  }
+  .word-item {
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: rgba(var(--accent-rgb),0.1);
+    color: var(--accent3);
+    font-weight: 600;
+    cursor: default;
+  }
+
+  /* チップ */
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text2);
+    cursor: pointer;
+    background: var(--bg3);
+    transition: all 0.2s;
+  }
+  .chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* セクションタイトル */
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 10px;
+    margin-top: 20px;
+  }
+
+  /* トースト */
+  .toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--accent);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 500;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* 空状態 */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text3);
+  }
+  .empty-state-icon { margin-bottom: 16px; display:flex; justify-content:center; }
+  .empty-state-text { font-size: 14px; line-height: 1.8; color: var(--text3); }
+
+  /* 設定セクションタイトル */
+  .settings-section-title {
+    font-size:11px;font-weight:700;color:var(--text3);
+    text-transform:uppercase;letter-spacing:0.8px;
+    margin:20px 0 8px;
+  }
+
+  /* トグルスイッチ */
+  .toggle-switch { position:relative;display:inline-block;width:44px;height:26px;flex-shrink:0; }
+  .toggle-switch input { opacity:0;width:0;height:0; }
+  .toggle-track-el {
+    position:absolute;inset:0;
+    background:var(--border);border-radius:13px;
+    transition:background 0.2s;cursor:pointer;
+  }
+  .toggle-track-el::after {
+    content:'';position:absolute;
+    top:3px;left:3px;width:20px;height:20px;
+    background:#fff;border-radius:50%;
+    transition:transform 0.2s;
+  }
+  .toggle-switch input:checked + .toggle-track-el { background:var(--accent); }
+  .toggle-switch input:checked + .toggle-track-el::after { transform:translateX(18px); }
+
+  /* サイズボタン */
+  .size-btn {
+    padding:6px 12px;border-radius:6px;
+    border:1px solid var(--border);
+    background:var(--bg3);color:var(--text2);
+    font-size:13px;cursor:pointer;transition:all 0.2s;
+  }
+  .size-btn.active { background:var(--accent);border-color:var(--accent);color:#fff; }
+
+  /* パスコード */
+  .pc-dot {
+    width:14px;height:14px;border-radius:50%;
+    border:2px solid var(--text3);
+    transition:background 0.15s;
+  }
+  .pc-dot.filled { background:var(--accent);border-color:var(--accent); }
+  .pc-btn {
+    width:72px;height:72px;border-radius:50%;
+    border:1px solid var(--border);
+    background:var(--card);color:var(--text);
+    font-size:22px;font-weight:500;
+    cursor:pointer;transition:background 0.15s;
+  }
+  .pc-btn:active { background:var(--border); }
+  .pc-del { font-size:18px; }
+
+  .cal-day.sunday > span { color: #f87171; }
+  .cal-day.saturday > span { color: #60a5fa; }
+  .cal-day-dot-schedule { width: 4px; height: 4px; border-radius: 50%; flex-shrink: 0; }
+  .cal-day-dots { display: flex; gap: 2px; justify-content: center; flex-wrap: wrap; margin-top: 1px; }
+
+  /* スケジュールカード */
+  .schedule-card {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 12px;
+    margin-bottom: 8px; cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .schedule-card:active { border-color: var(--accent); }
+  .schedule-accent { width: 4px; border-radius: 2px; align-self: stretch; flex-shrink: 0; }
+  .schedule-time { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+  /* 色選択ボタン */
+  .color-dot-btn {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 3px solid transparent; cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .color-dot-btn.active { border-color: var(--text); }
+  .icon-btn {
+    width: 36px; height: 36px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text2);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .icon-btn:active { background: var(--border); }
+
+  /* 日記フィルター */
+  .filter-select {
+    padding: 6px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    color: var(--text2);
+    font-size: 12px;
+    cursor: pointer;
+    outline: none;
+    flex-shrink: 0;
+    -webkit-appearance: none;
+    appearance: none;
+    padding-right: 24px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+  }
+  .filter-select:focus { border-color: var(--accent); }
+
+  /* グリッド表示 */
+  #diary-list.grid-view {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  #diary-list.grid-view .diary-card {
+    margin-bottom: 0;
+    font-size: 13px;
+  }
+  #diary-list.grid-view .diary-text {
+    -webkit-line-clamp: 3;
+    font-size: 12px;
+  }
+
+  /* タイムカプセルバー */
+  .timecapsule-bar {
+    background: linear-gradient(135deg, rgba(var(--accent-rgb),0.15), rgba(var(--accent-rgb),0.05));
+    border: 1px solid rgba(var(--accent-rgb),0.3);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    cursor: pointer;
+  }
+  .timecapsule-label {
+    font-size: 11px; font-weight: 700;
+    color: var(--accent2); text-transform: uppercase;
+    letter-spacing: 0.8px; margin-bottom: 4px;
+  }
+
+  /* 天気バッジ */
+  .weather-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 12px; color: var(--text3);
+    background: var(--bg3); border-radius: 20px;
+    padding: 2px 8px; margin-top: 4px;
+  }
+  /* 分析タブ */
+  .analysis-tab {
+    padding: 7px 16px; border-radius: 20px; border: 1px solid var(--border);
+    background: var(--bg3); color: var(--text2); font-size: 13px;
+    cursor: pointer; white-space: nowrap; transition: all 0.2s;
+  }
+  .analysis-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* テーマカード */
+  .theme-card {
+    border-radius: 10px; padding: 8px 6px;
+    border: 2px solid transparent; cursor: pointer;
+    transition: all 0.2s; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .theme-card.active { border-color: var(--accent); }
+  .theme-card-preview {
+    display: flex; gap: 2px; margin-bottom: 6px;
+    height: 28px; border-radius: 5px; overflow: hidden;
+  }
+  .theme-card-label { font-size: 11px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .theme-card-type { font-size: 9px; opacity: 0.6; margin-top: 1px; }
+
+  /* テーマカラーボタン（旧・削除予定だが念のため残す） */
+  .color-theme-btn {
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 3px solid transparent; cursor: pointer; transition: all 0.2s;
+  }
+  .color-theme-btn.active { border-color: var(--text); transform: scale(1.15); }
+
+  /* センチメントバー */
+  .sentiment-bar { height: 8px; border-radius: 4px; margin: 4px 0; }
+  .word-row { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+  .word-row-label { font-size:13px; color:var(--text2); min-width:80px; }
+  .word-row-bar { flex:1; height:6px; border-radius:3px; }
+  .word-row-count { font-size:12px; color:var(--text3); min-width:24px; text-align:right; }
+
+  /* 年間グリッド */
+  .yearly-heatmap { display:grid; grid-template-columns:repeat(53,1fr); gap:2px; margin:8px 0; }
+  .hm-cell { aspect-ratio:1; border-radius:2px; background:var(--border); }
+  .hm-cell.lv1 { background:rgba(var(--accent-rgb),0.2); }
+  .hm-cell.lv2 { background:rgba(var(--accent-rgb),0.4); }
+  .hm-cell.lv3 { background:rgba(var(--accent-rgb),0.7); }
+  .hm-cell.lv4 { background:var(--accent); }
+  .memo-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px;
+    margin-bottom: 10px; cursor: pointer;
+    transition: border-color 0.2s; position: relative;
+  }
+  .memo-card:active { border-color: var(--accent); }
+  .memo-card-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .memo-card-body {
+    font-size: 13px; color: var(--text2);
+    overflow: hidden; display: -webkit-box;
+    -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.5;
+  }
+  .memo-card-footer { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .memo-card-date { font-size: 11px; color: var(--text3); }
+  .memo-tag-chip {
+    font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600;
+    background: rgba(var(--accent-rgb),0.12); color: var(--accent2);
+  }
+  .memo-lock-icon { font-size: 13px; position: absolute; top: 12px; right: 12px; }
+  .memo-tag-btn {
+    padding: 5px 12px; border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: var(--bg3); color: var(--text2);
+    font-size: 12px; cursor: pointer; transition: all 0.2s;
+  }
+  .memo-tag-btn.active {
+    background: rgba(var(--accent-rgb),0.15);
+    border-color: var(--accent); color: var(--accent2);
+  }
+
+  .font-btn {
+    padding: 10px 8px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    background: var(--bg3);
+    color: var(--text2);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .font-btn.active {
+    border-color: var(--accent);
+    background: rgba(var(--accent-rgb),0.12);
+    color: var(--accent2);
+  }
+
+  /* ライトモード */
+  /* ダークモードオーバーレイ */
+  body.dark-overlay {
+    --bg: #050508; --bg2: #0a0a12; --bg3: #0d0d18;
+    --card: #111118; --text2: #7a7a99; --text3: #4a4a66; --border: #1a1a2a;
+  }
+
+  /* スクロールバー非表示 */
+  ::-webkit-scrollbar { width: 0; }
+  .detail-photos { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 16px; }
+  .detail-photo { width: 200px; height: 200px; object-fit: cover; border-radius: var(--radius-sm); flex-shrink: 0; }
+
+  /* 設定 */
+  .setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .setting-label { font-size: 15px; color: var(--text); }
+  .setting-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+  /* 追加オプションボタン */
+  .add-option-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1.5px dashed var(--border);
+    background: transparent;
+    color: var(--text2);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .add-option-btn.active {
+    border-color: var(--accent);
+    background: rgba(var(--accent-rgb),0.12);
+    color: var(--accent2);
+    border-style: solid;
+  }
+
+  /* 展開セクション */
+  .add-section {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 12px;
+    animation: fadeIn 0.2s ease;
+  }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+  .add-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text2);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .add-section-close {
+    background: none;
+    border: none;
+    color: var(--text3);
+    font-size: 18px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 4px;
+  }
+
+  canvas { max-width: 100%; }
+
+  .month-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .month-nav-btn {
+    background: none;
+    border: none;
+    color: var(--text2);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px 10px;
+  }
+  .month-label { font-size: 16px; font-weight: 700; color: var(--text); }
+</style>
+</head>
+<body>
+
+<!-- ホーム画面追加バナー（iPhone Safari用） -->
+<div id="pwa-banner">
+  <div id="pwa-banner-text">
+    <strong>📲 ホーム画面に追加しよう！</strong>
+    下の共有ボタン(⎋)→「ホーム画面に追加」でアプリとして使えるよ
+  </div>
+  <button id="pwa-banner-close" onclick="dismissPwaBanner()">✕</button>
+</div>
+
+<div class="page active" id="page-diary">
+  <div class="page-header">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div class="page-title">My Life Log</div>
+        <div class="page-subtitle" id="today-date"></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="icon-btn" id="sort-btn" onclick="cycleSortOrder()" title="並び順">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M6 12h12M9 18h6"/></svg>
+        </button>
+        <button class="icon-btn" id="view-btn" onclick="toggleViewMode()" title="表示切替">
+          <svg id="view-icon-grid" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          <svg id="view-icon-list" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none;"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+        </button>
+        <button class="icon-btn settings-gear-btn" onclick="openSettings()" title="設定">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="sort-label" style="font-size:11px;color:var(--text3);margin-top:4px;"></div>
+  </div>
+
+  <!-- タイムカプセル -->
+  <div id="timecapsule-bar" style="display:none;"></div>
+  <div class="search-bar">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" placeholder="日記を検索..." id="search-input" oninput="filterDiaries()">
+  </div>
+  <!-- 年度・月フィルター -->
+  <div id="diary-filter-bar" style="margin-bottom:12px;">
+    <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;" id="diary-filter-chips"></div>
+    <div id="filter-result-label" style="font-size:11px;color:var(--text3);margin-top:6px;min-height:14px;"></div>
+  </div>
+  <div id="diary-list"></div>
+</div>
+
+<!-- ページ: カレンダー -->
+<div class="page" id="page-calendar">
+  <div class="page-header">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div class="page-title">カレンダー</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn btn-primary" style="padding:8px 14px;font-size:13px;" onclick="openNewSchedule()">＋ 予定</button>
+        <button class="icon-btn" onclick="openSettings()" title="設定"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
+      </div>
+    </div>
+  </div>
+  <div class="month-nav">
+    <button class="month-nav-btn" onclick="changeMonth(-1)">‹</button>
+    <span class="month-label" id="month-label"></span>
+    <button class="month-nav-btn" onclick="changeMonth(1)">›</button>
+  </div>
+  <div class="calendar-grid" id="calendar-grid"></div>
+  <div id="calendar-entries" style="margin-top:20px;"></div>
+</div>
+
+<!-- モーダル: スケジュール作成・編集 -->
+<div class="modal-overlay" id="modal-schedule">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-schedule-title">予定を追加</div>
+    <div class="form-group">
+      <label class="form-label">日付</label>
+      <input type="date" class="form-input" id="schedule-date">
+    </div>
+    <div class="form-group">
+      <label class="form-label">タイトル</label>
+      <input type="text" class="form-input" id="schedule-title" placeholder="予定のタイトル">
+    </div>
+    <div class="form-group">
+      <label class="form-label">時間（任意）</label>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="time" class="form-input" id="schedule-time-start" style="flex:1;">
+        <span style="color:var(--text3);">〜</span>
+        <input type="time" class="form-input" id="schedule-time-end" style="flex:1;">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">メモ（任意）</label>
+      <textarea class="form-textarea" id="schedule-memo" placeholder="メモ..." style="min-height:80px;color:var(--text);"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">色</label>
+      <div style="display:flex;gap:8px;">
+        <button class="color-dot-btn active" id="scolor-purple" data-color="purple" onclick="selectScheduleColor('purple')" style="background:#7c6ff7;"></button>
+        <button class="color-dot-btn" id="scolor-pink" data-color="pink" onclick="selectScheduleColor('pink')" style="background:#ec4899;"></button>
+        <button class="color-dot-btn" id="scolor-red" data-color="red" onclick="selectScheduleColor('red')" style="background:#ef4444;"></button>
+        <button class="color-dot-btn" id="scolor-amber" data-color="amber" onclick="selectScheduleColor('amber')" style="background:#f59e0b;"></button>
+        <button class="color-dot-btn" id="scolor-green" data-color="green" onclick="selectScheduleColor('green')" style="background:#22c55e;"></button>
+        <button class="color-dot-btn" id="scolor-blue" data-color="blue" onclick="selectScheduleColor('blue')" style="background:#3b82f6;"></button>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button class="btn btn-secondary" style="flex:1;justify-content:center;" onclick="closeModal('modal-schedule')">キャンセル</button>
+      <button class="btn btn-primary" style="flex:2;justify-content:center;" onclick="saveSchedule()">保存する</button>
+    </div>
+    <button id="delete-schedule-btn" class="btn btn-danger" style="width:100%;justify-content:center;margin-top:8px;display:none;" onclick="deleteSchedule()">この予定を削除</button>
+  </div>
+</div>
+
+<!-- ページ: 本・映画 -->
+<div class="page" id="page-media">
+  <div class="page-header">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div class="page-title">本・映画</div>
+      <button class="icon-btn" onclick="openSettings()" title="設定"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
+    </div>
+  </div>
+  <!-- メインタブ：記録 / ウォッチリスト -->
+  <div style="display:flex;gap:6px;margin-bottom:14px;">
+    <button class="chip active" id="media-main-tab-log" onclick="switchMediaMainTab('log',this)">記録</button>
+    <button class="chip" id="media-main-tab-watchlist" onclick="switchMediaMainTab('watchlist',this)">読みたい・見たい</button>
+  </div>
+  <!-- 記録タブ -->
+  <div id="media-log-view">
+    <div class="chips" id="media-filter-chips" style="margin-bottom:16px;">
+      <div class="chip active" onclick="filterMedia('all',this)">すべて</div>
+      <div class="chip" onclick="filterMedia('book',this)">本</div>
+      <div class="chip" onclick="filterMedia('movie',this)">映画</div>
+    </div>
+    <div id="media-list"></div>
+  </div>
+  <!-- ウォッチリストタブ -->
+  <div id="media-watchlist-view" style="display:none;">
+    <div style="display:flex;gap:8px;margin-bottom:14px;">
+      <button class="icon-btn" style="flex:1;border-radius:var(--radius-sm);font-size:13px;width:auto;padding:0 12px;" onclick="openWatchlistSearch('book')">本を追加</button>
+      <button class="icon-btn" style="flex:1;border-radius:var(--radius-sm);font-size:13px;width:auto;padding:0 12px;" onclick="openWatchlistSearch('movie')">映画を追加</button>
+    </div>
+    <div class="chips" id="watchlist-filter-chips" style="margin-bottom:14px;">
+      <div class="chip active" onclick="filterWatchlist('all',this)">すべて</div>
+      <div class="chip" onclick="filterWatchlist('book',this)">本</div>
+      <div class="chip" onclick="filterWatchlist('movie',this)">映画</div>
+    </div>
+    <div id="watchlist-list"></div>
+  </div>
+</div>
+
+<!-- モーダル: ウォッチリスト検索 -->
+<div class="modal-overlay" id="modal-watchlist-search">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="watchlist-search-title">本を追加</div>
+    <div class="search-bar" style="margin-bottom:12px;">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" placeholder="タイトルを検索..." id="watchlist-search-input" oninput="searchWatchlist()">
+    </div>
+    <div id="watchlist-search-results"></div>
+    <button class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:12px;" onclick="closeModal('modal-watchlist-search')">閉じる</button>
+  </div>
+</div>
+
+<!-- ページ: 分析 -->
+<div class="page" id="page-analysis">
+  <div class="page-header">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div class="page-title">分析</div>
+      <button class="icon-btn" onclick="openSettings()" title="設定"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
+    </div>
+  </div>
+
+  <!-- 分析タブ -->
+  <div style="display:flex;gap:6px;overflow-x:auto;margin-bottom:16px;padding-bottom:2px;">
+    <button class="analysis-tab active" id="atab-summary" onclick="switchAnalysisTab('summary',this)">概要</button>
+    <button class="analysis-tab" id="atab-mood" onclick="switchAnalysisTab('mood',this)">気分</button>
+    <button class="analysis-tab" id="atab-media" onclick="switchAnalysisTab('media',this)">本・映画</button>
+    <button class="analysis-tab" id="atab-yearly" onclick="switchAnalysisTab('yearly',this)">年間</button>
+    <button class="analysis-tab" id="atab-sentiment" onclick="switchAnalysisTab('sentiment',this)">ポジ・ネガ</button>
+  </div>
+
+  <!-- 概要 -->
+  <div id="analysis-summary">
+    <div class="stat-grid" id="stat-grid"></div>
+    <div class="card">
+      <div class="section-title">月別日記数</div>
+      <canvas id="count-chart"></canvas>
+    </div>
+    <div class="card">
+      <div class="section-title">よく出てくる言葉</div>
+      <div class="word-cloud" id="word-cloud"></div>
+    </div>
+  </div>
+
+  <!-- 気分 -->
+  <div id="analysis-mood" style="display:none;">
+    <div class="card">
+      <div class="section-title">気分の推移（直近30件）</div>
+      <canvas id="mood-chart"></canvas>
+    </div>
+    <div class="card">
+      <div class="section-title">週平均 vs 月平均</div>
+      <canvas id="mood-avg-chart"></canvas>
+    </div>
+    <div class="card">
+      <div class="section-title">曜日別 平均気分</div>
+      <canvas id="mood-dow-chart"></canvas>
+    </div>
+  </div>
+
+  <!-- 本・映画 -->
+  <div id="analysis-media" style="display:none;">
+    <div class="stat-grid" id="media-stat-grid"></div>
+    <div class="card">
+      <div class="section-title">ステータス別（本）</div>
+      <canvas id="book-status-chart"></canvas>
+    </div>
+    <div class="card">
+      <div class="section-title">ステータス別（映画）</div>
+      <canvas id="movie-status-chart"></canvas>
+    </div>
+    <div class="card">
+      <div class="section-title">月別 記録数</div>
+      <canvas id="media-month-chart"></canvas>
+    </div>
+  </div>
+
+  <!-- 年間サマリー -->
+  <div id="analysis-yearly" style="display:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <span style="font-size:15px;font-weight:700;color:var(--text);" id="yearly-label"></span>
+      <div style="display:flex;gap:6px;">
+        <button class="month-nav-btn" onclick="changeYearlySummary(-1)">‹</button>
+        <button class="month-nav-btn" onclick="changeYearlySummary(1)">›</button>
+      </div>
+    </div>
+    <div id="yearly-content"></div>
+  </div>
+
+  <!-- ポジ・ネガ -->
+  <div id="analysis-sentiment" style="display:none;">
+    <div class="card">
+      <div class="section-title">ポジ・ネガ スコア推移</div>
+      <canvas id="sentiment-chart"></canvas>
+    </div>
+    <div class="card">
+      <div class="section-title">今月の感情分布</div>
+      <canvas id="sentiment-pie"></canvas>
+    </div>
+    <div class="card" id="sentiment-words-card">
+      <div class="section-title">ポジティブワード TOP10</div>
+      <div id="pos-words"></div>
+      <div class="section-title" style="margin-top:16px;">ネガティブワード TOP10</div>
+      <div id="neg-words"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 設定モーダル -->
+<div class="modal-overlay" id="modal-settings" style="align-items:flex-end;">
+  <div class="modal" style="max-height:92vh;border-radius:var(--radius) var(--radius) 0 0;">
+    <div class="modal-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div style="font-size:18px;font-weight:700;color:var(--text);">設定</div>
+      <button onclick="closeModal('modal-settings')" style="background:none;border:none;color:var(--text3);font-size:22px;cursor:pointer;line-height:1;">×</button>
+    </div>
+    <div id="settings-inner"></div>
+  </div>
+</div>
+
+<!-- ページ: フォト -->
+<div class="page" id="page-photo">
+  <div class="page-header">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div class="page-title">フォト</div>
+      <button class="icon-btn settings-gear-btn" onclick="openSettings()" title="設定">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      </button>
+    </div>
+  </div>
+  <!-- フォトタブ -->
+  <div style="display:flex;gap:6px;margin-bottom:16px;">
+    <button class="chip active" id="photo-tab-diary" onclick="switchPhotoTab('diary',this)">日記の写真</button>
+    <button class="chip" id="photo-tab-album" onclick="switchPhotoTab('album',this)">アルバム</button>
+  </div>
+  <!-- 日記写真グリッド -->
+  <div id="photo-diary-view">
+    <div id="photo-diary-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;"></div>
+  </div>
+  <!-- アルバム -->
+  <div id="photo-album-view" style="display:none;">
+    <div id="album-list"></div>
+  </div>
+</div>
+
+
+
+<!-- パスコード画面 -->
+<div id="passcode-screen" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:1000;flex-direction:column;align-items:center;justify-content:center;">
+  <div style="margin-bottom:8px;color:var(--text3);">
+    <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+  </div>
+  <div id="passcode-screen-title" style="font-size:16px;color:var(--text2);margin-bottom:32px;">パスコードを入力</div>
+  <div id="passcode-dots" style="display:flex;gap:16px;margin-bottom:32px;">
+    <div class="pc-dot"></div><div class="pc-dot"></div><div class="pc-dot"></div><div class="pc-dot"></div>
+  </div>
+  <div id="passcode-error" style="color:#ef4444;font-size:13px;min-height:20px;margin-bottom:16px;"></div>
+  <div style="display:grid;grid-template-columns:repeat(3,72px);gap:12px;">
+    <button class="pc-btn" onclick="pcInput('1')">1</button>
+    <button class="pc-btn" onclick="pcInput('2')">2</button>
+    <button class="pc-btn" onclick="pcInput('3')">3</button>
+    <button class="pc-btn" onclick="pcInput('4')">4</button>
+    <button class="pc-btn" onclick="pcInput('5')">5</button>
+    <button class="pc-btn" onclick="pcInput('6')">6</button>
+    <button class="pc-btn" onclick="pcInput('7')">7</button>
+    <button class="pc-btn" onclick="pcInput('8')">8</button>
+    <button class="pc-btn" onclick="pcInput('9')">9</button>
+    <div></div>
+    <button class="pc-btn" onclick="pcInput('0')">0</button>
+    <button class="pc-btn pc-del" onclick="pcDelete()">⌫</button>
+  </div>
+  <button id="pc-cancel-btn" style="margin-top:28px;background:none;border:none;color:var(--text3);font-size:14px;cursor:pointer;display:none;" onclick="cancelPasscodeSetup()">キャンセル</button>
+</div>
+
+<!-- ナビゲーション -->
+<nav class="nav">
+  <button class="nav-btn active" onclick="showPage('diary',this)">
+    <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+    日記
+  </button>
+  <button class="nav-btn" onclick="showPage('calendar',this)">
+    <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+    カレンダー
+  </button>
+  <button class="nav-btn" onclick="showPage('media',this)">
+    <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+    本・映画
+  </button>
+  <button class="nav-btn" onclick="showPage('memo',this)">
+    <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    メモ
+  </button>
+  <button class="nav-btn" onclick="showPage('photo',this)">
+    <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+    フォト
+  </button>
+</nav>
+
+<!-- ページ: メモ -->
+<div class="page" id="page-memo">
+  <div class="page-header">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div class="page-title">メモ</div>
+      <div style="display:flex;gap:8px;">
+        <select class="form-select" id="memo-sort-select" style="width:100px;font-size:12px;padding:6px 8px;" onchange="renderMemoList()">
+          <option value="updated">更新日順</option>
+          <option value="created">作成日順</option>
+          <option value="title">タイトル順</option>
+        </select>
+        <button class="icon-btn" onclick="openSettings()" title="設定"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
+      </div>
+    </div>
+  </div>
+  <div class="search-bar">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" placeholder="メモを検索..." id="memo-search-input" oninput="renderMemoList()">
+  </div>
+  <div class="chips" id="memo-tag-filter" style="margin-bottom:14px;"></div>
+  <div id="memo-list"></div>
+</div>
+
+<!-- モーダル: メモ作成・編集 -->
+<div class="modal-overlay" id="modal-memo">
+  <div class="modal" style="max-height:96vh;">
+    <div class="modal-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div class="modal-title" id="modal-memo-title" style="margin-bottom:0;">新しいメモ</div>
+      <div style="display:flex;gap:8px;">
+        <button class="icon-btn" id="memo-lock-btn" onclick="toggleMemoLock()" title="ロック">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </button>
+        <button class="icon-btn" onclick="exportMemoText()" title="テキスト書き出し">📄</button>
+        <button class="icon-btn" onclick="exportMemoPDF()" title="PDF書き出し">📋</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <input type="text" class="form-input" id="memo-title-input" placeholder="タイトル（任意）">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">タグ</label>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;" id="memo-tag-buttons">
+        <button class="memo-tag-btn" data-tag="仕事" onclick="toggleMemoTag('仕事',this)">💼 仕事</button>
+        <button class="memo-tag-btn" data-tag="プライベート" onclick="toggleMemoTag('プライベート',this)">🏠 プライベート</button>
+        <button class="memo-tag-btn" data-tag="アイデア" onclick="toggleMemoTag('アイデア',this)">💡 アイデア</button>
+        <button class="memo-tag-btn" data-tag="買い物" onclick="toggleMemoTag('買い物',this)">🛒 買い物</button>
+        <button class="memo-tag-btn" data-tag="メモ" onclick="toggleMemoTag('メモ',this)">📝 メモ</button>
+      </div>
+      <div id="custom-tag-chips" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;"></div>
+      <div style="display:flex;gap:8px;">
+        <input type="text" class="form-input" id="custom-tag-input" placeholder="タグを作成..." style="flex:1;" onkeydown="if(event.key==='Enter')addCustomTag()">
+        <button class="btn btn-secondary" style="padding:8px 14px;flex-shrink:0;" onclick="addCustomTag()">追加</button>
+      </div>
+    </div>
+
+    <div class="form-group" style="position:relative;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <label class="form-label" style="margin-bottom:0;">本文</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span id="memo-char-count" style="font-size:12px;color:var(--text3);">0 文字</span>
+          <button class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" onclick="copyMemoAll()">全選択コピー</button>
+        </div>
+      </div>
+      <textarea class="form-textarea" id="memo-body-input" placeholder="メモを入力..." style="min-height:200px;" oninput="updateMemoCharCount()"></textarea>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button class="btn btn-secondary" style="flex:1;justify-content:center;" onclick="closeModal('modal-memo')">閉じる</button>
+      <button class="btn btn-primary" style="flex:2;justify-content:center;" onclick="saveMemo()">保存する</button>
+    </div>
+    <button id="delete-memo-btn" class="btn btn-danger" style="width:100%;justify-content:center;margin-top:8px;display:none;" onclick="deleteMemo()">このメモを削除</button>
+  </div>
+</div>
+
+<!-- メモロック解除モーダル -->
+<div class="modal-overlay" id="modal-memo-unlock">
+  <div class="modal" style="max-height:auto;">
+    <div class="modal-handle"></div>
+    <div style="text-align:center;padding:20px 0;">
+      <div style="margin-bottom:12px;color:var(--text3);display:flex;justify-content:center;">
+        <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:8px;">ロックされたメモ</div>
+      <div style="font-size:13px;color:var(--text3);margin-bottom:20px;">パスコードを入力してください</div>
+      <div id="memo-unlock-dots" style="display:flex;gap:16px;justify-content:center;margin-bottom:16px;">
+        <div class="pc-dot"></div><div class="pc-dot"></div><div class="pc-dot"></div><div class="pc-dot"></div>
+      </div>
+      <div id="memo-unlock-error" style="color:#ef4444;font-size:13px;min-height:18px;margin-bottom:12px;"></div>
+      <div style="display:grid;grid-template-columns:repeat(3,64px);gap:10px;justify-content:center;">
+        <button class="pc-btn" style="width:64px;height:64px;font-size:20px;" onclick="memoUnlockInput('1')">1</button>
+        <button class="pc-btn" style="width:64px;height:64px;font-size:20px;" onclick="memoUnlockInput('2')">2</button>
+        <button class="pc-btn" style="width:64px;height:64px;font-size:20px;" onclick="memoUnlockInput('3')">3</button>
+        <button class="pc-btn" style="width:64px;height:64px;font-size:20px;" onclick="memoUnlockInput('4')">4</button>
+        <button class="pc-btn" style="width:64px;height:64px;font-size:20px;" onclick="memoUnlockInput('5')">5</button>
+        <button class="pc-btn" style="width:64px;height:64px;font-size:20px;" onclick="memoUnlockInput('6')">6</button>
+        <button class="pc-btn" style="width:64px;height:64px;font-size:20px;" onclick="memoUnlockInput('7')">7</button>
+        <button class="pc-btn" style="width:64px;height:64px;font-size:20px;" onclick="memoUnlockInput('8')">8</button>
+        <button class="pc-btn" style="width:64px;height:64px;font-size:20px;" onclick="memoUnlockInput('9')">9</button>
+        <div></div>
+        <button class="pc-btn" style="width:64px;height:64px;font-size:20px;" onclick="memoUnlockInput('0')">0</button>
+        <button class="pc-btn pc-del" style="width:64px;height:64px;font-size:16px;" onclick="memoUnlockDelete()">⌫</button>
+      </div>
+    </div>
+    <button class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:16px;" onclick="closeModal('modal-memo-unlock')">キャンセル</button>
+  </div>
+</div>
+<button class="fab" id="fab-btn" onclick="openNewEntry()">＋</button>
+
+<!-- モーダル: 日記作成・編集 -->
+<div class="modal-overlay" id="modal-entry">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-entry-title">新しい日記</div>
+
+    <!-- 基本項目 -->
+    <div class="form-group">
+      <label class="form-label">日付</label>
+      <input type="date" class="form-input" id="entry-date">
+    </div>
+
+    <!-- 天気表示 -->
+    <div id="weather-display" style="margin-bottom:12px;min-height:24px;"></div>
+
+    <div class="form-group">
+      <label class="form-label">日記</label>
+      <textarea class="form-textarea" id="entry-text" placeholder="今日のことを書いてみよう..." oninput="startAutosave()"></textarea>
+      <div id="autosave-indicator" style="font-size:11px;color:var(--text3);text-align:right;margin-top:4px;opacity:0;transition:opacity 0.3s;"></div>
+    </div>
+
+    <!-- 追加済みアイテムの表示エリア -->
+    <div id="added-items-area"></div>
+
+    <!-- 追加ボタン -->
+    <div id="add-options-bar" style="margin:4px 0 16px;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;" id="add-option-btns">
+        <button class="add-option-btn" id="opt-photo" onclick="toggleAddSection('photo')">📷 写真</button>
+        <button class="add-option-btn" id="opt-mood" onclick="toggleAddSection('mood')">気分</button>
+        <button class="add-option-btn" id="opt-book" onclick="toggleAddSection('book')">📚 本</button>
+        <button class="add-option-btn" id="opt-movie" onclick="toggleAddSection('movie')">🎬 映画</button>
+      </div>
+    </div>
+
+    <!-- 展開セクション: 写真 -->
+    <div class="add-section" id="section-photo" style="display:none;">
+      <div class="add-section-header">
+        <span>📷 写真</span>
+        <button class="add-section-close" onclick="toggleAddSection('photo')">×</button>
+      </div>
+      <div class="photo-grid" id="photo-preview-grid">
+        <div class="photo-add-btn" onclick="document.getElementById('photo-input').click()">＋</div>
+      </div>
+      <input type="file" id="photo-input" accept="image/*" multiple style="display:none" onchange="addPhotos(event)">
+    </div>
+
+    <!-- 展開セクション: 気分 -->
+    <div class="add-section" id="section-mood" style="display:none;">
+      <div class="add-section-header">
+        <span>気分</span>
+        <button class="add-section-close" onclick="toggleAddSection('mood')">×</button>
+      </div>
+      <div class="mood-selector" id="mood-selector-btns"></div>
+    </div>
+
+    <!-- 展開セクション: 本 -->
+    <div class="add-section" id="section-book" style="display:none;">
+      <div class="add-section-header">
+        <span>📚 本</span>
+        <button class="add-section-close" onclick="toggleAddSection('book')">×</button>
+      </div>
+      <div class="search-bar" style="margin-bottom:10px;">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="本のタイトルを検索..." id="inline-book-input" oninput="inlineSearchMedia('book')">
+      </div>
+      <div id="inline-book-results"></div>
+      <div id="attached-books"></div>
+    </div>
+
+    <!-- 展開セクション: 映画 -->
+    <div class="add-section" id="section-movie" style="display:none;">
+      <div class="add-section-header">
+        <span>🎬 映画</span>
+        <button class="add-section-close" onclick="toggleAddSection('movie')">×</button>
+      </div>
+      <div class="search-bar" style="margin-bottom:10px;">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="映画タイトルを検索..." id="inline-movie-input" oninput="inlineSearchMedia('movie')">
+      </div>
+      <div id="inline-movie-results"></div>
+      <div id="attached-movies"></div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button class="btn btn-secondary" style="flex:1;justify-content:center;" onclick="closeModal('modal-entry')">キャンセル</button>
+      <button class="btn btn-primary" style="flex:2;justify-content:center;" onclick="saveEntry()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<!-- モーダル: 日記詳細 -->
+<div class="modal-overlay" id="modal-detail">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div id="detail-content"></div>
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button class="btn btn-danger" style="flex:1;justify-content:center;" onclick="deleteCurrentEntry()">削除</button>
+      <button class="btn btn-primary" style="flex:2;justify-content:center;" onclick="editCurrentEntry()">編集</button>
+    </div>
+    <button class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:8px;" onclick="closeModal('modal-detail')">閉じる</button>
+  </div>
+</div>
+
+<!-- モーダル: アルバム詳細 -->
+<div class="modal-overlay" id="modal-album-detail">
+  <div class="modal" style="max-height:92vh;">
+    <div class="modal-handle"></div>
+    <div id="album-detail-title" style="font-size:18px;font-weight:700;margin-bottom:4px;color:var(--text);"></div>
+    <div id="album-detail-content"></div>
+    <button class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:8px;" onclick="closeModal('modal-album-detail')">閉じる</button>
+  </div>
+</div>
+
+<!-- モーダル: アルバムロック解除 -->
+<div class="modal-overlay" id="modal-album-unlock">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div style="text-align:center;padding:16px 0;">
+      <div style="font-size:13px;color:var(--text3);margin-bottom:20px;">アルバムパスコードを入力</div>
+      <div id="album-unlock-dots" style="display:flex;gap:16px;justify-content:center;margin-bottom:12px;">
+        <div class="pc-dot"></div><div class="pc-dot"></div><div class="pc-dot"></div><div class="pc-dot"></div>
+      </div>
+      <div id="album-unlock-error" style="color:#ef4444;font-size:12px;min-height:16px;margin-bottom:10px;"></div>
+      <div style="display:grid;grid-template-columns:repeat(3,64px);gap:10px;justify-content:center;">
+        <button class="pc-btn" style="width:64px;height:64px;font-size:20px;" onclick="albumUnlockInput('1')">1</button>
+        <button class="pc-btn" style="width:64px;height:64px;font-size:20px;" onclick="albumUnlockInput('2')">2</button>
+        <button class="pc-btn" style="width:64px;height:64px;font-size:20px;" onclick="albumUnlockInput('3')">3</button>
+        <button class="pc-btn" style="width:64px;height:64px;font-size:20px;" onclick="albumUnlockInput('4')">4</button>
+        <button class="pc-btn" style="width:64px;height:64px;font-size:20px;" onclick="albumUnlockInput('5')">5</button>
+        <button class="pc-btn" style="width:64px;height:64px;font-size:20px;" onclick="albumUnlockInput('6')">6</button>
+        <button class="pc-btn" style="width:64px;height:64px;font-size:20px;" onclick="albumUnlockInput('7')">7</button>
+        <button class="pc-btn" style="width:64px;height:64px;font-size:20px;" onclick="albumUnlockInput('8')">8</button>
+        <button class="pc-btn" style="width:64px;height:64px;font-size:20px;" onclick="albumUnlockInput('9')">9</button>
+        <div></div>
+        <button class="pc-btn" style="width:64px;height:64px;font-size:20px;" onclick="albumUnlockInput('0')">0</button>
+        <button class="pc-btn pc-del" style="width:64px;height:64px;font-size:16px;" onclick="albumUnlockDelete()">⌫</button>
+      </div>
+    </div>
+    <button class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:12px;" onclick="closeModal('modal-album-unlock')">キャンセル</button>
+  </div>
+</div>
+
+<!-- トースト -->
+<div class="toast" id="toast"></div>
+
+<script>
+// =========================================================
+// DB
+// =========================================================
+let db;
+const DB_NAME = 'MyLifeLogDB';
+const DB_VERSION = 5;
+
+function initDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = e => {
+      const d = e.target.result;
+      if (!d.objectStoreNames.contains('entries')) {
+        const store = d.createObjectStore('entries', { keyPath: 'id' });
+        store.createIndex('date', 'date', { unique: false });
+      }
+      if (!d.objectStoreNames.contains('schedules')) {
+        const ss = d.createObjectStore('schedules', { keyPath: 'id' });
+        ss.createIndex('date', 'date', { unique: false });
+      }
+      if (!d.objectStoreNames.contains('watchlist')) {
+        d.createObjectStore('watchlist', { keyPath: 'id' });
+      }
+      if (!d.objectStoreNames.contains('albums')) {
+        d.createObjectStore('albums', { keyPath: 'id' });
+      }
+      if (!d.objectStoreNames.contains('memos')) {
+        d.createObjectStore('memos', { keyPath: 'id' });
+      }
+      if (!d.objectStoreNames.contains('media')) {
+        const ms = d.createObjectStore('media', { keyPath: 'id' });
+        ms.createIndex('type', 'type', { unique: false });
+      }
+    };
+    req.onsuccess = e => { db = e.target.result; resolve(); };
+    req.onerror = reject;
+  });
+}
+
+function dbOp(storeName, mode, fn) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, mode);
+    const store = tx.objectStore(storeName);
+    const req = fn(store);
+    req.onsuccess = e => resolve(e.target.result);
+    req.onerror = reject;
+  });
+}
+
+function getAllEntries() {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('entries', 'readonly');
+    const store = tx.objectStore('entries');
+    const req = store.getAll();
+    req.onsuccess = e => resolve(e.target.result.sort((a,b) => b.date.localeCompare(a.date)));
+    req.onerror = reject;
+  });
+}
+
+function getAllMedia() {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('media', 'readonly');
+    const store = tx.objectStore('media');
+    const req = store.getAll();
+    req.onsuccess = e => resolve(e.target.result);
+    req.onerror = reject;
+  });
+}
+
+// =========================================================
+// 状態
+// =========================================================
+let currentEntries = [];
+let currentMedia = [];
+let editingEntryId = null;
+let currentDetailId = null;
+let currentMood = 0;
+let pendingPhotos = []; // base64
+let attachedMedia = []; // {id,type,title,...}
+let currentMediaSearchType = 'book';
+let mediaSearchTimeout = null;
+let calendarYear, calendarMonth;
+let yearlySummaryYear = new Date().getFullYear();
+
+const MOOD_LABELS = ['','最悪','イマイチ','普通','良い','最高'];
+
+function moodSVG(level, size=32, color='currentColor') {
+  const s = size, r = s/2, cx = r, cy = r, fr = r*0.85;
+  const sw = s*0.065;
+  const eyeY = cy - fr*0.18;
+  const eyeOX = fr*0.34;
+
+  const faces = {
+    1: {
+      eyes: `<ellipse cx="${cx-eyeOX}" cy="${eyeY}" rx="${fr*0.1}" ry="${fr*0.13}" fill="${color}"/>
+             <ellipse cx="${cx+eyeOX}" cy="${eyeY}" rx="${fr*0.1}" ry="${fr*0.13}" fill="${color}"/>
+             <path d="M${cx-eyeOX*1.5},${eyeY-fr*0.26} Q${cx-eyeOX},${eyeY-fr*0.1} ${cx-eyeOX*0.4},${eyeY-fr*0.22}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>
+             <path d="M${cx+eyeOX*0.4},${eyeY-fr*0.22} Q${cx+eyeOX},${eyeY-fr*0.1} ${cx+eyeOX*1.5},${eyeY-fr*0.26}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>
+             <path d="M${cx-eyeOX*1.1},${eyeY+fr*0.1} Q${cx-eyeOX},${eyeY+fr*0.32} ${cx-eyeOX*0.35},${eyeY+fr*0.1}" fill="${color}" opacity="0.7"/>
+             <path d="M${cx+eyeOX*0.35},${eyeY+fr*0.1} Q${cx+eyeOX},${eyeY+fr*0.32} ${cx+eyeOX*1.1},${eyeY+fr*0.1}" fill="${color}" opacity="0.7"/>`,
+      mouth: `<path d="M${cx-fr*0.38},${cy+fr*0.42} Q${cx},${cy+fr*0.2} ${cx+fr*0.38},${cy+fr*0.42}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>`
+    },
+    2: {
+      eyes: `<ellipse cx="${cx-eyeOX}" cy="${eyeY}" rx="${fr*0.1}" ry="${fr*0.12}" fill="${color}"/>
+             <ellipse cx="${cx+eyeOX}" cy="${eyeY}" rx="${fr*0.1}" ry="${fr*0.12}" fill="${color}"/>
+             <path d="M${cx-eyeOX*1.4},${eyeY-fr*0.22} Q${cx-eyeOX},${eyeY-fr*0.08} ${cx-eyeOX*0.5},${eyeY-fr*0.18}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>
+             <path d="M${cx+eyeOX*0.5},${eyeY-fr*0.18} Q${cx+eyeOX},${eyeY-fr*0.08} ${cx+eyeOX*1.4},${eyeY-fr*0.22}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>`,
+      mouth: `<path d="M${cx-fr*0.3},${cy+fr*0.4} Q${cx},${cy+fr*0.26} ${cx+fr*0.3},${cy+fr*0.4}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>`
+    },
+    3: {
+      eyes: `<circle cx="${cx-eyeOX}" cy="${eyeY}" r="${fr*0.11}" fill="${color}"/>
+             <circle cx="${cx+eyeOX}" cy="${eyeY}" r="${fr*0.11}" fill="${color}"/>
+             <path d="M${cx-eyeOX*1.4},${eyeY-fr*0.2} L${cx-eyeOX*0.55},${eyeY-fr*0.2}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>
+             <path d="M${cx+eyeOX*0.55},${eyeY-fr*0.2} L${cx+eyeOX*1.4},${eyeY-fr*0.2}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>`,
+      mouth: `<path d="M${cx-fr*0.28},${cy+fr*0.36} L${cx+fr*0.28},${cy+fr*0.36}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>`
+    },
+    4: {
+      eyes: `<path d="M${cx-eyeOX*1.35},${eyeY-fr*0.08} Q${cx-eyeOX},${eyeY+fr*0.14} ${cx-eyeOX*0.45},${eyeY-fr*0.08}" fill="none" stroke="${color}" stroke-width="${sw*1.1}" stroke-linecap="round"/>
+             <path d="M${cx+eyeOX*0.45},${eyeY-fr*0.08} Q${cx+eyeOX},${eyeY+fr*0.14} ${cx+eyeOX*1.35},${eyeY-fr*0.08}" fill="none" stroke="${color}" stroke-width="${sw*1.1}" stroke-linecap="round"/>
+             <path d="M${cx-eyeOX*1.4},${eyeY-fr*0.24} Q${cx-eyeOX},${eyeY-fr*0.12} ${cx-eyeOX*0.5},${eyeY-fr*0.22}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>
+             <path d="M${cx+eyeOX*0.5},${eyeY-fr*0.22} Q${cx+eyeOX},${eyeY-fr*0.12} ${cx+eyeOX*1.4},${eyeY-fr*0.24}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>`,
+      mouth: `<path d="M${cx-fr*0.38},${cy+fr*0.22} Q${cx},${cy+fr*0.52} ${cx+fr*0.38},${cy+fr*0.22}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>`
+    },
+    5: {
+      eyes: `<path d="M${cx-eyeOX*1.4},${eyeY-fr*0.06} Q${cx-eyeOX},${eyeY+fr*0.22} ${cx-eyeOX*0.4},${eyeY-fr*0.06}" fill="none" stroke="${color}" stroke-width="${sw*1.2}" stroke-linecap="round"/>
+             <path d="M${cx+eyeOX*0.4},${eyeY-fr*0.06} Q${cx+eyeOX},${eyeY+fr*0.22} ${cx+eyeOX*1.4},${eyeY-fr*0.06}" fill="none" stroke="${color}" stroke-width="${sw*1.2}" stroke-linecap="round"/>
+             <path d="M${cx-eyeOX*1.5},${eyeY-fr*0.28} Q${cx-eyeOX},${eyeY-fr*0.14} ${cx-eyeOX*0.4},${eyeY-fr*0.26}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>
+             <path d="M${cx+eyeOX*0.4},${eyeY-fr*0.26} Q${cx+eyeOX},${eyeY-fr*0.14} ${cx+eyeOX*1.5},${eyeY-fr*0.28}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>
+             <ellipse cx="${cx-fr*0.52}" cy="${cy+fr*0.1}" rx="${fr*0.16}" ry="${fr*0.1}" fill="${color}" opacity="0.25"/>
+             <ellipse cx="${cx+fr*0.52}" cy="${cy+fr*0.1}" rx="${fr*0.16}" ry="${fr*0.1}" fill="${color}" opacity="0.25"/>`,
+      mouth: `<path d="M${cx-fr*0.46},${cy+fr*0.18} Q${cx},${cy+fr*0.62} ${cx+fr*0.46},${cy+fr*0.18}" fill="${color}" opacity="0.18"/>
+              <path d="M${cx-fr*0.46},${cy+fr*0.18} Q${cx},${cy+fr*0.62} ${cx+fr*0.46},${cy+fr*0.18}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>`
+    },
+  };
+  const f = faces[level];
+  return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="${cx}" cy="${cy}" r="${fr}" fill="none" stroke="${color}" stroke-width="${sw}"/>
+    ${f.eyes}
+    ${f.mouth}
+  </svg>`;
+}
+
+const MOODS = ['', moodSVG(1), moodSVG(2), moodSVG(3), moodSVG(4), moodSVG(5)];
+
+// =========================================================
+// ナビ・ページ
+// =========================================================
+function showPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  btn.classList.add('active');
+  const fabBtn = document.getElementById('fab-btn');
+  fabBtn.style.display = (name === 'diary' || name === 'memo' || name === 'photo') ? 'flex' : 'none';
+  if (name === 'memo') { renderMemoList(); fabBtn.onclick = openNewMemo; }
+  else if (name === 'photo') { renderPhotoPage(); fabBtn.onclick = openNewAlbum; }
+  else { fabBtn.onclick = openNewEntry; }
+  if (name === 'diary') renderDiaryList();
+  if (name === 'calendar') renderCalendar();
+  if (name === 'media') renderMediaList();
+  if (name === 'analysis') renderAnalysis();
+}
+
+// =========================================================
+// 日記一覧
+// =========================================================
+async function renderDiaryList() {
+  currentEntries = await getAllEntries();
+  buildDiaryFilterChips();
+  const { year, month, text } = getDiaryFilterValues();
+  const list = document.getElementById('diary-list');
+  let filtered = currentEntries;
+  if (text) filtered = filtered.filter(e => e.text && e.text.includes(text));
+  if (year) filtered = filtered.filter(e => e.date.startsWith(year));
+  if (month) filtered = filtered.filter(e => e.date.slice(5,7) === month);
+  filtered = sortEntries(filtered);
+  applyViewMode();
+
+  const label = document.getElementById('filter-result-label');
+  if (label) {
+    label.textContent = diaryFilterKey !== 'all'
+      ? `${filtered.length}件`
+      : '';
+  }
+
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">${emptyIllustration('diary')}</div><div class="empty-state-text">${(year||month)?'この期間の日記はありません':'まだ日記がありません'}<br>${(year||month)?'':'右下の＋ボタンから書いてみよう'}</div></div>`;
+    return;
+  }
+  list.innerHTML = filtered.map(e => {
+    const tags = [];
+    if (e.photos && e.photos.length) tags.push('<span class="tag tag-photo">📷 写真</span>');
+    if (e.media && e.media.some(m=>m.type==='book')) tags.push('<span class="tag tag-book">📚 本</span>');
+    if (e.media && e.media.some(m=>m.type==='movie')) tags.push('<span class="tag tag-movie">🎬 映画</span>');
+    const weatherStr = e.weather ? `<span class="weather-badge">${e.weather.label} ${e.weather.temp}℃</span>` : '';
+    return `<div class="diary-card" onclick="openDetail('${e.id}')">
+      <div class="diary-card-header">
+        <span class="diary-date">${formatDate(e.date)}</span>
+        <span style="width:26px;height:26px;display:inline-flex;">${e.mood ? moodSVG(e.mood,26,"var(--accent)") : ''}</span>
+      </div>
+      ${weatherStr}
+      <div class="diary-text" style="margin-top:${e.weather?'4px':'0'}">${e.text || '<span style="color:var(--text3)">（テキストなし）</span>'}</div>
+      ${tags.length ? `<div class="diary-tags">${tags.join('')}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function filterDiaries() { renderDiaryList(); }
+
+let diaryFilterKey = 'all'; // 'all' | '2025' | '2025-03' など
+
+function buildDiaryFilterChips() {
+  const chips = document.getElementById('diary-filter-chips');
+  if (!chips) return;
+  const years = [...new Set(currentEntries.map(e => e.date.slice(0,4)))].sort().reverse();
+  const months = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+
+  let html = `<div class="chip ${diaryFilterKey==='all'?'active':''}" onclick="setDiaryFilter('all',this)">すべて</div>`;
+  years.forEach(y => {
+    html += `<div class="chip ${diaryFilterKey===y?'active':''}" onclick="setDiaryFilter('${y}',this)">${y}年</div>`;
+    months.forEach(m => {
+      const key = `${y}-${m}`;
+      const hasEntry = currentEntries.some(e => e.date.startsWith(key));
+      if (hasEntry) {
+        html += `<div class="chip ${diaryFilterKey===key?'active':''}" onclick="setDiaryFilter('${key}',this)">${parseInt(m)}月</div>`;
+      }
+    });
+  });
+  chips.innerHTML = html;
+}
+
+function setDiaryFilter(key, btn) {
+  diaryFilterKey = key;
+  renderDiaryList();
+}
+
+function getDiaryFilterValues() {
+  const text = document.getElementById('search-input')?.value.trim() || '';
+  if (diaryFilterKey === 'all') return { year: '', month: '', text };
+  if (diaryFilterKey.includes('-')) {
+    const [y, m] = diaryFilterKey.split('-');
+    return { year: y, month: m, text };
+  }
+  return { year: diaryFilterKey, month: '', text };
+}
+
+// =========================================================
+// 日記作成・編集
+// =========================================================
+function openNewEntry() {
+  editingEntryId = null;
+  currentMood = 0;
+  currentWeather = null;
+  pendingPhotos = [];
+  attachedMedia = [];
+  document.getElementById('modal-entry-title').textContent = '新しい日記';
+  document.getElementById('entry-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('entry-text').value = '';
+  document.getElementById('weather-display').innerHTML = '';
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('.add-option-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.add-section').forEach(s => s.style.display = 'none');
+  document.getElementById('inline-book-input').value = '';
+  document.getElementById('inline-movie-input').value = '';
+  document.getElementById('inline-book-results').innerHTML = '';
+  document.getElementById('inline-movie-results').innerHTML = '';
+  renderMoodSelector();
+  renderPhotoPreview();
+  renderAttachedBooks();
+  renderAttachedMovies();
+  // オートセーブ確認（モーダルを開く前）
+  const hasDraft = localStorage.getItem(AUTOSAVE_KEY);
+  if (hasDraft) {
+    checkAutosave();
+  } else {
+    openModal('modal-entry');
+    fetchWeather();
+  }
+}
+
+async function editCurrentEntry() {
+  closeModal('modal-detail');
+  const entry = currentEntries.find(e => e.id === currentDetailId);
+  if (!entry) return;
+  editingEntryId = entry.id;
+  currentMood = entry.mood || 0;
+  pendingPhotos = entry.photos ? [...entry.photos] : [];
+  attachedMedia = entry.media ? [...entry.media] : [];
+  document.getElementById('modal-entry-title').textContent = '日記を編集';
+  document.getElementById('entry-date').value = entry.date;
+  document.getElementById('entry-text').value = entry.text || '';
+  document.querySelectorAll('.mood-btn').forEach(b => {
+    b.classList.toggle('selected', parseInt(b.dataset.mood) === currentMood);
+  });
+
+  // 既存データがあるセクションを自動展開
+  document.querySelectorAll('.add-section').forEach(s => s.style.display = 'none');
+  document.querySelectorAll('.add-option-btn').forEach(b => b.classList.remove('active'));
+
+  if (pendingPhotos.length) { document.getElementById('section-photo').style.display='block'; document.getElementById('opt-photo').classList.add('active'); }
+  if (currentMood) { document.getElementById('section-mood').style.display='block'; document.getElementById('opt-mood').classList.add('active'); }
+  if (attachedMedia.some(m=>m.type==='book')) { document.getElementById('section-book').style.display='block'; document.getElementById('opt-book').classList.add('active'); }
+  if (attachedMedia.some(m=>m.type==='movie')) { document.getElementById('section-movie').style.display='block'; document.getElementById('opt-movie').classList.add('active'); }
+
+  document.getElementById('inline-book-input').value = '';
+  document.getElementById('inline-movie-input').value = '';
+  document.getElementById('inline-book-results').innerHTML = '';
+  document.getElementById('inline-movie-results').innerHTML = '';
+  renderMoodSelector();
+  renderPhotoPreview();
+  renderAttachedBooks();
+  renderAttachedMovies();
+  openModal('modal-entry');
+}
+
+async function saveEntry() {
+  const date = document.getElementById('entry-date').value;
+  const text = document.getElementById('entry-text').value.trim();
+  if (!date) { showToast('日付を選んでください'); return; }
+
+  const entry = {
+    id: editingEntryId || Date.now().toString(),
+    date,
+    text,
+    mood: currentMood,
+    photos: [...pendingPhotos],
+    media: [...attachedMedia],
+    weather: currentWeather || null,
+    updatedAt: new Date().toISOString()
+  };
+
+  await dbOp('entries', 'readwrite', store => store.put(entry));
+  clearAutosave();
+  playSaveSound();
+  closeModal('modal-entry');
+  showToast('保存しました ✓');
+  renderDiaryList();
+}
+
+function renderMoodSelector() {
+  const el = document.getElementById('mood-selector-btns');
+  if (!el) return;
+  const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#7c6ff7';
+  el.innerHTML = [1,2,3,4,5].map(m =>
+    `<button class="mood-btn ${currentMood===m?'selected':''}" data-mood="${m}" onclick="selectMood(${m})" aria-label="${MOOD_LABELS[m]}">
+      ${moodSVG(m, 40, currentMood===m ? accent : 'var(--text3)')}
+    </button>`
+  ).join('');
+}
+
+function selectMood(m) {
+  currentMood = m;
+  renderMoodSelector();
+}
+
+// =========================================================
+// 写真
+// =========================================================
+function addPhotos(event) {
+  const files = Array.from(event.target.files);
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      compressImage(e.target.result, 800, 0.75, compressed => {
+        pendingPhotos.push(compressed);
+        renderPhotoPreview();
+      });
+    };
+    reader.readAsDataURL(file);
+  });
+  event.target.value = '';
+}
+
+function compressImage(dataUrl, maxSize, quality, callback) {
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    let w = img.width, h = img.height;
+    if (w > maxSize || h > maxSize) {
+      if (w > h) { h = h * maxSize / w; w = maxSize; }
+      else { w = w * maxSize / h; h = maxSize; }
+    }
+    canvas.width = w; canvas.height = h;
+    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+    callback(canvas.toDataURL('image/jpeg', quality));
+  };
+  img.src = dataUrl;
+}
+
+function renderPhotoPreview() {
+  const grid = document.getElementById('photo-preview-grid');
+  const thumbs = pendingPhotos.map((p, i) =>
+    `<div style="position:relative;">
+      <img class="photo-thumb" src="${p}">
+      <button onclick="removePhoto(${i})" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.6);border:none;color:#fff;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;">×</button>
+    </div>`
+  ).join('');
+  grid.innerHTML = thumbs + `<div class="photo-add-btn" onclick="document.getElementById('photo-input').click()">＋</div>`;
+}
+
+function removePhoto(i) {
+  pendingPhotos.splice(i, 1);
+  renderPhotoPreview();
+}
+
+// =========================================================
+// 追加セクションの開閉
+// =========================================================
+function toggleAddSection(type) {
+  const section = document.getElementById('section-'+type);
+  const btn = document.getElementById('opt-'+type);
+  const isOpen = section.style.display !== 'none';
+  section.style.display = isOpen ? 'none' : 'block';
+  btn.classList.toggle('active', !isOpen);
+}
+
+// =========================================================
+// インライン本・映画検索
+// =========================================================
+let inlineSearchTimeout = {};
+
+function inlineSearchMedia(type) {
+  clearTimeout(inlineSearchTimeout[type]);
+  inlineSearchTimeout[type] = setTimeout(async () => {
+    const input = document.getElementById(`inline-${type}-input`);
+    const q = input.value.trim();
+    const results = document.getElementById(`inline-${type}-results`);
+    if (q.length < 2) { results.innerHTML = ''; return; }
+    results.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">検索中...</div>';
+    try {
+      if (type === 'book') await inlineSearchBooks(q);
+      else await inlineSearchMovies(q);
+    } catch(e) {
+      results.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">検索に失敗しました</div>';
+    }
+  }, 400);
+}
+
+async function inlineSearchBooks(q) {
+  const res = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&limit=5&language=jpn`);
+  const data = await res.json();
+  const results = document.getElementById('inline-book-results');
+  if (!data.docs || data.docs.length === 0) {
+    results.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">見つかりませんでした</div>';
+    return;
+  }
+  results.innerHTML = data.docs.slice(0,5).map(book => {
+    const cover = book.cover_i ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg` : null;
+    const author = book.author_name ? book.author_name[0] : '不明';
+    const year = book.first_publish_year || '';
+    const obj = encodeURIComponent(JSON.stringify({
+      id: 'book_'+book.key, type:'book', title:book.title, author, year, cover, key:book.key
+    }));
+    return `<div class="media-card" style="margin-bottom:6px;" onclick="attachInlineMedia('${obj}','book')">
+      ${cover ? `<img class="media-thumb" src="${cover}" onerror="this.style.display='none'">` : '<div class="media-thumb-placeholder">📚</div>'}
+      <div class="media-info">
+        <div class="media-title">${book.title}</div>
+        <div class="media-sub">${author}${year?' · '+year:''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function inlineSearchMovies(q) {
+  const apiKey = localStorage.getItem('omdb_key') || '';
+  const results = document.getElementById('inline-movie-results');
+  if (!apiKey) {
+    results.innerHTML = `<div style="color:var(--text3);font-size:13px;padding:8px 0;">映画検索には設定タブでOMDb APIキーが必要です（無料）</div>`;
+    return;
+  }
+  const res = await fetch(`https://www.omdbapi.com/?s=${encodeURIComponent(q)}&apikey=${apiKey}&type=movie`);
+  const data = await res.json();
+  if (data.Response === 'False' || !data.Search) {
+    results.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">見つかりませんでした</div>';
+    return;
+  }
+  results.innerHTML = data.Search.slice(0,5).map(movie => {
+    const cover = movie.Poster && movie.Poster !== 'N/A' ? movie.Poster : null;
+    const obj = encodeURIComponent(JSON.stringify({
+      id: 'movie_'+movie.imdbID, type:'movie', title:movie.Title, year:movie.Year, cover, imdbID:movie.imdbID
+    }));
+    return `<div class="media-card" style="margin-bottom:6px;" onclick="attachInlineMedia('${obj}','movie')">
+      ${cover ? `<img class="media-thumb" src="${cover}" onerror="this.style.display='none'">` : '<div class="media-thumb-placeholder">🎬</div>'}
+      <div class="media-info">
+        <div class="media-title">${movie.Title}</div>
+        <div class="media-sub">${movie.Year}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function attachInlineMedia(encoded, type) {
+  const obj = JSON.parse(decodeURIComponent(encoded));
+  if (!attachedMedia.find(m => m.id === obj.id)) {
+    obj.memo = '';
+    attachedMedia.push(obj);
+  }
+  document.getElementById(`inline-${type}-results`).innerHTML = '';
+  document.getElementById(`inline-${type}-input`).value = '';
+  if (type === 'book') renderAttachedBooks();
+  else renderAttachedMovies();
+  showToast('追加しました ✓');
+}
+
+function updateMediaMemo(id, value) {
+  const m = attachedMedia.find(m => m.id === id);
+  if (m) m.memo = value;
+}
+
+const BOOK_STATUSES = [
+  { value: 'reading',  label: '📖 読中' },
+  { value: 'done',     label: '✅ 読了' },
+  { value: 'reread',   label: '🔄 再読' },
+  { value: 'stockpile',label: '📋 積読' },
+];
+const MOVIE_STATUSES = [
+  { value: 'watched',  label: '🎬 視聴済み' },
+  { value: 'rewatch',  label: '🔄 再視聴' },
+  { value: 'watchlist',label: '👀 見たい' },
+];
+
+function statusLabel(m) {
+  const list = m.type === 'book' ? BOOK_STATUSES : MOVIE_STATUSES;
+  const found = list.find(s => s.value === m.status);
+  return found ? found.label : '';
+}
+
+function updateMediaStatus(id, value) {
+  const m = attachedMedia.find(m => m.id === id);
+  if (m) m.status = value;
+}
+
+function renderAttachedBooks() {
+  const el = document.getElementById('attached-books');
+  const books = attachedMedia.filter(m => m.type === 'book');
+  el.innerHTML = books.map(m =>
+    `<div style="background:var(--bg2);border-radius:10px;margin-top:8px;overflow:hidden;">
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 10px 8px;">
+        ${m.cover ? `<img src="${m.cover}" style="width:36px;height:50px;object-fit:cover;border-radius:4px;flex-shrink:0;" onerror="this.style.display='none'">` : '<span style="font-size:20px;flex-shrink:0;">📚</span>'}
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${m.title}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:1px;">${m.author||''}${m.year?' · '+m.year:''}</div>
+        </div>
+        <button onclick="removeAttachedById('${m.id}')" style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;flex-shrink:0;line-height:1;">×</button>
+      </div>
+      <div style="padding:0 10px 6px;display:flex;gap:6px;flex-wrap:wrap;">
+        ${BOOK_STATUSES.map(s => `
+          <button onclick="updateMediaStatus('${m.id}','${s.value}');renderAttachedBooks()"
+            style="padding:4px 10px;border-radius:20px;border:1px solid ${m.status===s.value?'var(--accent)':'var(--border)'};background:${m.status===s.value?'rgba(var(--accent-rgb),0.15)':'var(--bg3)'};color:${m.status===s.value?'var(--accent2)':'var(--text3)'};font-size:12px;cursor:pointer;">
+            ${s.label}
+          </button>`).join('')}
+      </div>
+      <div style="padding:0 10px 10px;">
+        <textarea
+          placeholder="感想メモ（任意）"
+          style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:8px 10px;font-family:inherit;resize:none;min-height:64px;outline:none;line-height:1.5;"
+          oninput="updateMediaMemo('${m.id}',this.value)"
+        >${m.memo||''}</textarea>
+      </div>
+    </div>`
+  ).join('');
+}
+
+function renderAttachedMovies() {
+  const el = document.getElementById('attached-movies');
+  const movies = attachedMedia.filter(m => m.type === 'movie');
+  el.innerHTML = movies.map(m =>
+    `<div style="background:var(--bg2);border-radius:10px;margin-top:8px;overflow:hidden;">
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 10px 8px;">
+        ${m.cover ? `<img src="${m.cover}" style="width:36px;height:50px;object-fit:cover;border-radius:4px;flex-shrink:0;" onerror="this.style.display='none'">` : '<span style="font-size:20px;flex-shrink:0;">🎬</span>'}
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${m.title}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:1px;">${m.year||''}</div>
+        </div>
+        <button onclick="removeAttachedById('${m.id}')" style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;flex-shrink:0;line-height:1;">×</button>
+      </div>
+      <div style="padding:0 10px 6px;display:flex;gap:6px;flex-wrap:wrap;">
+        ${MOVIE_STATUSES.map(s => `
+          <button onclick="updateMediaStatus('${m.id}','${s.value}');renderAttachedMovies()"
+            style="padding:4px 10px;border-radius:20px;border:1px solid ${m.status===s.value?'var(--accent)':'var(--border)'};background:${m.status===s.value?'rgba(var(--accent-rgb),0.15)':'var(--bg3)'};color:${m.status===s.value?'var(--accent2)':'var(--text3)'};font-size:12px;cursor:pointer;">
+            ${s.label}
+          </button>`).join('')}
+      </div>
+      <div style="padding:0 10px 10px;">
+        <textarea
+          placeholder="感想メモ（任意）"
+          style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:8px 10px;font-family:inherit;resize:none;min-height:64px;outline:none;line-height:1.5;"
+          oninput="updateMediaMemo('${m.id}',this.value)"
+        >${m.memo||''}</textarea>
+      </div>
+    </div>`
+  ).join('');
+}
+
+function removeAttachedById(id) {
+  attachedMedia = attachedMedia.filter(m => m.id !== id);
+  renderAttachedBooks();
+  renderAttachedMovies();
+}
+
+// =========================================================
+// 日記詳細
+// =========================================================
+async function openDetail(id) {
+  currentDetailId = id;
+  currentEntries = await getAllEntries();
+  const entry = currentEntries.find(e => e.id === id);
+  if (!entry) return;
+  const el = document.getElementById('detail-content');
+  const photos = entry.photos && entry.photos.length
+    ? `<div class="detail-photos">${entry.photos.map(p=>`<img class="detail-photo" src="${p}">`).join('')}</div>`
+    : '';
+  const media = entry.media && entry.media.length
+    ? `<div style="margin-top:12px;">${entry.media.map(m=>`
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:8px;">
+          <div style="display:flex;gap:12px;padding:12px;">
+            ${m.cover ? `<img style="width:44px;height:62px;object-fit:cover;border-radius:6px;flex-shrink:0;" src="${m.cover}" onerror="this.style.display='none'">` : `<div style="width:44px;height:62px;border-radius:6px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">${m.type==='book'?'📚':'🎬'}</div>`}
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:14px;font-weight:600;color:var(--text);">${m.title}</div>
+              <div style="font-size:12px;color:var(--text3);margin-top:2px;">${m.author||''}${m.year?' · '+m.year:''}</div>
+              ${m.status ? `<div style="margin-top:6px;display:inline-block;padding:3px 10px;border-radius:20px;background:rgba(var(--accent-rgb),0.15);color:var(--accent2);font-size:11px;font-weight:600;">${statusLabel(m)}</div>` : ''}
+            </div>
+          </div>
+          ${m.memo ? `<div style="padding:0 12px 12px;font-size:13px;color:var(--text2);line-height:1.6;border-top:1px solid var(--border);padding-top:10px;white-space:pre-wrap;">${m.memo}</div>` : ''}
+        </div>`).join('')}</div>`
+    : '';
+  el.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div>
+        <div style="font-size:18px;font-weight:700;">${formatDate(entry.date)}</div>
+        ${entry.mood ? `<div style="font-size:13px;color:var(--text3);margin-top:2px;">${MOOD_LABELS[entry.mood]}</div>` : ''}
+        ${entry.weather ? `<div class="weather-badge" style="margin-top:4px;">${entry.weather.label} ${entry.weather.temp}℃ 湿度${entry.weather.hum}%</div>` : ''}
+      </div>
+      <div style="width:52px;height:52px;">${entry.mood ? moodSVG(entry.mood, 52, 'var(--accent)') : ''}</div>
+    </div>
+    ${photos}
+    <div style="font-size:15px;line-height:1.8;color:var(--text2);white-space:pre-wrap;">${entry.text || ''}</div>
+    ${media}
+  `;
+  openModal('modal-detail');
+}
+
+async function deleteCurrentEntry() {
+  if (!confirm('この日記を削除しますか？')) return;
+  await dbOp('entries', 'readwrite', store => store.delete(currentDetailId));
+  closeModal('modal-detail');
+  showToast('削除しました');
+  renderDiaryList();
+}
+
+// =========================================================
+// カレンダー
+// =========================================================
+function renderCalendar() {
+  currentEntries.length || getAllEntries().then(e => { currentEntries = e; buildCalendar(); });
+  buildCalendar();
+}
+
+function changeMonth(d) {
+  calendarMonth += d;
+  if (calendarMonth > 11) { calendarMonth = 0; calendarYear++; }
+  if (calendarMonth < 0) { calendarMonth = 11; calendarYear--; }
+  buildCalendar();
+}
+
+async function buildCalendar() {
+  const now = new Date();
+  const year = calendarYear;
+  const month = calendarMonth;
+  document.getElementById('month-label').textContent = `${year}年${month+1}月`;
+
+  const entryDates = new Set(currentEntries.map(e => e.date));
+  const allSchedules = await getAllSchedules();
+  const scheduleMap = {}; // dateStr -> [schedule,...]
+  allSchedules.forEach(s => {
+    if (!scheduleMap[s.date]) scheduleMap[s.date] = [];
+    scheduleMap[s.date].push(s);
+  });
+
+  const weekStart = localStorage.getItem('weekStart') || 'sun';
+  const startOffset = weekStart === 'mon' ? 1 : 0;
+  const dayLabels = weekStart === 'mon'
+    ? ['月','火','水','木','金','土','日']
+    : ['日','月','火','水','木','金','土'];
+  const rawFirstDay = new Date(year, month, 1).getDay();
+  const firstDay = (rawFirstDay - startOffset + 7) % 7;
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const prevDays = new Date(year, month, 0).getDate();
+
+  // 土日の列インデックスを算出
+  const sunCol = (0 - startOffset + 7) % 7;
+  const satCol = (6 - startOffset + 7) % 7;
+
+  let html = dayLabels.map((d, i) => {
+    const cls = i === sunCol ? 'style="color:#f87171;"' : i === satCol ? 'style="color:#60a5fa;"' : '';
+    return `<div class="cal-day-label" ${cls}>${d}</div>`;
+  }).join('');
+
+  // 前月
+  for (let i = firstDay - 1; i >= 0; i--) {
+    html += `<div class="cal-day other-month"><span>${prevDays - i}</span></div>`;
+  }
+  // 今月
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const hasEntry = entryDates.has(dateStr);
+    const isToday = dateStr === now.toISOString().split('T')[0];
+    const scheds = scheduleMap[dateStr] || [];
+    const dow = new Date(year, month, d).getDay();
+    const colIdx = (dow - startOffset + 7) % 7;
+    const isSun = colIdx === sunCol;
+    const isSat = colIdx === satCol;
+    const dayClass = `cal-day ${hasEntry?'has-entry':''} ${isToday?'today':''} ${isSun?'sunday':''} ${isSat?'saturday':''}`;
+
+    const dots = [
+      hasEntry ? `<div class="cal-day-dot"></div>` : '',
+      ...scheds.slice(0,3).map(s => `<div class="cal-day-dot-schedule" style="background:${SCHEDULE_COLORS[s.color]||'#7c6ff7'};"></div>`)
+    ].join('');
+
+    html += `<div class="${dayClass}" onclick="showCalendarDay('${dateStr}')">
+      <span>${d}</span>
+      ${dots ? `<div class="cal-day-dots">${dots}</div>` : ''}
+    </div>`;
+  }
+  // 次月
+  const total = firstDay + daysInMonth;
+  const remaining = total % 7 === 0 ? 0 : 7 - (total % 7);
+  for (let i = 1; i <= remaining; i++) {
+    html += `<div class="cal-day other-month"><span>${i}</span></div>`;
+  }
+
+  document.getElementById('calendar-grid').innerHTML = html;
+  document.getElementById('calendar-entries').innerHTML = '';
+}
+
+async function showCalendarDay(dateStr) {
+  const dayEntries = currentEntries.filter(e => e.date === dateStr);
+  const allSchedules = await getAllSchedules();
+  const daySchedules = allSchedules.filter(s => s.date === dateStr).sort((a,b) => (a.timeStart||'').localeCompare(b.timeStart||''));
+  const el = document.getElementById('calendar-entries');
+
+  let html = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+    <div class="section-title" style="margin:0;">${formatDate(dateStr)}</div>
+    <button class="btn btn-secondary" style="padding:6px 12px;font-size:12px;" onclick="openNewSchedule('${dateStr}')">＋ 予定</button>
+  </div>`;
+
+  // スケジュール
+  if (daySchedules.length > 0) {
+    html += daySchedules.map(s => {
+      const color = SCHEDULE_COLORS[s.color] || '#7c6ff7';
+      const timeStr = s.timeStart ? `${s.timeStart}${s.timeEnd?' 〜 '+s.timeEnd:''}` : '';
+      return `<div class="schedule-card" onclick="openEditSchedule('${s.id}')">
+        <div class="schedule-accent" style="background:${color};min-height:40px;"></div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:14px;font-weight:600;color:var(--text);">${s.title}</div>
+          ${timeStr ? `<div class="schedule-time">🕐 ${timeStr}</div>` : ''}
+          ${s.memo ? `<div style="font-size:12px;color:var(--text3);margin-top:4px;">${s.memo}</div>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // 日記
+  if (dayEntries.length > 0) {
+    html += dayEntries.map(e => `<div class="diary-card" onclick="openDetail('${e.id}')">
+      <div class="diary-card-header">
+        <span class="diary-date">${formatDate(e.date)}</span>
+        <span style="width:26px;height:26px;display:inline-flex;">${e.mood ? moodSVG(e.mood,26,"var(--accent)") : ''}</span>
+      </div>
+      <div class="diary-text">${e.text || ''}</div>
+    </div>`).join('');
+  }
+
+  if (dayEntries.length === 0 && daySchedules.length === 0) {
+    html += `<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px;">この日の記録はありません</div>`;
+  }
+
+  el.innerHTML = html;
+}
+
+// =========================================================
+// 本・映画一覧
+// =========================================================
+async function renderMediaList(type='all') {
+  currentEntries = await getAllEntries();
+  const all = [];
+  currentEntries.forEach(e => {
+    if (e.media) e.media.forEach(m => {
+      all.push({...m, entryDate: e.date, entryId: e.id});
+    });
+  });
+  const filtered = type === 'all' ? all : all.filter(m => m.type === type);
+  const list = document.getElementById('media-list');
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">${emptyIllustration(type==='movie'?'movie':type==='book'?'book':'media')}</div><div class="empty-state-text">まだ記録がありません<br>日記を書くときに本・映画を追加できます</div></div>`;
+    return;
+  }
+  list.innerHTML = filtered.map(m =>
+    `<div class="media-card" onclick="openDetail('${m.entryId}')">
+      ${m.cover ? `<img class="media-thumb" src="${m.cover}" onerror="this.style.display='none'">` : `<div class="media-thumb-placeholder">${m.type==='book'?'📚':'🎬'}</div>`}
+      <div class="media-info">
+        <div class="media-title">${m.title}</div>
+        <div class="media-sub">${m.author||''} ${m.year?'· '+m.year:''}</div>
+        <div class="media-sub" style="margin-top:4px;">${formatDate(m.entryDate)}</div>
+        ${m.status ? `<div style="margin-top:6px;display:inline-block;padding:2px 8px;border-radius:20px;background:rgba(var(--accent-rgb),0.15);color:var(--accent2);font-size:11px;font-weight:600;">${statusLabel(m)}</div>` : ''}
+        ${m.memo ? `<div class="media-sub" style="margin-top:4px;color:var(--text2);overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;">${m.memo}</div>` : ''}
+      </div>
+    </div>`
+  ).join('');
+}
+
+function filterMedia(type, btn) {
+  document.querySelectorAll('#media-filter-chips .chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  renderMediaList(type);
+}
+
+// =========================================================
+// 分析
+// =========================================================
+// =========================================================
+// 分析
+// =========================================================
+let analysisCharts = {};
+let currentAnalysisTab = 'summary';
+
+function switchAnalysisTab(tab, btn) {
+  currentAnalysisTab = tab;
+  document.querySelectorAll('.analysis-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  ['summary','mood','media','yearly','sentiment'].forEach(t => {
+    document.getElementById('analysis-'+t).style.display = t === tab ? '' : 'none';
+  });
+  renderAnalysisTab(tab);
+}
+
+async function renderAnalysis() {
+  currentEntries = await getAllEntries();
+  renderAnalysisTab(currentAnalysisTab);
+}
+
+function renderAnalysisTab(tab) {
+  if (tab === 'summary') renderSummary();
+  else if (tab === 'mood') renderMoodAnalysis();
+  else if (tab === 'media') renderMediaAnalysis();
+  else if (tab === 'yearly') renderYearlySummary();
+  else if (tab === 'sentiment') renderSentimentAnalysis();
+}
+
+function destroyChart(key) {
+  if (analysisCharts[key]) { analysisCharts[key].destroy(); delete analysisCharts[key]; }
+}
+
+function accentColor() {
+  return getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#7c6ff7';
+}
+function accentRgba(a) {
+  const hex = accentColor().replace('#','');
+  const r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+function chartTextColor() {
+  return getComputedStyle(document.documentElement).getPropertyValue('--text2').trim() || '#555555';
+}
+function chartGridColor() {
+  return getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#e0e0e0';
+}
+
+function getChartOpts() {
+  const tc = chartTextColor(), gc = chartGridColor();
+  return {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { ticks: { color: tc }, grid: { color: gc } },
+      x: { ticks: { color: tc, maxTicksLimit: 8 }, grid: { display: false } }
+    }
+  };
+}
+
+// --- 概要 ---
+function renderSummary() {
+  const total = currentEntries.length;
+  const mediaCount = currentEntries.reduce((s,e) => s + (e.media ? e.media.length : 0), 0);
+  const photoCount = currentEntries.reduce((s,e) => s + (e.photos ? e.photos.length : 0), 0);
+  const withMood = currentEntries.filter(e=>e.mood);
+  const avgMood = withMood.length ? (withMood.reduce((s,e)=>s+e.mood,0)/withMood.length).toFixed(1) : '-';
+  document.getElementById('stat-grid').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">日記の数</div></div>
+    <div class="stat-card"><div class="stat-num">${avgMood}</div><div class="stat-label">平均気分</div></div>
+    <div class="stat-card"><div class="stat-num">${mediaCount}</div><div class="stat-label">本・映画</div></div>
+    <div class="stat-card"><div class="stat-num">${photoCount}</div><div class="stat-label">写真枚数</div></div>
+  `;
+  renderWordCloud();
+  renderCountChart();
+}
+
+function renderWordCloud() {
+  const text = currentEntries.map(e => e.text || '').join('');
+  const stopWords = new Set(['の','に','は','を','が','と','で','て','し','た','な','も','や','から','まで','より','ので','のに','れ','られ','する','した','して','いる','います','ます','ました','です','ない','ある','あり','こと','もの','ため','それ','これ','あの','その','この','ん','へ','けど','が','か','ね','よ','わ','さ','う','ば','たら','など','って','という','とか','だ','だっ','だけ','しか','ても','でも','今日','今','昨日','明日','思','思い','思う']);
+  const words = {};
+  const re = /[\u3040-\u9FFF]{2,}/g;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    const w = m[0];
+    if (w.length >= 2 && !stopWords.has(w)) words[w] = (words[w]||0)+1;
+  }
+  const sorted = Object.entries(words).sort((a,b)=>b[1]-a[1]).slice(0,30);
+  const max = sorted[0] ? sorted[0][1] : 1;
+  const el = document.getElementById('word-cloud');
+  if (!sorted.length) { el.innerHTML = '<div style="color:var(--text3);font-size:13px;">日記を書くと分析されます</div>'; return; }
+  el.innerHTML = sorted.map(([w,c]) => {
+    const size = 11 + Math.round((c/max)*14);
+    return `<span class="word-item" style="font-size:${size}px;">${w} <span style="opacity:0.5;font-size:10px;">${c}</span></span>`;
+  }).join('');
+}
+
+function renderCountChart() {
+  const counts = {};
+  currentEntries.forEach(e => { const ym = e.date.slice(0,7); counts[ym]=(counts[ym]||0)+1; });
+  const labels = Object.keys(counts).sort().slice(-12);
+  destroyChart('count');
+  const ctx = document.getElementById('count-chart');
+  if (!labels.length) { ctx.style.display='none'; return; }
+  ctx.style.display='';
+  analysisCharts.count = new Chart(ctx, {
+    type:'bar',
+    data:{ labels:labels.map(l=>l.slice(5)+'月'), datasets:[{data:labels.map(l=>counts[l]),backgroundColor:accentRgba(0.5),borderColor:accentColor(),borderWidth:1,borderRadius:4}]},
+    options:{...getChartOpts(),plugins:{legend:{display:false}}}
+  });
+}
+
+// --- 気分分析 ---
+function renderMoodAnalysis() {
+  renderMoodChart();
+  renderMoodAvgChart();
+  renderMoodDowChart();
+}
+
+function renderMoodChart() {
+  const last30 = currentEntries.filter(e=>e.mood).slice(0,30).reverse();
+  destroyChart('mood');
+  const ctx = document.getElementById('mood-chart');
+  if (!last30.length) { ctx.style.display='none'; return; }
+  ctx.style.display='';
+  analysisCharts.mood = new Chart(ctx, {
+    type:'line',
+    data:{ labels:last30.map(e=>e.date.slice(5)), datasets:[{data:last30.map(e=>e.mood),borderColor:accentColor(),backgroundColor:accentRgba(0.1),fill:true,tension:0.4,pointBackgroundColor:accentColor(),pointRadius:4}]},
+    options:{...getChartOpts(),scales:{y:{min:1,max:5,ticks:{color:chartTextColor(),stepSize:1,callback:v=>MOOD_LABELS[v]||v},grid:{color:chartGridColor()}},x:{ticks:{color:chartTextColor(),maxTicksLimit:8},grid:{display:false}}}}
+  });
+}
+
+function renderMoodAvgChart() {
+  // 週平均・月平均
+  const weekAvg = {}, monthAvg = {};
+  currentEntries.filter(e=>e.mood).forEach(e => {
+    const d = new Date(e.date+'T00:00:00');
+    const wk = `${d.getFullYear()}-W${String(getWeekNum(d)).padStart(2,'0')}`;
+    const mo = e.date.slice(0,7);
+    if (!weekAvg[wk]) weekAvg[wk] = [];
+    if (!monthAvg[mo]) monthAvg[mo] = [];
+    weekAvg[wk].push(e.mood);
+    monthAvg[mo].push(e.mood);
+  });
+  const wLabels = Object.keys(weekAvg).sort().slice(-12);
+  const mLabels = Object.keys(monthAvg).sort().slice(-6);
+  destroyChart('moodAvg');
+  const ctx = document.getElementById('mood-avg-chart');
+  if (!wLabels.length) { ctx.style.display='none'; return; }
+  ctx.style.display='';
+  analysisCharts.moodAvg = new Chart(ctx, {
+    type:'line',
+    data:{
+      labels: wLabels.map(l=>l.replace('-W','週')),
+      datasets:[
+        {label:'週平均',data:wLabels.map(k=>+(weekAvg[k].reduce((a,b)=>a+b,0)/weekAvg[k].length).toFixed(2)),borderColor:accentColor(),backgroundColor:accentRgba(0.1),fill:true,tension:0.4,pointRadius:3},
+      ]
+    },
+    options:{...getChartOpts(),plugins:{legend:{display:true,labels:{color:chartTextColor()}}},scales:{y:{min:1,max:5,ticks:{color:chartTextColor(),stepSize:1,callback:v=>MOOD_LABELS[v]||v||v},grid:{color:chartGridColor()}},x:{ticks:{color:chartTextColor(),maxTicksLimit:6},grid:{display:false}}}}
+  });
+}
+
+function getWeekNum(d) {
+  const date = new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+  date.setUTCDate(date.getUTCDate()+4-(date.getUTCDay()||7));
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(),0,1));
+  return Math.ceil((((date-yearStart)/86400000)+1)/7);
+}
+
+function renderMoodDowChart() {
+  const dow = [[],[],[],[],[],[],[]];
+  const DOW_LABELS = ['日','月','火','水','木','金','土'];
+  currentEntries.filter(e=>e.mood).forEach(e => {
+    const d = new Date(e.date+'T00:00:00').getDay();
+    dow[d].push(e.mood);
+  });
+  const avgs = dow.map(arr => arr.length ? +(arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(2) : 0);
+  destroyChart('moodDow');
+  const ctx = document.getElementById('mood-dow-chart');
+  ctx.style.display='';
+  analysisCharts.moodDow = new Chart(ctx, {
+    type:'bar',
+    data:{labels:DOW_LABELS,datasets:[{data:avgs,backgroundColor:avgs.map(v=>accentRgba(0.3+v/10)),borderColor:accentColor(),borderWidth:1,borderRadius:4}]},
+    options:{...getChartOpts(),scales:{y:{min:0,max:5,ticks:{color:chartTextColor(),stepSize:1,callback:v=>v?MOOD_LABELS[v]:''},grid:{color:chartGridColor()}},x:{ticks:{color:chartTextColor()},grid:{display:false}}}}
+  });
+}
+
+// --- 本・映画分析 ---
+async function renderMediaAnalysis() {
+  const all = [];
+  currentEntries.forEach(e => { if(e.media) e.media.forEach(m=>all.push({...m,entryDate:e.date})); });
+  const books = all.filter(m=>m.type==='book');
+  const movies = all.filter(m=>m.type==='movie');
+
+  document.getElementById('media-stat-grid').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${books.length}</div><div class="stat-label">本の記録</div></div>
+    <div class="stat-card"><div class="stat-num">${movies.length}</div><div class="stat-label">映画の記録</div></div>
+  `;
+
+  // 本ステータス
+  const bStatus = {};
+  books.forEach(b => { const s=b.status||'未設定'; bStatus[s]=(bStatus[s]||0)+1; });
+  destroyChart('bookStatus');
+  const bctx = document.getElementById('book-status-chart');
+  if (Object.keys(bStatus).length) {
+    bctx.style.display='';
+    const COLORS=['#7c6ff7','#a78bfa','#c4b5fd','#6366f1','#818cf8'];
+    analysisCharts.bookStatus = new Chart(bctx, {
+      type:'doughnut',
+      data:{labels:Object.keys(bStatus).map(k=>BOOK_STATUSES.find(s=>s.value===k)?.label||k),datasets:[{data:Object.values(bStatus),backgroundColor:COLORS,borderWidth:0}]},
+      options:{responsive:true,plugins:{legend:{display:true,position:'right',labels:{color:chartTextColor(),font:{size:11}}}}}
+    });
+  } else bctx.style.display='none';
+
+  // 映画ステータス
+  const mStatus = {};
+  movies.forEach(m => { const s=m.status||'未設定'; mStatus[s]=(mStatus[s]||0)+1; });
+  destroyChart('movieStatus');
+  const mctx = document.getElementById('movie-status-chart');
+  if (Object.keys(mStatus).length) {
+    mctx.style.display='';
+    const COLORS2=['#ef4444','#f97316','#f59e0b','#84cc16','#14b8a6'];
+    analysisCharts.movieStatus = new Chart(mctx, {
+      type:'doughnut',
+      data:{labels:Object.keys(mStatus).map(k=>MOVIE_STATUSES.find(s=>s.value===k)?.label||k),datasets:[{data:Object.values(mStatus),backgroundColor:COLORS2,borderWidth:0}]},
+      options:{responsive:true,plugins:{legend:{display:true,position:'right',labels:{color:chartTextColor(),font:{size:11}}}}}
+    });
+  } else mctx.style.display='none';
+
+  // 月別記録数
+  const monthCount = {};
+  all.forEach(m => { const ym=m.entryDate.slice(0,7); monthCount[ym]=(monthCount[ym]||0)+1; });
+  const mLabels = Object.keys(monthCount).sort().slice(-12);
+  destroyChart('mediaMonth');
+  const mmctx = document.getElementById('media-month-chart');
+  if (mLabels.length) {
+    mmctx.style.display='';
+    analysisCharts.mediaMonth = new Chart(mmctx, {
+      type:'bar',
+      data:{labels:mLabels.map(l=>l.slice(5)+'月'),datasets:[{data:mLabels.map(l=>monthCount[l]),backgroundColor:accentRgba(0.5),borderColor:accentColor(),borderWidth:1,borderRadius:4}]},
+      options:{...getChartOpts(),plugins:{legend:{display:false}}}
+    });
+  } else mmctx.style.display='none';
+}
+
+// --- 年間サマリー ---
+function changeYearlySummary(d) {
+  yearlySummaryYear += d;
+  renderYearlySummary();
+}
+
+function renderYearlySummary() {
+  const year = yearlySummaryYear;
+  document.getElementById('yearly-label').textContent = `${year}年`;
+  const yearEntries = currentEntries.filter(e=>e.date.startsWith(year+''));
+
+  // ヒートマップ
+  const dateCounts = {};
+  yearEntries.forEach(e=>{ dateCounts[e.date]=(dateCounts[e.date]||0)+1; });
+  const maxCount = Math.max(...Object.values(dateCounts),1);
+
+  let heatmap = '<div style="font-size:11px;color:var(--text3);margin-bottom:6px;">1月→12月（各列=週）</div>';
+  heatmap += '<div class="yearly-heatmap">';
+  const jan1 = new Date(year,0,1);
+  const dec31 = new Date(year,11,31);
+  let cur = new Date(jan1);
+  while(cur<=dec31) {
+    const ds = cur.toISOString().split('T')[0];
+    const cnt = dateCounts[ds]||0;
+    const lv = cnt===0?'':cnt/maxCount>0.75?'lv4':cnt/maxCount>0.5?'lv3':cnt/maxCount>0.25?'lv2':'lv1';
+    heatmap += `<div class="hm-cell ${lv}" title="${ds}: ${cnt}件"></div>`;
+    cur.setDate(cur.getDate()+1);
+  }
+  heatmap += '</div>';
+
+  // 月別集計
+  const monthly = Array.from({length:12},(_,i)=>yearEntries.filter(e=>parseInt(e.date.slice(5,7))===i+1).length);
+  const totalYear = yearEntries.length;
+  const avgMoodYear = yearEntries.filter(e=>e.mood).length
+    ? (yearEntries.filter(e=>e.mood).reduce((s,e)=>s+e.mood,0)/yearEntries.filter(e=>e.mood).length).toFixed(1) : '-';
+  const mediaYear = yearEntries.reduce((s,e)=>s+(e.media?e.media.length:0),0);
+  const photoYear = yearEntries.reduce((s,e)=>s+(e.photos?e.photos.length:0),0);
+  const bestMonth = monthly.indexOf(Math.max(...monthly))+1;
+
+  document.getElementById('yearly-content').innerHTML = `
+    <div class="stat-grid" style="margin-bottom:12px;">
+      <div class="stat-card"><div class="stat-num">${totalYear}</div><div class="stat-label">日記数</div></div>
+      <div class="stat-card"><div class="stat-num">${avgMoodYear}</div><div class="stat-label">平均気分</div></div>
+      <div class="stat-card"><div class="stat-num">${mediaYear}</div><div class="stat-label">本・映画</div></div>
+      <div class="stat-card"><div class="stat-num">${bestMonth?bestMonth+'月':'-'}</div><div class="stat-label">最多投稿月</div></div>
+    </div>
+    <div class="card">${heatmap}</div>
+    <div class="card">
+      <div class="section-title">月別日記数</div>
+      <canvas id="yearly-month-chart"></canvas>
+    </div>
+  `;
+
+  destroyChart('yearlyMonth');
+  const ctx = document.getElementById('yearly-month-chart');
+  analysisCharts.yearlyMonth = new Chart(ctx, {
+    type:'bar',
+    data:{labels:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],datasets:[{data:monthly,backgroundColor:accentRgba(0.5),borderColor:accentColor(),borderWidth:1,borderRadius:4}]},
+    options:{...getChartOpts(),plugins:{legend:{display:false}}}
+  });
+}
+
+// --- ポジ・ネガ分析 ---
+const POS_WORDS = ['嬉しい','楽しい','幸せ','最高','良かった','素敵','ありがとう','好き','笑','元気','達成','成功','感謝','希望','前向き','ポジティブ','充実','満足','癒し','ワクワク','楽','喜び','愛','輝','平和','よかった','うれしい','たのしい'];
+const NEG_WORDS = ['悲しい','辛い','疲れ','最悪','嫌い','怒り','失敗','不安','心配','憂鬱','ストレス','落ち込','悔しい','つらい','しんどい','ネガティブ','がっかり','後悔','焦り','怖い','苦しい','泣','寂しい','辛','難しい','大変','しんどい'];
+
+function renderSentimentAnalysis() {
+  const entries = currentEntries.filter(e=>e.text);
+  const scores = entries.map(e => {
+    const t = e.text;
+    let pos = 0, neg = 0;
+    POS_WORDS.forEach(w => { if(t.includes(w)) pos++; });
+    NEG_WORDS.forEach(w => { if(t.includes(w)) neg++; });
+    return { date: e.date, score: pos - neg, pos, neg };
+  }).reverse();
+
+  // スコア推移
+  destroyChart('sentiment');
+  const ctx = document.getElementById('sentiment-chart');
+  if (scores.length) {
+    ctx.style.display='';
+    const last20 = scores.slice(-20);
+    analysisCharts.sentiment = new Chart(ctx, {
+      type:'bar',
+      data:{
+        labels:last20.map(s=>s.date.slice(5)),
+        datasets:[{
+          data:last20.map(s=>s.score),
+          backgroundColor:last20.map(s=>s.score>=0?'rgba(34,197,94,0.5)':'rgba(239,68,68,0.5)'),
+          borderColor:last20.map(s=>s.score>=0?'#22c55e':'#ef4444'),
+          borderWidth:1,borderRadius:3
+        }]
+      },
+      options:{...getChartOpts(),plugins:{legend:{display:false}},scales:{y:{ticks:{color:chartTextColor()},grid:{color:chartGridColor()}},x:{ticks:{color:chartTextColor(),maxTicksLimit:8},grid:{display:false}}}}
+    });
+  }
+
+  // 今月の分布
+  const now = new Date();
+  const ym = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const monthScores = scores.filter(s=>s.date.startsWith(ym));
+  const posCount = monthScores.filter(s=>s.score>0).length;
+  const negCount = monthScores.filter(s=>s.score<0).length;
+  const neuCount = monthScores.filter(s=>s.score===0).length;
+  destroyChart('sentimentPie');
+  const pctx = document.getElementById('sentiment-pie');
+  if (monthScores.length) {
+    pctx.style.display='';
+    analysisCharts.sentimentPie = new Chart(pctx, {
+      type:'doughnut',
+      data:{labels:['ポジティブ','ネガティブ','ニュートラル'],datasets:[{data:[posCount,negCount,neuCount],backgroundColor:['rgba(34,197,94,0.7)','rgba(239,68,68,0.7)','rgba(156,163,175,0.5)'],borderWidth:0}]},
+      options:{responsive:true,plugins:{legend:{display:true,position:'right',labels:{color:chartTextColor(),font:{size:12}}}}}
+    });
+  }
+
+  // 頻出ポジ・ネガワード
+  const allText = entries.map(e=>e.text||'').join('');
+  const posFreq = POS_WORDS.map(w=>({w,c:(allText.match(new RegExp(w,'g'))||[]).length})).filter(x=>x.c>0).sort((a,b)=>b.c-a.c).slice(0,10);
+  const negFreq = NEG_WORDS.map(w=>({w,c:(allText.match(new RegExp(w,'g'))||[]).length})).filter(x=>x.c>0).sort((a,b)=>b.c-a.c).slice(0,10);
+  const maxP = posFreq[0]?.c||1, maxN = negFreq[0]?.c||1;
+
+  document.getElementById('pos-words').innerHTML = posFreq.map(({w,c})=>
+    `<div class="word-row"><span class="word-row-label">${w}</span><div class="word-row-bar" style="width:${c/maxP*100}%;background:rgba(34,197,94,0.5);"></div><span class="word-row-count">${c}</span></div>`
+  ).join('') || '<div style="color:var(--text3);font-size:13px;">データが少ないです</div>';
+
+  document.getElementById('neg-words').innerHTML = negFreq.map(({w,c})=>
+    `<div class="word-row"><span class="word-row-label">${w}</span><div class="word-row-bar" style="width:${c/maxN*100}%;background:rgba(239,68,68,0.5);"></div><span class="word-row-count">${c}</span></div>`
+  ).join('') || '<div style="color:var(--text3);font-size:13px;">データが少ないです</div>';
+}
+
+// =========================================================
+// バックアップ / リストア
+// =========================================================
+async function exportData() {
+  const entries = await getAllEntries();
+  const schedules = await getAllSchedules();
+  const memos = await getAllMemos();
+  const albums = await getAllAlbums();
+  const albumPasscode = localStorage.getItem('albumPasscode') || 'mylifelog';
+  // アルバムの写真データを暗号化
+  const encryptedAlbums = albums.map(a => ({
+    ...a,
+    photos: a.photos.map(p => simpleEncrypt(p, albumPasscode)),
+    _encrypted: true,
+  }));
+  const blob = new Blob([JSON.stringify({
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    entries, schedules, memos,
+    albums: encryptedAlbums,
+  }, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `mylifelog_backup_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  localStorage.setItem('lastBackup', new Date().toISOString());
+  showToast('書き出し完了 ✓');
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (!confirm('現在の全データをバックアップファイルで上書きします。\n今のデータは消えます。よろしいですか？')) return;
+  const reader = new FileReader();
+  reader.onload = async e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      const entries = data.entries || [];
+      const schedules = data.schedules || [];
+      const memos = data.memos || [];
+      // 既存データをクリアしてから書き込み（重複防止）
+      const albums = (data.albums || []).map(a => {
+        if (a._encrypted) {
+          const albumPasscode = localStorage.getItem('albumPasscode') || 'mylifelog';
+          return { ...a, photos: a.photos.map(p => { try { return simpleDecrypt(p, albumPasscode); } catch(e) { return p; } }), _encrypted: false };
+        }
+        return a;
+      });
+      await dbOp('entries', 'readwrite', store => store.clear());
+      await dbOp('schedules', 'readwrite', store => store.clear());
+      await dbOp('memos', 'readwrite', store => store.clear());
+      await dbOp('albums', 'readwrite', store => store.clear());
+      for (const entry of entries) await dbOp('entries', 'readwrite', store => store.put(entry));
+      for (const s of schedules) await dbOp('schedules', 'readwrite', store => store.put(s));
+      for (const m of memos) await dbOp('memos', 'readwrite', store => store.put(m));
+      for (const a of albums) await dbOp('albums', 'readwrite', store => store.put(a));
+      showToast(`日記${entries.length}件・予定${schedules.length}件・メモ${memos.length}件を復元しました ✓`);
+      renderDiaryList();
+    } catch(err) {
+      showToast('読み込みに失敗しました');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+async function clearAllData() {
+  const pcEnabled = localStorage.getItem('passcodeEnabled') === '1';
+  const doDelete = async () => {
+    if (!confirm('全データを削除します。この操作は取り消せません。本当に削除しますか？')) return;
+    await dbOp('entries', 'readwrite', store => store.clear());
+    await dbOp('schedules', 'readwrite', store => store.clear());
+    showToast('全データを削除しました');
+    renderDiaryList();
+  };
+  if (pcEnabled) {
+    showPasscodeScreen('unlock', doDelete, true);
+  } else {
+    doDelete();
+  }
+}
+
+// =========================================================
+// フォトページ
+// =========================================================
+let currentPhotoTab = 'diary';
+let albumPassBuffer = '';
+let albumUnlockTarget = null;
+
+function switchPhotoTab(tab, btn) {
+  currentPhotoTab = tab;
+  document.querySelectorAll('#page-photo .chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('photo-diary-view').style.display = tab === 'diary' ? '' : 'none';
+  document.getElementById('photo-album-view').style.display = tab === 'album' ? '' : 'none';
+  const fabBtn = document.getElementById('fab-btn');
+  fabBtn.style.display = tab === 'album' ? 'flex' : 'none';
+  if (tab === 'diary') renderDiaryPhotoGrid();
+  else renderAlbumList();
+}
+
+async function renderPhotoPage() {
+  renderDiaryPhotoGrid();
+}
+
+async function renderDiaryPhotoGrid() {
+  currentEntries = await getAllEntries();
+  const photos = [];
+  currentEntries.forEach(e => {
+    if (e.photos && e.photos.length) {
+      e.photos.forEach(p => photos.push({ src: p, date: e.date, entryId: e.id }));
+    }
+  });
+  const grid = document.getElementById('photo-diary-grid');
+  if (!photos.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;padding:60px 20px;text-align:center;color:var(--text3);">
+      <div style="display:flex;justify-content:center;margin-bottom:16px;">${emptyIllustration('diary')}</div>
+      <div style="font-size:14px;line-height:1.8;">日記に写真を追加すると<br>ここに表示されます</div>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = photos.map(p =>
+    `<div style="aspect-ratio:1;overflow:hidden;cursor:pointer;" onclick="openDetail('${p.entryId}')">
+      <img src="${p.src}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
+    </div>`
+  ).join('');
+}
+
+// =========================================================
+// アルバム機能
+// =========================================================
+function getAllAlbums() {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('albums', 'readonly');
+    const store = tx.objectStore('albums');
+    const req = store.getAll();
+    req.onsuccess = e => resolve(e.target.result.sort((a,b) => b.id.localeCompare(a.id)));
+    req.onerror = reject;
+  });
+}
+
+async function renderAlbumList() {
+  const albums = await getAllAlbums();
+  const el = document.getElementById('album-list');
+  if (!albums.length) {
+    el.innerHTML = `<div class="empty-state">
+      <div class="empty-state-icon">${emptyIllustration('memo')}</div>
+      <div class="empty-state-text">アルバムがありません<br>右下の＋から作成できます</div>
+    </div>`;
+    return;
+  }
+  el.innerHTML = albums.map(a => {
+    const cover = a.photos && a.photos.length ? a.photos[0] : null;
+    const count = a.photos ? a.photos.length : 0;
+    return `<div class="diary-card" onclick="openAlbum('${a.id}')">
+      <div style="display:flex;gap:12px;align-items:center;">
+        ${cover
+          ? `<img src="${cover}" style="width:60px;height:60px;border-radius:8px;object-fit:cover;flex-shrink:0;">`
+          : `<div style="width:60px;height:60px;border-radius:8px;background:var(--bg3);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:22px;">▣</div>`}
+        <div>
+          <div style="font-size:15px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px;">
+            ${a.locked ? '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' : ''}
+            ${a.title||'無題アルバム'}
+          </div>
+          <div style="font-size:12px;color:var(--text3);margin-top:2px;">${count}枚</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openNewAlbum() {
+  const title = prompt('アルバム名を入力してください');
+  if (title === null) return;
+  const album = { id: Date.now().toString(), title: title || '無題アルバム', photos: [], locked: false, createdAt: new Date().toISOString() };
+  dbOp('albums', 'readwrite', store => store.put(album)).then(() => {
+    renderAlbumList();
+    showToast('アルバムを作成しました ✓');
+  });
+}
+
+async function openAlbum(id) {
+  const albums = await getAllAlbums();
+  const album = albums.find(a => a.id === id);
+  if (!album) return;
+  if (album.locked) {
+    const albumPc = localStorage.getItem('albumPasscode');
+    if (!albumPc) { showToast('アルバムパスコードを設定してください（設定内）'); return; }
+    albumUnlockTarget = id;
+    albumPassBuffer = '';
+    document.getElementById('album-unlock-error').textContent = '';
+    updateAlbumUnlockDots();
+    openModal('modal-album-unlock');
+    return;
+  }
+  showAlbumDetail(album);
+}
+
+function showAlbumDetail(album) {
+  // アルバム詳細をモーダルで表示
+  const el = document.getElementById('album-detail-content');
+  el.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div style="font-size:16px;font-weight:700;color:var(--text);">${album.title}</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary" style="padding:6px 12px;font-size:12px;" onclick="toggleAlbumLock('${album.id}')">
+          ${album.locked ? '解錠' : '施錠'}
+        </button>
+        <button class="btn btn-danger" style="padding:6px 12px;font-size:12px;" onclick="deleteAlbum('${album.id}')">削除</button>
+      </div>
+    </div>
+    <div id="album-photo-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-bottom:16px;">
+      ${(album.photos||[]).map((p,i) =>
+        `<div style="aspect-ratio:1;overflow:hidden;position:relative;cursor:pointer;">
+          <img src="${p}" style="width:100%;height:100%;object-fit:cover;" onclick="viewAlbumPhoto('${album.id}',${i})">
+          <button onclick="removeAlbumPhoto('${album.id}',${i})" style="position:absolute;top:3px;right:3px;background:rgba(0,0,0,0.5);border:none;color:#fff;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;">×</button>
+        </div>`
+      ).join('')}
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="addAlbumPhoto('${album.id}')">写真を追加</button>
+  `;
+  document.getElementById('album-detail-title').textContent = album.title;
+  openModal('modal-album-detail');
+}
+
+async function addAlbumPhoto(albumId) {
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = 'image/*'; input.multiple = true;
+  input.onchange = async e => {
+    const files = Array.from(e.target.files);
+    const albums = await getAllAlbums();
+    const album = albums.find(a => a.id === albumId);
+    if (!album) return;
+    let count = 0;
+    for (const file of files) {
+      await new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = ev => {
+          compressImage(ev.target.result, 800, 0.75, compressed => {
+            album.photos.push(compressed);
+            count++;
+            resolve();
+          });
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+    await dbOp('albums', 'readwrite', store => store.put(album));
+    showToast(`${count}枚追加しました ✓`);
+    showAlbumDetail(album);
+  };
+  input.click();
+}
+
+async function removeAlbumPhoto(albumId, index) {
+  const albums = await getAllAlbums();
+  const album = albums.find(a => a.id === albumId);
+  if (!album) return;
+  album.photos.splice(index, 1);
+  await dbOp('albums', 'readwrite', store => store.put(album));
+  showAlbumDetail(album);
+}
+
+async function deleteAlbum(albumId) {
+  if (!confirm('このアルバムを削除しますか？写真も全て削除されます。')) return;
+  await dbOp('albums', 'readwrite', store => store.delete(albumId));
+  closeModal('modal-album-detail');
+  renderAlbumList();
+  showToast('削除しました');
+}
+
+async function toggleAlbumLock(albumId) {
+  const albumPc = localStorage.getItem('albumPasscode');
+  if (!albumPc) { showToast('アルバムパスコードを先に設定してください'); return; }
+  const albums = await getAllAlbums();
+  const album = albums.find(a => a.id === albumId);
+  if (!album) return;
+  album.locked = !album.locked;
+  await dbOp('albums', 'readwrite', store => store.put(album));
+  showToast(album.locked ? '施錠しました' : '解錠しました');
+  showAlbumDetail(album);
+}
+
+function viewAlbumPhoto(albumId, index) {
+  getAllAlbums().then(albums => {
+    const album = albums.find(a => a.id === albumId);
+    if (!album) return;
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9000;display:flex;align-items:center;justify-content:center;';
+    overlay.innerHTML = `<img src="${album.photos[index]}" style="max-width:100%;max-height:100%;object-fit:contain;">`;
+    overlay.onclick = () => overlay.remove();
+    document.body.appendChild(overlay);
+  });
+}
+
+// アルバムロック解除
+function albumUnlockInput(d) {
+  if (albumPassBuffer.length >= 4) return;
+  albumPassBuffer += d;
+  updateAlbumUnlockDots();
+  if (albumPassBuffer.length === 4) setTimeout(checkAlbumUnlock, 150);
+}
+function albumUnlockDelete() { albumPassBuffer = albumPassBuffer.slice(0,-1); updateAlbumUnlockDots(); }
+function updateAlbumUnlockDots() {
+  document.querySelectorAll('#album-unlock-dots .pc-dot').forEach((d,i) => d.classList.toggle('filled', i < albumPassBuffer.length));
+}
+async function checkAlbumUnlock() {
+  const saved = localStorage.getItem('albumPasscode');
+  if (albumPassBuffer === saved) {
+    closeModal('modal-album-unlock');
+    const albums = await getAllAlbums();
+    const album = albums.find(a => a.id === albumUnlockTarget);
+    if (album) showAlbumDetail(album);
+  } else {
+    document.getElementById('album-unlock-error').textContent = 'パスコードが違います';
+    albumPassBuffer = ''; updateAlbumUnlockDots();
+  }
+}
+
+// =========================================================
+// 暗号化バックアップ
+// =========================================================
+function simpleEncrypt(str, key) {
+  // XOR + base64（簡易暗号化）
+  const k = key || 'mylifelog';
+  let result = '';
+  for (let i = 0; i < str.length; i++) {
+    result += String.fromCharCode(str.charCodeAt(i) ^ k.charCodeAt(i % k.length));
+  }
+  return btoa(unescape(encodeURIComponent(result)));
+}
+function simpleDecrypt(encoded, key) {
+  const k = key || 'mylifelog';
+  const str = decodeURIComponent(escape(atob(encoded)));
+  let result = '';
+  for (let i = 0; i < str.length; i++) {
+    result += String.fromCharCode(str.charCodeAt(i) ^ k.charCodeAt(i % k.length));
+  }
+  return result;
+}
+// =========================================================
+// オートセーブ
+// =========================================================
+let autosaveTimer = null;
+const AUTOSAVE_KEY = 'diary_autosave';
+
+function startAutosave() {
+  clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(async () => {
+    const date = document.getElementById('entry-date')?.value;
+    const text = document.getElementById('entry-text')?.value;
+    if (!date || !text) return;
+    const draft = { date, text, mood: currentMood, photos: [...pendingPhotos], media: [...attachedMedia], weather: currentWeather, savedAt: new Date().toISOString() };
+    localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(draft));
+    const indicator = document.getElementById('autosave-indicator');
+    if (indicator) {
+      indicator.textContent = '下書き保存済み';
+      indicator.style.opacity = '1';
+      setTimeout(() => { indicator.style.opacity = '0'; }, 2000);
+    }
+  }, 30000);
+}
+
+function clearAutosave() { localStorage.removeItem(AUTOSAVE_KEY); }
+
+function checkAutosave() {
+  const draft = localStorage.getItem(AUTOSAVE_KEY);
+  if (!draft) { openModal('modal-entry'); fetchWeather(); return; }
+  try {
+    const d = JSON.parse(draft);
+    const mins = Math.floor((Date.now() - new Date(d.savedAt)) / 60000);
+    if (confirm(`${mins}分前の下書きがあります。\n「${d.date}」の日記\n\n復元しますか？`)) {
+      editingEntryId = null;
+      currentMood = d.mood || 0;
+      currentWeather = d.weather || null;
+      pendingPhotos = d.photos || [];
+      attachedMedia = d.media || [];
+      document.getElementById('modal-entry-title').textContent = '下書きを復元';
+      document.getElementById('entry-date').value = d.date;
+      document.getElementById('entry-text').value = d.text || '';
+      document.querySelectorAll('.add-option-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.add-section').forEach(s => s.style.display = 'none');
+      document.getElementById('inline-book-input').value = '';
+      document.getElementById('inline-movie-input').value = '';
+      document.getElementById('inline-book-results').innerHTML = '';
+      document.getElementById('inline-movie-results').innerHTML = '';
+      if (d.weather) {
+        const el = document.getElementById('weather-display');
+        if (el) el.innerHTML = `<div class="weather-badge">${d.weather.label} ${d.weather.temp}℃</div>`;
+      }
+      renderMoodSelector();
+      renderPhotoPreview();
+      renderAttachedBooks();
+      renderAttachedMovies();
+    } else {
+      clearAutosave();
+    }
+    openModal('modal-entry');
+    fetchWeather();
+  } catch(e) { clearAutosave(); openModal('modal-entry'); fetchWeather(); }
+}
+
+// =========================================================
+// ウォッチリスト
+// =========================================================
+let currentWatchlistType = 'book';
+let watchlistSearchTimeout = null;
+
+function getAllWatchlist() {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('watchlist', 'readonly');
+    const store = tx.objectStore('watchlist');
+    const req = store.getAll();
+    req.onsuccess = e => resolve(e.target.result.sort((a,b) => b.addedAt.localeCompare(a.addedAt)));
+    req.onerror = reject;
+  });
+}
+
+function switchMediaMainTab(tab, btn) {
+  document.querySelectorAll('[id^="media-main-tab-"]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('media-log-view').style.display = tab === 'log' ? '' : 'none';
+  document.getElementById('media-watchlist-view').style.display = tab === 'watchlist' ? '' : 'none';
+  if (tab === 'watchlist') renderWatchlist();
+}
+
+async function renderWatchlist(typeFilter='all') {
+  const all = await getAllWatchlist();
+  const filtered = typeFilter === 'all' ? all : all.filter(w => w.type === typeFilter);
+  const el = document.getElementById('watchlist-list');
+  if (!filtered.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">${emptyIllustration('book')}</div><div class="empty-state-text">リストが空です<br>上のボタンから追加できます</div></div>`;
+    return;
+  }
+  el.innerHTML = filtered.map(w => `
+    <div class="media-card">
+      ${w.cover?`<img class="media-thumb" src="${w.cover}" onerror="this.style.display='none'">`:` <div class="media-thumb-placeholder">${w.type==='book'?'📚':'🎬'}</div>`}
+      <div class="media-info" style="flex:1;min-width:0;">
+        <div class="media-title">${w.title}</div>
+        <div class="media-sub">${w.author||''} ${w.year?'· '+w.year:''}</div>
+        <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
+          <button onclick="markWatchlistDone('${w.id}')" style="padding:4px 10px;border-radius:20px;border:1px solid var(--accent);background:rgba(var(--accent-rgb),0.1);color:var(--accent);font-size:11px;cursor:pointer;">${w.type==='book'?'読了':'視聴済み'}にする</button>
+          <button onclick="removeWatchlist('${w.id}')" style="padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--bg3);color:var(--text3);font-size:11px;cursor:pointer;">削除</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function filterWatchlist(type, btn) {
+  document.querySelectorAll('#watchlist-filter-chips .chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  renderWatchlist(type);
+}
+
+function openWatchlistSearch(type) {
+  currentWatchlistType = type;
+  document.getElementById('watchlist-search-title').textContent = type === 'book' ? '読みたい本を追加' : '見たい映画を追加';
+  document.getElementById('watchlist-search-input').value = '';
+  document.getElementById('watchlist-search-results').innerHTML = '';
+  openModal('modal-watchlist-search');
+}
+
+function searchWatchlist() {
+  clearTimeout(watchlistSearchTimeout);
+  watchlistSearchTimeout = setTimeout(async () => {
+    const q = document.getElementById('watchlist-search-input').value.trim();
+    if (q.length < 2) return;
+    const results = document.getElementById('watchlist-search-results');
+    results.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">検索中...</div>';
+    try {
+      if (currentWatchlistType === 'book') {
+        const res = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&limit=6`);
+        const data = await res.json();
+        if (!data.docs?.length) { results.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">見つかりませんでした</div>'; return; }
+        results.innerHTML = data.docs.slice(0,6).map(book => {
+          const cover = book.cover_i ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg` : null;
+          const author = book.author_name?.[0] || '';
+          const obj = encodeURIComponent(JSON.stringify({ id:'wl_book_'+book.key, type:'book', title:book.title, author, year:book.first_publish_year||'', cover, key:book.key }));
+          return `<div class="media-card" style="cursor:pointer;" onclick="addToWatchlist('${obj}')">
+            ${cover?`<img class="media-thumb" src="${cover}" onerror="this.style.display='none'">`:' <div class="media-thumb-placeholder">📚</div>'}
+            <div class="media-info"><div class="media-title">${book.title}</div><div class="media-sub">${author}</div></div>
+          </div>`;
+        }).join('');
+      } else {
+        const apiKey = localStorage.getItem('omdb_key') || '';
+        if (!apiKey) { results.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">設定からOMDb APIキーを登録してください</div>'; return; }
+        const res = await fetch(`https://www.omdbapi.com/?s=${encodeURIComponent(q)}&apikey=${apiKey}&type=movie`);
+        const data = await res.json();
+        if (data.Response==='False') { results.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">見つかりませんでした</div>'; return; }
+        results.innerHTML = data.Search.slice(0,6).map(movie => {
+          const cover = movie.Poster && movie.Poster!=='N/A' ? movie.Poster : null;
+          const obj = encodeURIComponent(JSON.stringify({ id:'wl_movie_'+movie.imdbID, type:'movie', title:movie.Title, year:movie.Year, cover, imdbID:movie.imdbID }));
+          return `<div class="media-card" style="cursor:pointer;" onclick="addToWatchlist('${obj}')">
+            ${cover?`<img class="media-thumb" src="${cover}" onerror="this.style.display='none'">`:' <div class="media-thumb-placeholder">🎬</div>'}
+            <div class="media-info"><div class="media-title">${movie.Title}</div><div class="media-sub">${movie.Year}</div></div>
+          </div>`;
+        }).join('');
+      }
+    } catch(e) { results.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">検索に失敗しました</div>'; }
+  }, 400);
+}
+
+async function addToWatchlist(encoded) {
+  const item = JSON.parse(decodeURIComponent(encoded));
+  const existing = await getAllWatchlist();
+  if (existing.find(w => w.id === item.id)) { showToast('すでにリストにあります'); return; }
+  item.addedAt = new Date().toISOString();
+  await dbOp('watchlist', 'readwrite', store => store.put(item));
+  closeModal('modal-watchlist-search');
+  showToast('リストに追加しました ✓');
+  renderWatchlist();
+}
+
+async function removeWatchlist(id) {
+  await dbOp('watchlist', 'readwrite', store => store.delete(id));
+  showToast('削除しました');
+  renderWatchlist();
+}
+
+async function markWatchlistDone(id) {
+  const all = await getAllWatchlist();
+  const item = all.find(w => w.id === id);
+  if (!item) return;
+  if (confirm(`「${item.title}」を${item.type==='book'?'読了':'視聴済み'}にしますか？\nリストから削除されます。`)) {
+    await dbOp('watchlist', 'readwrite', store => store.delete(id));
+    showToast(`${item.type==='book'?'読了':'視聴済み'}にしました ✓`);
+    renderWatchlist();
+  }
+}
+
+function emptyIllustration(type) {
+  const s = 'var(--text3)';
+  const a = 'var(--accent)';
+  const sw = 1.2;
+
+  if (type === 'diary') {
+    return `<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="16" y="10" width="42" height="54" rx="3" stroke="${s}" stroke-width="${sw}"/>
+      <line x1="24" y1="24" x2="50" y2="24" stroke="${s}" stroke-width="${sw}" stroke-linecap="round"/>
+      <line x1="24" y1="32" x2="50" y2="32" stroke="${s}" stroke-width="${sw}" stroke-linecap="round"/>
+      <line x1="24" y1="40" x2="44" y2="40" stroke="${s}" stroke-width="${sw}" stroke-linecap="round"/>
+      <line x1="24" y1="48" x2="46" y2="48" stroke="${s}" stroke-width="${sw}" stroke-linecap="round"/>
+      <line x1="44" y1="56" x2="68" y2="32" stroke="${a}" stroke-width="${sw}" stroke-linecap="round"/>
+      <line x1="68" y1="32" x2="62" y2="26" stroke="${a}" stroke-width="${sw}" stroke-linecap="round"/>
+      <line x1="62" y1="26" x2="56" y2="32" stroke="${a}" stroke-width="${sw}" stroke-linecap="round"/>
+      <path d="M44 56 L42 62 L48 60 Z" stroke="${a}" stroke-width="${sw}" stroke-linejoin="round"/>
+    </svg>`;
+  }
+
+  if (type === 'book') {
+    return `<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M40 20 C40 20 30 16 18 20 L18 62 C30 58 40 62 40 62 C40 62 50 58 62 62 L62 20 C50 16 40 20 40 20 Z" stroke="${s}" stroke-width="${sw}" stroke-linejoin="round"/>
+      <line x1="40" y1="20" x2="40" y2="62" stroke="${s}" stroke-width="${sw}"/>
+      <line x1="24" y1="30" x2="36" y2="28" stroke="${s}" stroke-width="${sw}" stroke-linecap="round" opacity="0.5"/>
+      <line x1="24" y1="36" x2="36" y2="34" stroke="${s}" stroke-width="${sw}" stroke-linecap="round" opacity="0.5"/>
+      <line x1="44" y1="28" x2="56" y2="30" stroke="${a}" stroke-width="${sw}" stroke-linecap="round" opacity="0.6"/>
+      <line x1="44" y1="34" x2="56" y2="36" stroke="${a}" stroke-width="${sw}" stroke-linecap="round" opacity="0.6"/>
+    </svg>`;
+  }
+
+  if (type === 'movie') {
+    return `<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="12" y="22" width="56" height="36" rx="3" stroke="${s}" stroke-width="${sw}"/>
+      <line x1="12" y1="32" x2="68" y2="32" stroke="${s}" stroke-width="${sw}" opacity="0.4"/>
+      <line x1="12" y1="48" x2="68" y2="48" stroke="${s}" stroke-width="${sw}" opacity="0.4"/>
+      <line x1="24" y1="22" x2="24" y2="32" stroke="${s}" stroke-width="${sw}"/>
+      <line x1="40" y1="22" x2="40" y2="32" stroke="${s}" stroke-width="${sw}"/>
+      <line x1="56" y1="22" x2="56" y2="32" stroke="${s}" stroke-width="${sw}"/>
+      <line x1="24" y1="48" x2="24" y2="58" stroke="${s}" stroke-width="${sw}"/>
+      <line x1="40" y1="48" x2="40" y2="58" stroke="${s}" stroke-width="${sw}"/>
+      <line x1="56" y1="48" x2="56" y2="58" stroke="${s}" stroke-width="${sw}"/>
+      <polygon points="34,36 34,44 46,40" stroke="${a}" stroke-width="${sw}" stroke-linejoin="round"/>
+    </svg>`;
+  }
+
+  if (type === 'memo') {
+    return `<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="20" y="14" width="40" height="48" rx="2" stroke="${s}" stroke-width="${sw}"/>
+      <path d="M50 14 L60 24 L50 24 Z" stroke="${s}" stroke-width="${sw}" stroke-linejoin="round"/>
+      <line x1="28" y1="32" x2="52" y2="32" stroke="${s}" stroke-width="${sw}" stroke-linecap="round"/>
+      <line x1="28" y1="40" x2="52" y2="40" stroke="${s}" stroke-width="${sw}" stroke-linecap="round"/>
+      <line x1="28" y1="48" x2="44" y2="48" stroke="${s}" stroke-width="${sw}" stroke-linecap="round"/>
+      <line x1="28" y1="24" x2="44" y2="24" stroke="${a}" stroke-width="${sw}" stroke-linecap="round" opacity="0.7"/>
+    </svg>`;
+  }
+
+  if (type === 'media') {
+    return `<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="10" y="24" width="26" height="34" rx="2" stroke="${s}" stroke-width="${sw}"/>
+      <rect x="10" y="24" width="5" height="34" stroke="${s}" stroke-width="${sw}"/>
+      <line x1="18" y1="34" x2="30" y2="34" stroke="${s}" stroke-width="${sw}" stroke-linecap="round" opacity="0.5"/>
+      <line x1="18" y1="40" x2="30" y2="40" stroke="${s}" stroke-width="${sw}" stroke-linecap="round" opacity="0.5"/>
+      <rect x="42" y="20" width="30" height="22" rx="2" stroke="${s}" stroke-width="${sw}"/>
+      <line x1="42" y1="28" x2="72" y2="28" stroke="${s}" stroke-width="${sw}" opacity="0.4"/>
+      <line x1="52" y1="20" x2="52" y2="28" stroke="${s}" stroke-width="${sw}"/>
+      <line x1="62" y1="20" x2="62" y2="28" stroke="${s}" stroke-width="${sw}"/>
+      <polygon points="53,34 53,40 62,37" stroke="${a}" stroke-width="${sw}" stroke-linejoin="round"/>
+      <line x1="48" y1="50" x2="68" y2="50" stroke="${s}" stroke-width="${sw}" stroke-linecap="round" opacity="0.4"/>
+      <line x1="48" y1="56" x2="62" y2="56" stroke="${s}" stroke-width="${sw}" stroke-linecap="round" opacity="0.4"/>
+    </svg>`;
+  }
+
+  return `<svg width="80" height="80" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="24" stroke="${s}" stroke-width="${sw}"/></svg>`;
+}
+const SCHEDULE_COLORS = {
+  purple: '#7c6ff7', pink: '#ec4899', red: '#ef4444',
+  amber: '#f59e0b', green: '#22c55e', blue: '#3b82f6'
+};
+let currentScheduleColor = 'purple';
+let editingScheduleId = null;
+
+function getAllSchedules() {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('schedules', 'readonly');
+    const store = tx.objectStore('schedules');
+    const req = store.getAll();
+    req.onsuccess = e => resolve(e.target.result);
+    req.onerror = reject;
+  });
+}
+
+function selectScheduleColor(color) {
+  currentScheduleColor = color;
+  document.querySelectorAll('.color-dot-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.color === color);
+  });
+}
+
+function openNewSchedule(dateStr) {
+  editingScheduleId = null;
+  currentScheduleColor = 'purple';
+  document.getElementById('modal-schedule-title').textContent = '予定を追加';
+  document.getElementById('schedule-date').value = dateStr || new Date().toISOString().split('T')[0];
+  document.getElementById('schedule-title').value = '';
+  document.getElementById('schedule-time-start').value = '';
+  document.getElementById('schedule-time-end').value = '';
+  document.getElementById('schedule-memo').value = '';
+  document.getElementById('delete-schedule-btn').style.display = 'none';
+  document.querySelectorAll('.color-dot-btn').forEach(b => b.classList.toggle('active', b.dataset.color === 'purple'));
+  openModal('modal-schedule');
+}
+
+function openEditSchedule(id) {
+  getAllSchedules().then(all => {
+    const s = all.find(s => s.id === id);
+    if (!s) return;
+    editingScheduleId = id;
+    currentScheduleColor = s.color || 'purple';
+    document.getElementById('modal-schedule-title').textContent = '予定を編集';
+    document.getElementById('schedule-date').value = s.date;
+    document.getElementById('schedule-title').value = s.title;
+    document.getElementById('schedule-time-start').value = s.timeStart || '';
+    document.getElementById('schedule-time-end').value = s.timeEnd || '';
+    document.getElementById('schedule-memo').value = s.memo || '';
+    document.getElementById('delete-schedule-btn').style.display = 'block';
+    document.querySelectorAll('.color-dot-btn').forEach(b => b.classList.toggle('active', b.dataset.color === currentScheduleColor));
+    openModal('modal-schedule');
+  });
+}
+
+async function saveSchedule() {
+  const date = document.getElementById('schedule-date').value;
+  const title = document.getElementById('schedule-title').value.trim();
+  if (!date || !title) { showToast('日付とタイトルを入力してください'); return; }
+  const s = {
+    id: editingScheduleId || Date.now().toString(),
+    date,
+    title,
+    timeStart: document.getElementById('schedule-time-start').value,
+    timeEnd: document.getElementById('schedule-time-end').value,
+    memo: document.getElementById('schedule-memo').value.trim(),
+    color: currentScheduleColor,
+  };
+  await dbOp('schedules', 'readwrite', store => store.put(s));
+  closeModal('modal-schedule');
+  showToast('予定を保存しました ✓');
+  playSaveSound();
+  buildCalendar();
+  showCalendarDay(date);
+}
+
+async function deleteSchedule() {
+  if (!editingScheduleId) return;
+  if (!confirm('この予定を削除しますか？')) return;
+  await dbOp('schedules', 'readwrite', store => store.delete(editingScheduleId));
+  closeModal('modal-schedule');
+  showToast('削除しました');
+  buildCalendar();
+}
+let viewMode = 'list'; // list | grid
+let sortOrder = 'newest'; // newest | oldest | mood
+const SORT_LABELS = { newest: '新しい順', oldest: '古い順', mood: '気分順' };
+
+function toggleViewMode() {
+  viewMode = viewMode === 'list' ? 'grid' : 'list';
+  localStorage.setItem('viewMode', viewMode);
+  applyViewMode();
+  renderDiaryList();
+}
+
+function applyViewMode() {
+  const list = document.getElementById('diary-list');
+  list.classList.toggle('grid-view', viewMode === 'grid');
+  document.getElementById('view-icon-grid').style.display = viewMode === 'list' ? '' : 'none';
+  document.getElementById('view-icon-list').style.display = viewMode === 'grid' ? '' : 'none';
+}
+
+function cycleSortOrder() {
+  const orders = ['newest', 'oldest', 'mood'];
+  const idx = orders.indexOf(sortOrder);
+  sortOrder = orders[(idx + 1) % orders.length];
+  localStorage.setItem('sortOrder', sortOrder);
+  const sl = document.getElementById('sort-label');
+  if (sl) sl.textContent = SORT_LABELS[sortOrder];
+  renderDiaryList();
+}
+
+function sortEntries(entries) {
+  if (sortOrder === 'oldest') return [...entries].reverse();
+  if (sortOrder === 'mood') return [...entries].sort((a, b) => (b.mood || 0) - (a.mood || 0));
+  return entries; // newest (default)
+}
+
+// =========================================================
+// タイムカプセル
+// =========================================================
+async function renderTimeCapsule() {
+  const bar = document.getElementById('timecapsule-bar');
+  if (localStorage.getItem('timecapsule') !== '1') { bar.style.display = 'none'; return; }
+  const now = new Date();
+  const mmdd = `${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  const lastYear = now.getFullYear() - 1;
+  const dateStr = `${lastYear}-${mmdd}`;
+  const entries = await getAllEntries();
+  const past = entries.filter(e => e.date === dateStr);
+  if (past.length === 0) { bar.style.display = 'none'; return; }
+  const e = past[0];
+  bar.style.display = 'block';
+  bar.innerHTML = `<div class="timecapsule-bar" onclick="openDetail('${e.id}')">
+    <div class="timecapsule-label">📅 ${lastYear}年の今日</div>
+    <div style="font-size:13px;color:var(--text2);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${e.text || '（テキストなし）'}</div>
+  </div>`;
+}
+
+// =========================================================
+// 天気自動取得
+// =========================================================
+const WEATHER_CODES = {
+  0:'☀️ 快晴', 1:'🌤️ 晴れ', 2:'⛅ 曇り', 3:'☁️ 曇り',
+  45:'🌫️ 霧', 48:'🌫️ 霧',
+  51:'🌦️ 小雨', 53:'🌦️ 雨', 55:'🌧️ 雨',
+  61:'🌧️ 小雨', 63:'🌧️ 雨', 65:'🌧️ 大雨',
+  71:'🌨️ 小雪', 73:'🌨️ 雪', 75:'❄️ 大雪',
+  80:'🌦️ にわか雨', 81:'🌧️ にわか雨', 82:'⛈️ 激しい雨',
+  95:'⛈️ 雷雨', 96:'⛈️ 雷雨', 99:'⛈️ 激しい雷雨',
+};
+let currentWeather = null;
+
+async function fetchWeather() {
+  if (localStorage.getItem('weather') === '0') return;
+  const el = document.getElementById('weather-display');
+  if (!el) return;
+  if (!navigator.geolocation) return;
+  el.innerHTML = '<span style="font-size:12px;color:var(--text3);">🌍 天気を取得中...</span>';
+  navigator.geolocation.getCurrentPosition(async pos => {
+    try {
+      const { latitude: lat, longitude: lon } = pos.coords;
+      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weathercode,relative_humidity_2m&timezone=Asia%2FTokyo`);
+      const data = await res.json();
+      const code = data.current.weathercode;
+      const temp = Math.round(data.current.temperature_2m);
+      const hum = data.current.relative_humidity_2m;
+      const label = WEATHER_CODES[code] || '🌡️';
+      currentWeather = { code, temp, hum, label };
+      el.innerHTML = `<div class="weather-badge">${label} ${temp}℃ 湿度${hum}%</div>`;
+    } catch(e) {
+      el.innerHTML = '';
+    }
+  }, () => { el.innerHTML = ''; });
+}
+
+// =========================================================
+// 効果音
+// =========================================================
+function playSaveSound() {
+  if (localStorage.getItem('sound') !== '1') return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o1 = ctx.createOscillator();
+    const o2 = ctx.createOscillator();
+    const g = ctx.createGain();
+    o1.connect(g); o2.connect(g); g.connect(ctx.destination);
+    o1.frequency.value = 523; o2.frequency.value = 659;
+    o1.type = 'sine'; o2.type = 'sine';
+    g.gain.setValueAtTime(0.15, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    o1.start(); o2.start();
+    o1.stop(ctx.currentTime + 0.4); o2.stop(ctx.currentTime + 0.4);
+  } catch(e) {}
+}
+
+// =========================================================
+// バックアップリマインダー
+// =========================================================
+function saveBackupReminder(days) {
+  localStorage.setItem('backupReminderDays', days);
+  showToast('保存しました ✓');
+}
+
+function checkBackupReminder() {
+  const days = parseInt(localStorage.getItem('backupReminderDays') || '0');
+  if (!days) return;
+  const last = localStorage.getItem('lastBackup');
+  if (!last) return;
+  const elapsed = Math.floor((Date.now() - new Date(last)) / 86400000);
+  if (elapsed >= days) {
+    showToast(`⚠️ ${days}日以上バックアップしていません`);
+  }
+}
+
+// --- テーマカラー ---
+// =========================================================
+// テーマ着せ替え
+// =========================================================
+const THEMES = {
+  default: {
+    name:'デフォルト', type:'ライト',
+    bg:'#f8f8f8', bg2:'#efefef', bg3:'#e5e5e5', card:'#ffffff',
+    text:'#1a1a1a', text2:'#555555', text3:'#999999', border:'#e0e0e0',
+    accent:'#7c6ff7', accent2:'#a78bfa', accent3:'#c4b5fd', rgb:'124,111,247',
+    preview:['#f8f8f8','#ffffff','#7c6ff7'],
+  },
+  navy: {
+    name:'ネイビー', type:'ライト',
+    bg:'#f0f4ff', bg2:'#e4ebff', bg3:'#d4deff', card:'#ffffff',
+    text:'#0f1e4a', text2:'#3a4e80', text3:'#6a7ab0', border:'#c8d4f8',
+    accent:'#3b5bdb', accent2:'#4c6ef5', accent3:'#748ffc', rgb:'59,91,219',
+    preview:['#f0f4ff','#ffffff','#3b5bdb'],
+  },
+  forest: {
+    name:'ウォーム', type:'ライト',
+    bg:'#faf8f5', bg2:'#f2ede6', bg3:'#e8e0d5', card:'#ffffff',
+    text:'#2d2420', text2:'#6b5a52', text3:'#9e8880', border:'#ddd0c4',
+    accent:'#a0522d', accent2:'#c46a3a', accent3:'#d4845a', rgb:'160,82,45',
+    preview:['#faf8f5','#ffffff','#a0522d'],
+  },
+  ocean: {
+    name:'オーシャン', type:'ライト',
+    bg:'#f0f8ff', bg2:'#ddf0ff', bg3:'#c8e8ff', card:'#ffffff',
+    text:'#0c2a4a', text2:'#2a5a80', text3:'#5a8aaa', border:'#b8dcf8',
+    accent:'#0284c7', accent2:'#0ea5e9', accent3:'#38bdf8', rgb:'2,132,199',
+    preview:['#f0f8ff','#ffffff','#0284c7'],
+  },
+  sakura: {
+    name:'桜', type:'ライト',
+    bg:'#fff5f7', bg2:'#ffe4eb', bg3:'#ffd0db', card:'#ffffff',
+    text:'#4a2030', text2:'#8a5060', text3:'#b07888', border:'#f0c0cc',
+    accent:'#e05080', accent2:'#e87898', accent3:'#f0a0b8', rgb:'224,80,128',
+    preview:['#fff5f7','#ffffff','#e05080'],
+  },
+  sunshine: {
+    name:'サンシャイン', type:'ライト',
+    bg:'#fffbeb', bg2:'#fef3c7', bg3:'#fde68a', card:'#ffffff',
+    text:'#3d2c00', text2:'#7a5a20', text3:'#a07840', border:'#f0d080',
+    accent:'#d97706', accent2:'#f59e0b', accent3:'#fbbf24', rgb:'217,119,6',
+    preview:['#fffbeb','#ffffff','#d97706'],
+  },
+  mauve: {
+    name:'モーヴ', type:'ライト',
+    bg:'#faf5ff', bg2:'#f0e8ff', bg3:'#e4d5ff', card:'#ffffff',
+    text:'#2a1a3d', text2:'#5a4570', text3:'#8a78a0', border:'#d8c8f0',
+    accent:'#9333ea', accent2:'#a855f7', accent3:'#c084fc', rgb:'147,51,234',
+    preview:['#faf5ff','#ffffff','#9333ea'],
+  },
+  mintgreen: {
+    name:'ミントグリーン', type:'ライト',
+    bg:'#f2fbf6', bg2:'#e2f7ec', bg3:'#cff0de', card:'#ffffff',
+    text:'#1a3828', text2:'#3a6850', text3:'#68987a', border:'#b0dcc0',
+    accent:'#2da862', accent2:'#3dbe74', accent3:'#6ed49a', rgb:'45,168,98',
+    preview:['#f2fbf6','#ffffff','#2da862'],
+  },
+};
+
+function renderThemeCards() {
+  const current = localStorage.getItem('appTheme') || 'default';
+  const grid = document.getElementById('theme-cards-grid');
+  if (!grid) return;
+  grid.innerHTML = Object.entries(THEMES).map(([key, t]) => `
+    <button class="theme-card ${key===current?'active':''}" onclick="applyFullTheme('${key}')"
+      style="background:${t.bg};">
+      <div class="theme-card-preview">
+        <div style="flex:2;background:${t.bg2};"></div>
+        <div style="flex:2;background:${t.card};border:1px solid ${t.border};"></div>
+        <div style="flex:1;background:${t.accent};"></div>
+      </div>
+      <div class="theme-card-label" style="color:${t.text};">${t.name}</div>
+    </button>
+  `).join('');
+}
+
+function applyFullTheme(key) {
+  const t = THEMES[key] || THEMES.default;
+  const root = document.documentElement;
+  const vars = {
+    '--bg': t.bg, '--bg2': t.bg2, '--bg3': t.bg3, '--card': t.card,
+    '--text': t.text, '--text2': t.text2, '--text3': t.text3, '--border': t.border,
+    '--accent': t.accent, '--accent2': t.accent2, '--accent3': t.accent3, '--accent-rgb': t.rgb,
+  };
+  Object.entries(vars).forEach(([k,v]) => root.style.setProperty(k, v));
+  // body のライトクラスはテーマ内蔵なので外す
+  document.body.classList.remove('light');
+  localStorage.setItem('appTheme', key);
+  renderThemeCards();
+}
+
+function applyThemeColor() {
+  const key = localStorage.getItem('appTheme') || 'default';
+  applyFullTheme(key);
+}
+
+// 旧setThemeColor → applyFullThemeに統合
+function setThemeColor(key) { applyFullTheme(key); }
+
+// --- ダークモードオーバーレイ ---
+function applyDarkOverlay(on) {
+  localStorage.setItem('darkOverlay', on ? '1' : '0');
+  document.body.classList.toggle('dark-overlay', on);
+}
+
+// --- テーマ ---
+function applyTheme(isLight) {
+  document.body.classList.toggle('light', isLight);
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+}
+
+// --- フォントサイズ ---
+const FONT_SIZES = { small: '13px', medium: '15px', large: '17px' };
+const FONT_LABELS = { small: '小', medium: '中', large: '大' };
+function setFontSize(size) {
+  document.body.style.fontSize = FONT_SIZES[size];
+  localStorage.setItem('fontSize', size);
+  const lbl = document.getElementById('font-size-label');
+  if (lbl) lbl.textContent = FONT_LABELS[size];
+  ['small','medium','large'].forEach(s => {
+    const btn = document.getElementById('size-'+s);
+    if (btn) btn.classList.toggle('active', s === size);
+  });
+}
+
+// --- フォントファミリー ---
+const FONT_FAMILIES = {
+  default:  { label: 'デフォルト', css: '-apple-system, BlinkMacSystemFont, "Hiragino Sans", sans-serif' },
+  zen:      { label: '丸ゴシック', css: '"Zen Maru Gothic", sans-serif' },
+  yomogi:   { label: 'よもぎ',     css: '"Yomogi", sans-serif' },
+  hachi:    { label: 'ハチマル',   css: '"Hachi Maru Pop", sans-serif' },
+  kaisei:   { label: '京星',       css: '"Kaisei Decol", serif' },
+  pacifico: { label: 'Pacifico',   css: '"Pacifico", cursive' },
+  caveat:   { label: 'Caveat',     css: '"Caveat", cursive' },
+  dancing:  { label: 'Dancing',    css: '"Dancing Script", cursive' },
+};
+function setFontFamily(key) {
+  const f = FONT_FAMILIES[key] || FONT_FAMILIES.default;
+  document.body.style.fontFamily = f.css;
+  localStorage.setItem('fontFamily', key);
+  const lbl = document.getElementById('font-family-label');
+  if (lbl) lbl.textContent = f.label;
+  Object.keys(FONT_FAMILIES).forEach(k => {
+    const btn = document.getElementById('font-'+k);
+    if (btn) btn.classList.toggle('active', k === key);
+  });
+}
+
+// --- トグル汎用保存 ---
+function saveToggle(key, val) {
+  localStorage.setItem(key, val ? '1' : '0');
+  if (key === 'charcount') setupCharCount();
+}
+
+// --- 文字数カウント ---
+function setupCharCount() {
+  const show = localStorage.getItem('charcount') === '1';
+  let counter = document.getElementById('char-counter');
+  const textarea = document.getElementById('entry-text');
+  if (!textarea) return;
+  if (show) {
+    if (!counter) {
+      counter = document.createElement('div');
+      counter.id = 'char-counter';
+      counter.style.cssText = 'font-size:12px;color:var(--text3);text-align:right;margin-top:4px;';
+      textarea.parentNode.appendChild(counter);
+    }
+    const update = () => { counter.textContent = textarea.value.length + ' 文字'; };
+    textarea.addEventListener('input', update);
+    update();
+  } else {
+    if (counter) counter.remove();
+  }
+}
+
+// --- 週の始まり ---
+function setWeekStart(val) {
+  localStorage.setItem('weekStart', val);
+  document.getElementById('week-sun').classList.toggle('active', val === 'sun');
+  document.getElementById('week-mon').classList.toggle('active', val === 'mon');
+  if (document.getElementById('page-calendar').classList.contains('active')) buildCalendar();
+}
+
+// --- 通知 ---
+async function toggleNotification(on) {
+  if (on) {
+    if (!('Notification' in window)) { showToast('この環境では通知に対応していません'); document.getElementById('toggle-notify').checked = false; return; }
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') { showToast('通知の許可が必要です'); document.getElementById('toggle-notify').checked = false; return; }
+  }
+  localStorage.setItem('notify', on ? '1' : '0');
+  document.getElementById('notify-time-row').style.display = on ? 'flex' : 'none';
+  if (on) scheduleNotification();
+}
+
+function saveNotifyTime(val) {
+  localStorage.setItem('notifyTime', val);
+  scheduleNotification();
+  showToast('通知時刻を保存しました ✓');
+}
+
+function scheduleNotification() {
+  if (!('serviceWorker' in navigator) || !('Notification' in window)) return;
+  if (Notification.permission !== 'granted') return;
+  const time = localStorage.getItem('notifyTime') || '21:00';
+  const [h, m] = time.split(':').map(Number);
+  const now = new Date();
+  const next = new Date();
+  next.setHours(h, m, 0, 0);
+  if (next <= now) next.setDate(next.getDate() + 1);
+  const delay = next - now;
+  // Service Workerにメッセージを送って通知をスケジュール
+  navigator.serviceWorker.ready.then(reg => {
+    if (reg.active) {
+      reg.active.postMessage({
+        type: 'SCHEDULE_NOTIFICATION',
+        delay,
+        title: 'My Life Log',
+        body: '今日の日記を書いてみませんか？',
+      });
+    }
+  });
+  // フォールバック: タブが開いている間はsetTimeoutでも動作
+  clearTimeout(window._notifyTimer);
+  window._notifyTimer = setTimeout(() => {
+    if (Notification.permission === 'granted') {
+      new Notification('My Life Log', { body: '今日の日記を書いてみませんか？', icon: './icon.svg' });
+      scheduleNotification();
+    }
+  }, delay);
+}
+
+// --- ストレージ使用量 ---
+async function calcStorageInfo() {
+  const entries = await getAllEntries();
+  const count = entries.length;
+  const json = JSON.stringify(entries);
+  const bytes = new Blob([json]).size;
+  const mb = (bytes / 1024 / 1024).toFixed(2);
+  const el = document.getElementById('storage-info');
+  if (el) el.textContent = `${count}件 · 約${mb}MB`;
+}
+
+// --- 最終バックアップ ---
+function updateLastBackupLabel() {
+  const d = localStorage.getItem('lastBackup');
+  const el = document.getElementById('last-backup-label');
+  if (!el) return;
+  if (!d) { el.textContent = 'なし'; return; }
+  const days = Math.floor((Date.now() - new Date(d)) / 86400000);
+  el.textContent = days === 0 ? '今日' : `${days}日前`;
+  if (days >= 30) el.style.color = '#ef4444';
+}
+
+// =========================================================
+// パスコード
+// =========================================================
+let pcBuffer = '';
+let pcMode = 'unlock'; // unlock | setup1 | setup2
+let pcFirstInput = '';
+let pcOnSuccess = null;
+
+function showPasscodeScreen(mode, onSuccess, cancelable) {
+  pcBuffer = '';
+  pcMode = mode;
+  pcFirstInput = '';
+  pcOnSuccess = onSuccess;
+  updatePcDots();
+  document.getElementById('passcode-error').textContent = '';
+  document.getElementById('pc-cancel-btn').style.display = cancelable ? 'block' : 'none';
+  document.getElementById('passcode-screen-title').textContent =
+    mode === 'unlock' ? 'パスコードを入力' :
+    mode === 'setup1' ? '新しいパスコードを入力' : 'もう一度入力';
+  document.getElementById('passcode-screen').style.display = 'flex';
+}
+
+function hidePasscodeScreen() {
+  document.getElementById('passcode-screen').style.display = 'none';
+}
+
+function pcInput(d) {
+  if (pcBuffer.length >= 4) return;
+  pcBuffer += d;
+  updatePcDots();
+  if (pcBuffer.length === 4) {
+    setTimeout(() => handlePcComplete(), 150);
+  }
+}
+
+function pcDelete() {
+  pcBuffer = pcBuffer.slice(0, -1);
+  updatePcDots();
+}
+
+function updatePcDots() {
+  document.querySelectorAll('.pc-dot').forEach((dot, i) => {
+    dot.classList.toggle('filled', i < pcBuffer.length);
+  });
+}
+
+function handlePcComplete() {
+  if (pcMode === 'unlock') {
+    const saved = localStorage.getItem('passcode');
+    if (pcBuffer === saved) {
+      hidePasscodeScreen();
+      if (pcOnSuccess) pcOnSuccess();
+    } else {
+      document.getElementById('passcode-error').textContent = 'パスコードが違います';
+      pcBuffer = '';
+      updatePcDots();
+    }
+  } else if (pcMode === 'setup1') {
+    pcFirstInput = pcBuffer;
+    pcBuffer = '';
+    updatePcDots();
+    pcMode = 'setup2';
+    document.getElementById('passcode-screen-title').textContent = 'もう一度入力';
+    document.getElementById('passcode-error').textContent = '';
+  } else if (pcMode === 'setup2') {
+    if (pcBuffer === pcFirstInput) {
+      localStorage.setItem('passcode', pcBuffer);
+      localStorage.setItem('passcodeEnabled', '1');
+      hidePasscodeScreen();
+      showToast('パスコードを設定しました ✓');
+      document.getElementById('passcode-change-row').style.display = 'flex';
+    } else {
+      document.getElementById('passcode-error').textContent = '一致しません。最初からやり直してください';
+      pcBuffer = ''; pcFirstInput = ''; pcMode = 'setup1';
+      document.getElementById('passcode-screen-title').textContent = '新しいパスコードを入力';
+      updatePcDots();
+    }
+  }
+}
+
+function togglePasscode(on) {
+  if (on) {
+    openPasscodeSetup(true);
+  } else {
+    // 解除前に現在のパスコードで認証
+    const saved = localStorage.getItem('passcode');
+    if (saved) {
+      showPasscodeScreen('unlock', () => {
+        localStorage.removeItem('passcode');
+        localStorage.setItem('passcodeEnabled', '0');
+        document.getElementById('passcode-change-row').style.display = 'none';
+        showToast('パスコードを解除しました');
+      }, true);
+    } else {
+      localStorage.setItem('passcodeEnabled', '0');
+    }
+  }
+}
+
+function cancelPasscodeSetup() {
+  hidePasscodeScreen();
+  const enabled = localStorage.getItem('passcodeEnabled') === '1';
+  const tp = document.getElementById('toggle-passcode');
+  if (tp) tp.checked = enabled;
+}
+
+function openPasscodeSetup(isNew) {
+  if (!isNew) {
+    // 変更前に現在のパスコードで認証
+    showPasscodeScreen('unlock', () => {
+      setTimeout(() => showPasscodeScreen('setup1', null, true), 300);
+    }, true);
+  } else {
+    showPasscodeScreen('setup1', null, true);
+  }
+}
+
+function setupAlbumPasscode() {
+  showPasscodeScreen('setup1', () => {
+    localStorage.setItem('albumPasscode', localStorage.getItem('passcode') || '');
+    showToast('アルバムパスコードを設定しました ✓');
+    const btn = document.getElementById('album-passcode-btn');
+    if (btn) btn.textContent = '変更';
+  }, true);
+}
+
+// =========================================================
+// 設定モーダル
+// =========================================================
+function openSettings() {
+  const inner = document.getElementById('settings-inner');
+  inner.innerHTML = buildSettingsHTML();
+  initSettingsValues();
+  openModal('modal-settings');
+}
+
+function buildSettingsHTML() {
+  return `
+  <div class="settings-section-title">表示</div>
+  <div class="card">
+    <div class="setting-row">
+      <div><div class="setting-label">ダークモード</div><div class="setting-sub">テーマの上から暗くする</div></div>
+      <label class="toggle-switch"><input type="checkbox" id="toggle-dark" onchange="applyDarkOverlay(this.checked)"><span class="toggle-track-el"></span></label>
+    </div>
+    <div class="setting-row">
+      <div><div class="setting-label">文字サイズ</div><div class="setting-sub" id="font-size-label">中</div></div>
+      <div style="display:flex;gap:6px;">
+        <button class="size-btn" id="size-small" onclick="setFontSize('small')">小</button>
+        <button class="size-btn active" id="size-medium" onclick="setFontSize('medium')">中</button>
+        <button class="size-btn" id="size-large" onclick="setFontSize('large')">大</button>
+      </div>
+    </div>
+    <div class="setting-row">
+      <div><div class="setting-label">フォント</div><div class="setting-sub" id="font-family-label">デフォルト</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-bottom:14px;">
+      <button class="font-btn active" id="font-default" onclick="setFontFamily('default')" style="font-family:inherit;">Aa デフォルト</button>
+      <button class="font-btn" id="font-zen" onclick="setFontFamily('zen')" style="font-family:'Zen Maru Gothic',sans-serif;">Aa 丸ゴシック</button>
+      <button class="font-btn" id="font-yomogi" onclick="setFontFamily('yomogi')" style="font-family:'Yomogi',sans-serif;">Aa よもぎ</button>
+      <button class="font-btn" id="font-hachi" onclick="setFontFamily('hachi')" style="font-family:'Hachi Maru Pop',sans-serif;">Aa ハチマル</button>
+      <button class="font-btn" id="font-kaisei" onclick="setFontFamily('kaisei')" style="font-family:'Kaisei Decol',serif;">Aa 京星</button>
+      <button class="font-btn" id="font-pacifico" onclick="setFontFamily('pacifico')" style="font-family:'Pacifico',cursive;">Aa Pacifico</button>
+      <button class="font-btn" id="font-caveat" onclick="setFontFamily('caveat')" style="font-family:'Caveat',cursive;">Aa Caveat</button>
+      <button class="font-btn" id="font-dancing" onclick="setFontFamily('dancing')" style="font-family:'Dancing Script',cursive;">Aa Dancing</button>
+    </div>
+    <div class="setting-row" style="border:none;">
+      <div><div class="setting-label">文字数カウント</div><div class="setting-sub">日記入力中に表示</div></div>
+      <label class="toggle-switch"><input type="checkbox" id="toggle-charcount" onchange="saveToggle('charcount',this.checked)"><span class="toggle-track-el"></span></label>
+    </div>
+  </div>
+
+  <div class="settings-section-title">テーマ</div>
+  <div class="card">
+    <div id="theme-cards-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"></div>
+  </div>
+
+  <div class="settings-section-title">カレンダー</div>
+  <div class="card">
+    <div class="setting-row" style="border:none;">
+      <div><div class="setting-label">週の始まり</div></div>
+      <div style="display:flex;gap:6px;">
+        <button class="size-btn active" id="week-sun" onclick="setWeekStart('sun')">日曜</button>
+        <button class="size-btn" id="week-mon" onclick="setWeekStart('mon')">月曜</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-section-title">日記</div>
+  <div class="card">
+    <div class="setting-row">
+      <div><div class="setting-label">効果音</div><div class="setting-sub">保存時にサウンドを鳴らす</div></div>
+      <label class="toggle-switch"><input type="checkbox" id="toggle-sound" onchange="saveToggle('sound',this.checked)"><span class="toggle-track-el"></span></label>
+    </div>
+    <div class="setting-row">
+      <div><div class="setting-label">タイムカプセル</div><div class="setting-sub">去年の今日の日記をトップに表示</div></div>
+      <label class="toggle-switch"><input type="checkbox" id="toggle-timecapsule" onchange="saveToggle('timecapsule',this.checked)"><span class="toggle-track-el"></span></label>
+    </div>
+    <div class="setting-row" style="border:none;">
+      <div><div class="setting-label">天気の自動取得</div><div class="setting-sub">新規作成時に位置情報から取得</div></div>
+      <label class="toggle-switch"><input type="checkbox" id="toggle-weather" onchange="saveToggle('weather',this.checked)" checked><span class="toggle-track-el"></span></label>
+    </div>
+  </div>
+
+  <div class="settings-section-title">通知・リマインダー</div>
+  <div class="card">
+    <div class="setting-row">
+      <div><div class="setting-label">毎日の通知</div><div class="setting-sub">日記を書くリマインダー</div></div>
+      <label class="toggle-switch"><input type="checkbox" id="toggle-notify" onchange="toggleNotification(this.checked)"><span class="toggle-track-el"></span></label>
+    </div>
+    <div id="notify-time-row" class="setting-row" style="border:none;display:none;">
+      <div><div class="setting-label">通知時刻</div></div>
+      <input type="time" id="notify-time" class="form-input" style="width:120px;" value="21:00" onchange="saveNotifyTime(this.value)">
+    </div>
+  </div>
+
+  <div class="settings-section-title">バックアップ</div>
+  <div class="card">
+    <div class="setting-row">
+      <div><div class="setting-label">リマインダー間隔</div><div class="setting-sub">バックアップを促す通知</div></div>
+      <select class="form-select" style="width:100px;" id="backup-reminder-select" onchange="saveBackupReminder(this.value)">
+        <option value="0">オフ</option><option value="7">7日</option><option value="14">14日</option><option value="30">30日</option>
+      </select>
+    </div>
+    <div class="setting-row"><div><div class="setting-label">使用量</div><div class="setting-sub" id="storage-info">計算中...</div></div></div>
+    <div class="setting-row"><div><div class="setting-label">最終バックアップ</div><div class="setting-sub" id="last-backup-label">なし</div></div></div>
+    <div class="setting-row">
+      <div><div class="setting-label">バックアップ</div><div class="setting-sub">全データをファイルに書き出す</div></div>
+      <button class="btn btn-primary" onclick="exportData()">書き出す</button>
+    </div>
+    <div class="setting-row">
+      <div><div class="setting-label">リストア</div><div class="setting-sub">バックアップファイルから復元</div></div>
+      <button class="btn btn-secondary" onclick="document.getElementById('import-file').click()">読み込む</button>
+    </div>
+    <div class="setting-row" style="border:none;">
+      <div><div class="setting-label" style="color:#ef4444;">全データ削除</div><div class="setting-sub">この操作は取り消せません</div></div>
+      <button class="btn btn-danger" onclick="clearAllData()">削除</button>
+    </div>
+  </div>
+  <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+
+  <div class="settings-section-title">セキュリティ</div>
+  <div class="card">
+    <div class="setting-row">
+      <div><div class="setting-label">パスコードロック</div><div class="setting-sub">アプリ起動時に4桁で認証</div></div>
+      <label class="toggle-switch"><input type="checkbox" id="toggle-passcode" onchange="togglePasscode(this.checked)"><span class="toggle-track-el"></span></label>
+    </div>
+    <div id="passcode-change-row" class="setting-row" style="border:none;display:none;">
+      <div><div class="setting-label">パスコードを変更</div></div>
+      <button class="btn btn-secondary" onclick="openPasscodeSetup(false)">変更</button>
+    </div>
+    <div class="setting-row" style="border:none;margin-top:4px;">
+      <div><div class="setting-label">アルバムパスコード</div><div class="setting-sub">フォトアルバム専用（4桁）</div></div>
+      <button class="btn btn-secondary" id="album-passcode-btn" onclick="setupAlbumPasscode()">設定</button>
+    </div>
+  </div>
+
+  <div class="settings-section-title">外部連携</div>
+  <div class="card">
+    <div class="setting-label" style="margin-bottom:8px;">OMDb APIキー（映画情報取得）</div>
+    <input type="text" class="form-input" id="omdb-key-input" placeholder="無料登録: omdbapi.com">
+    <button class="btn btn-primary" style="margin-top:8px;width:100%;" onclick="saveOmdbKey()">保存</button>
+    <div style="font-size:12px;color:var(--text3);margin-top:6px;">omdbapi.comで無料登録するとAPIキーが取得できます</div>
+  </div>
+
+  <div style="text-align:center;padding:20px;color:var(--text3);font-size:12px;">My Life Log v1.0</div>
+  `;
+}
+
+function initSettingsValues() {
+  const darkToggle = document.getElementById('toggle-dark');
+  if (darkToggle) darkToggle.checked = localStorage.getItem('darkOverlay') === '1';
+  const fs = localStorage.getItem('fontSize') || 'medium';
+  const fsl = document.getElementById('font-size-label');
+  if (fsl) fsl.textContent = FONT_LABELS[fs];
+  ['small','medium','large'].forEach(s => {
+    const btn = document.getElementById('size-'+s);
+    if (btn) btn.classList.toggle('active', s === fs);
+  });
+  const ff = localStorage.getItem('fontFamily') || 'default';
+  const ffl = document.getElementById('font-family-label');
+  if (ffl) ffl.textContent = (FONT_FAMILIES[ff]||FONT_FAMILIES.default).label;
+  Object.keys(FONT_FAMILIES).forEach(k => {
+    const btn = document.getElementById('font-'+k);
+    if (btn) btn.classList.toggle('active', k === ff);
+  });
+  const charcount = document.getElementById('toggle-charcount');
+  if (charcount) charcount.checked = localStorage.getItem('charcount') === '1';
+  renderThemeCards();
+  const ws = localStorage.getItem('weekStart') || 'sun';
+  const wsun = document.getElementById('week-sun');
+  const wmon = document.getElementById('week-mon');
+  if (wsun) wsun.classList.toggle('active', ws === 'sun');
+  if (wmon) wmon.classList.toggle('active', ws === 'mon');
+  const sound = document.getElementById('toggle-sound');
+  if (sound) sound.checked = localStorage.getItem('sound') === '1';
+  const tc = document.getElementById('toggle-timecapsule');
+  if (tc) tc.checked = localStorage.getItem('timecapsule') === '1';
+  const tw = document.getElementById('toggle-weather');
+  if (tw) tw.checked = localStorage.getItem('weather') !== '0';
+  const notify = localStorage.getItem('notify') === '1';
+  const tn = document.getElementById('toggle-notify');
+  if (tn) tn.checked = notify;
+  const ntr = document.getElementById('notify-time-row');
+  if (ntr) ntr.style.display = notify ? 'flex' : 'none';
+  const nt = document.getElementById('notify-time');
+  if (nt) nt.value = localStorage.getItem('notifyTime') || '21:00';
+  const brd = document.getElementById('backup-reminder-select');
+  if (brd) brd.value = localStorage.getItem('backupReminderDays') || '0';
+  calcStorageInfo();
+  updateLastBackupLabel();
+  const pcEnabled = localStorage.getItem('passcodeEnabled') === '1';
+  const tp = document.getElementById('toggle-passcode');
+  if (tp) tp.checked = pcEnabled;
+  const pcr = document.getElementById('passcode-change-row');
+  if (pcr) pcr.style.display = pcEnabled ? 'flex' : 'none';
+  const omdb = document.getElementById('omdb-key-input');
+  if (omdb) omdb.value = localStorage.getItem('omdb_key') || '';
+}
+function saveOmdbKey() {
+  const k = document.getElementById('omdb-key-input').value.trim();
+  localStorage.setItem('omdb_key', k);
+  showToast('APIキーを保存しました ✓');
+}
+
+// =========================================================
+// メモ機能
+// =========================================================
+let currentMemoTags = [];
+let editingMemoId = null;
+let memoUnlockBuffer = '';
+let memoUnlockTargetId = null;
+
+function getAllMemos() {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('memos', 'readonly');
+    const store = tx.objectStore('memos');
+    const req = store.getAll();
+    req.onsuccess = e => resolve(e.target.result);
+    req.onerror = reject;
+  });
+}
+
+async function renderMemoList() {
+  let memos = await getAllMemos();
+  const q = document.getElementById('memo-search-input').value.trim();
+  const activeTag = document.querySelector('#memo-tag-filter .chip.active')?.dataset.tag || 'all';
+
+  // タグフィルターを描画
+  const allTags = [...new Set(memos.flatMap(m => m.tags || []))];
+  const tagFilter = document.getElementById('memo-tag-filter');
+  tagFilter.innerHTML = [
+    `<div class="chip ${activeTag==='all'?'active':''}" onclick="filterMemoByTag('all',this)">すべて</div>`,
+    ...allTags.map(t => `<div class="chip ${activeTag===t?'active':''}" data-tag="${t}" onclick="filterMemoByTag('${t}',this)">${t}</div>`)
+  ].join('');
+
+  // フィルタリング
+  if (q) memos = memos.filter(m => (m.title||'').includes(q) || (m.body||'').includes(q));
+  if (activeTag !== 'all') memos = memos.filter(m => m.tags && m.tags.includes(activeTag));
+
+  // 並び順
+  const sort = document.getElementById('memo-sort-select').value;
+  if (sort === 'updated') memos.sort((a,b) => (b.updatedAt||'').localeCompare(a.updatedAt||''));
+  else if (sort === 'created') memos.sort((a,b) => b.id.localeCompare(a.id));
+  else if (sort === 'title') memos.sort((a,b) => (a.title||'').localeCompare(b.title||''));
+
+  const list = document.getElementById('memo-list');
+  if (memos.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">${emptyIllustration('memo')}</div><div class="empty-state-text">メモがありません<br>右下の＋から作成できます</div></div>`;
+    return;
+  }
+  list.innerHTML = memos.map(m => {
+    const tags = (m.tags||[]).map(t => `<span class="memo-tag-chip">${t}</span>`).join('');
+    const updated = m.updatedAt ? new Date(m.updatedAt).toLocaleDateString('ja-JP') : '';
+    const bodyPreview = m.locked ? 'ロックされています' : (m.body || '');
+    return `<div class="memo-card" onclick="openMemo('${m.id}')">
+      ${m.locked ? '<div class="memo-lock-icon"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>' : ''}
+      <div class="memo-card-title">${m.title || '（タイトルなし）'}</div>
+      <div class="memo-card-body">${bodyPreview}</div>
+      <div class="memo-card-footer">
+        <span class="memo-card-date">${updated}</span>
+        ${tags}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterMemoByTag(tag, btn) {
+  document.querySelectorAll('#memo-tag-filter .chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  if (tag !== 'all') btn.dataset.tag = tag;
+  renderMemoList();
+}
+
+function openNewMemo() {
+  editingMemoId = null;
+  currentMemoTags = [];
+  document.getElementById('modal-memo-title').textContent = '新しいメモ';
+  document.getElementById('memo-title-input').value = '';
+  document.getElementById('memo-body-input').value = '';
+  document.getElementById('memo-char-count').textContent = '0 文字';
+  document.getElementById('delete-memo-btn').style.display = 'none';
+  const lockBtn = document.getElementById('memo-lock-btn');
+  lockBtn.dataset.locked = '0';
+  lockBtn.innerHTML = memoLockSVG(false);
+  document.getElementById('custom-tag-input').value = '';
+  document.getElementById('custom-tag-chips').innerHTML = '';
+  document.querySelectorAll('.memo-tag-btn').forEach(b => b.classList.remove('active'));
+  openModal('modal-memo');
+}
+
+async function openMemo(id) {
+  const memos = await getAllMemos();
+  const m = memos.find(m => m.id === id);
+  if (!m) return;
+
+  if (m.locked) {
+    memoUnlockTargetId = id;
+    memoUnlockBuffer = '';
+    document.getElementById('memo-unlock-error').textContent = '';
+    updateMemoUnlockDots();
+    openModal('modal-memo-unlock');
+    return;
+  }
+  loadMemoIntoModal(m);
+}
+
+function loadMemoIntoModal(m) {
+  editingMemoId = m.id;
+  currentMemoTags = m.tags ? [...m.tags] : [];
+  document.getElementById('modal-memo-title').textContent = '編集';
+  document.getElementById('memo-title-input').value = m.title || '';
+  document.getElementById('memo-body-input').value = m.body || '';
+  document.getElementById('memo-char-count').textContent = (m.body||'').length + ' 文字';
+  document.getElementById('delete-memo-btn').style.display = 'block';
+  const lockBtn2 = document.getElementById('memo-lock-btn');
+  lockBtn2.dataset.locked = m.locked ? '1' : '0';
+  lockBtn2.innerHTML = memoLockSVG(!!m.locked);
+  document.getElementById('custom-tag-input').value = '';
+  document.querySelectorAll('.memo-tag-btn').forEach(b => {
+    b.classList.toggle('active', currentMemoTags.includes(b.dataset.tag));
+  });
+  renderCustomTagChips();
+  openModal('modal-memo');
+}
+
+function toggleMemoTag(tag, btn) {
+  if (currentMemoTags.includes(tag)) {
+    currentMemoTags = currentMemoTags.filter(t => t !== tag);
+    btn.classList.remove('active');
+  } else {
+    currentMemoTags.push(tag);
+    btn.classList.add('active');
+  }
+}
+
+function addCustomTag() {
+  const input = document.getElementById('custom-tag-input');
+  const tag = input.value.trim();
+  if (!tag) return;
+  if (!currentMemoTags.includes(tag)) {
+    currentMemoTags.push(tag);
+  }
+  input.value = '';
+  renderCustomTagChips();
+}
+
+function renderCustomTagChips() {
+  const PRESET_TAGS = ['仕事','プライベート','アイデア','買い物','メモ'];
+  const customTags = currentMemoTags.filter(t => !PRESET_TAGS.includes(t));
+  const el = document.getElementById('custom-tag-chips');
+  el.innerHTML = customTags.map(t =>
+    `<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(var(--accent-rgb),0.15);border:1px solid var(--accent);border-radius:20px;color:var(--accent2);font-size:12px;">
+      ${t}
+      <button onclick="removeCustomTag('${t}')" style="background:none;border:none;color:var(--accent2);cursor:pointer;font-size:14px;line-height:1;padding:0;">×</button>
+    </span>`
+  ).join('');
+}
+
+function removeCustomTag(tag) {
+  currentMemoTags = currentMemoTags.filter(t => t !== tag);
+  renderCustomTagChips();
+}
+
+function updateMemoCharCount() {
+  const len = document.getElementById('memo-body-input').value.length;
+  document.getElementById('memo-char-count').textContent = len + ' 文字';
+}
+
+function copyMemoAll() {
+  const text = document.getElementById('memo-body-input').value;
+  navigator.clipboard.writeText(text).then(() => showToast('コピーしました ✓'));
+}
+
+async function saveMemo() {
+  const title = document.getElementById('memo-title-input').value.trim();
+  const body = document.getElementById('memo-body-input').value;
+  const isLocked = document.getElementById('memo-lock-btn').dataset.locked === '1';
+
+  const memo = {
+    id: editingMemoId || Date.now().toString(),
+    title,
+    body,
+    tags: [...currentMemoTags],
+    locked: isLocked,
+    updatedAt: new Date().toISOString(),
+  };
+  await dbOp('memos', 'readwrite', store => store.put(memo));
+  closeModal('modal-memo');
+  showToast('保存しました ✓');
+  playSaveSound();
+  renderMemoList();
+}
+
+async function deleteMemo() {
+  if (!editingMemoId) return;
+  if (!confirm('このメモを削除しますか？')) return;
+  await dbOp('memos', 'readwrite', store => store.delete(editingMemoId));
+  closeModal('modal-memo');
+  showToast('削除しました');
+  renderMemoList();
+}
+
+function memoLockSVG(locked) {
+  return locked
+    ? `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`
+    : `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>`;
+}
+
+function toggleMemoLock() {
+  const btn = document.getElementById('memo-lock-btn');
+  const pc = localStorage.getItem('passcode');
+  if (!pc) { showToast('パスコードを設定してください（設定タブ）'); return; }
+  const nowLocked = btn.dataset.locked === '1';
+  btn.dataset.locked = nowLocked ? '0' : '1';
+  btn.innerHTML = memoLockSVG(!nowLocked);
+}
+
+// メモ個別ロック解除
+function memoUnlockInput(d) {
+  if (memoUnlockBuffer.length >= 4) return;
+  memoUnlockBuffer += d;
+  updateMemoUnlockDots();
+  if (memoUnlockBuffer.length === 4) setTimeout(checkMemoUnlock, 150);
+}
+function memoUnlockDelete() {
+  memoUnlockBuffer = memoUnlockBuffer.slice(0,-1);
+  updateMemoUnlockDots();
+}
+function updateMemoUnlockDots() {
+  document.querySelectorAll('#memo-unlock-dots .pc-dot').forEach((dot,i) => {
+    dot.classList.toggle('filled', i < memoUnlockBuffer.length);
+  });
+}
+async function checkMemoUnlock() {
+  const saved = localStorage.getItem('passcode');
+  if (memoUnlockBuffer === saved) {
+    closeModal('modal-memo-unlock');
+    const memos = await getAllMemos();
+    const m = memos.find(m => m.id === memoUnlockTargetId);
+    if (m) loadMemoIntoModal(m);
+  } else {
+    document.getElementById('memo-unlock-error').textContent = 'パスコードが違います';
+    memoUnlockBuffer = '';
+    updateMemoUnlockDots();
+  }
+}
+
+// テキスト書き出し
+function exportMemoText() {
+  const title = document.getElementById('memo-title-input').value || 'メモ';
+  const body = document.getElementById('memo-body-input').value;
+  const blob = new Blob([`${title}\n${'='.repeat(title.length)}\n\n${body}`], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `${title}.txt`; a.click();
+  URL.revokeObjectURL(url);
+  showToast('テキストを書き出しました ✓');
+}
+
+// PDF書き出し
+function exportMemoPDF() {
+  const title = document.getElementById('memo-title-input').value || 'メモ';
+  const body = document.getElementById('memo-body-input').value;
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${title}</title>
+  <style>body{font-family:-apple-system,sans-serif;max-width:800px;margin:40px auto;padding:0 24px;line-height:1.8;color:#1a1a2e;}
+  h1{font-size:22px;margin-bottom:24px;padding-bottom:12px;border-bottom:2px solid #7c6ff7;}
+  pre{white-space:pre-wrap;font-family:inherit;font-size:15px;}</style></head>
+  <body><h1>${title}</h1><pre>${body.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre></body></html>`);
+  win.document.close();
+  setTimeout(() => { win.print(); }, 400);
+  showToast('印刷ダイアログを開きました');
+}
+
+// =========================================================
+// ユーティリティ
+// =========================================================
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  const days = ['日','月','火','水','木','金','土'];
+  return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${days[d.getDay()]}）`;
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// モーダル外クリックで閉じる
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+// =========================================================
+// 初期化
+// =========================================================
+async function init() {
+  // フォント読み込み待機（最大2秒）
+  const fontTimeout = new Promise(r => setTimeout(r, 2000));
+  await Promise.race([document.fonts.ready, fontTimeout]);
+
+  await initDB();
+  currentEntries = await getAllEntries();
+  const now = new Date();
+  calendarYear = now.getFullYear();
+  calendarMonth = now.getMonth();
+  document.getElementById('today-date').textContent = formatDate(now.toISOString().split('T')[0]);
+
+  // 設定を反映
+  const fs = localStorage.getItem('fontSize') || 'medium';
+  document.body.style.fontSize = FONT_SIZES[fs];
+  const ff = (FONT_FAMILIES[localStorage.getItem('fontFamily')] || FONT_FAMILIES.default).css;
+  document.body.style.fontFamily = ff;
+  applyThemeColor();
+  if (localStorage.getItem('darkOverlay') === '1') document.body.classList.add('dark-overlay');
+
+  // 通知再設定
+  if (localStorage.getItem('notify') === '1') scheduleNotification();
+
+  // 表示モード・並び順
+  viewMode = localStorage.getItem('viewMode') || 'list';
+  sortOrder = localStorage.getItem('sortOrder') || 'newest';
+  const sl = document.getElementById('sort-label');
+  if (sl) sl.textContent = SORT_LABELS[sortOrder];
+
+  // タイムカプセル
+  await renderTimeCapsule();
+
+  // バックアップリマインダー
+  checkBackupReminder();
+
+  // パスコードロック
+  const pcEnabled = localStorage.getItem('passcodeEnabled') === '1';
+  if (pcEnabled) {
+    showPasscodeScreen('unlock', () => renderDiaryList(), false);
+  } else {
+    renderDiaryList();
+  }
+}
+
+init();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js');
+}
+
+// iPhone Safari ホーム画面追加バナー
+function dismissPwaBanner() {
+  document.getElementById('pwa-banner').classList.remove('show');
+  localStorage.setItem('pwaBannerDismissed', Date.now());
+}
+
+function showPwaBannerIfNeeded() {
+  // スタンドアロンモード（ホーム画面から起動）なら表示しない
+  if (window.navigator.standalone) return;
+  // Android Chrome のインストール済みPWAも除外
+  if (window.matchMedia('(display-mode: standalone)').matches) return;
+  // 一度閉じたら7日間は出さない
+  const dismissed = localStorage.getItem('pwaBannerDismissed');
+  if (dismissed && Date.now() - parseInt(dismissed) < 7 * 24 * 60 * 60 * 1000) return;
+  // iPhoneかどうか判定
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (!isIOS) return;
+  setTimeout(() => {
+    document.getElementById('pwa-banner').classList.add('show');
+  }, 2000);
+}
+
+showPwaBannerIfNeeded();
+</script>
+</body>
+</html>
