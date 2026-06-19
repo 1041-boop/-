@@ -327,8 +327,6 @@
     border-radius: 20px;
     font-weight: 600;
   }
-  .tag-book { background: rgba(34,197,94,0.15); color: #22c55e; }
-  .tag-movie { background: rgba(239,68,68,0.15); color: #ef4444; }
   .tag-photo { background: rgba(var(--accent-rgb),0.15); color: var(--accent2); }
 
   /* カレンダー */
@@ -961,56 +959,7 @@
 </div>
 
 <!-- ページ: 本・映画 -->
-<div class="page" id="page-media">
-  <div class="page-header">
-    <div style="display:flex;align-items:center;justify-content:space-between;">
-      <div class="page-title">本・映画</div>
-      <button class="icon-btn" onclick="openSettings()" title="設定"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
-    </div>
-  </div>
-  <!-- メインタブ：記録 / ウォッチリスト -->
-  <div style="display:flex;gap:6px;margin-bottom:14px;">
-    <button class="chip active" id="media-main-tab-log" onclick="switchMediaMainTab('log',this)">記録</button>
-    <button class="chip" id="media-main-tab-watchlist" onclick="switchMediaMainTab('watchlist',this)">読みたい・見たい</button>
-  </div>
-  <!-- 記録タブ -->
-  <div id="media-log-view">
-    <div class="chips" id="media-filter-chips" style="margin-bottom:16px;">
-      <div class="chip active" onclick="filterMedia('all',this)">すべて</div>
-      <div class="chip" onclick="filterMedia('book',this)">本</div>
-      <div class="chip" onclick="filterMedia('movie',this)">映画</div>
-    </div>
-    <div id="media-list"></div>
-  </div>
-  <!-- ウォッチリストタブ -->
-  <div id="media-watchlist-view" style="display:none;">
-    <div style="display:flex;gap:8px;margin-bottom:14px;">
-      <button class="icon-btn" style="flex:1;border-radius:var(--radius-sm);font-size:13px;width:auto;padding:0 12px;" onclick="openWatchlistSearch('book')">本を追加</button>
-      <button class="icon-btn" style="flex:1;border-radius:var(--radius-sm);font-size:13px;width:auto;padding:0 12px;" onclick="openWatchlistSearch('movie')">映画を追加</button>
-    </div>
-    <div class="chips" id="watchlist-filter-chips" style="margin-bottom:14px;">
-      <div class="chip active" onclick="filterWatchlist('all',this)">すべて</div>
-      <div class="chip" onclick="filterWatchlist('book',this)">本</div>
-      <div class="chip" onclick="filterWatchlist('movie',this)">映画</div>
-    </div>
-    <div id="watchlist-list"></div>
-  </div>
-</div>
-
 <!-- モーダル: ウォッチリスト検索 -->
-<div class="modal-overlay" id="modal-watchlist-search">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title" id="watchlist-search-title">本を追加</div>
-    <div class="search-bar" style="margin-bottom:12px;">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="text" placeholder="タイトルを検索..." id="watchlist-search-input" oninput="searchWatchlist()">
-    </div>
-    <div id="watchlist-search-results"></div>
-    <button class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:12px;" onclick="closeModal('modal-watchlist-search')">閉じる</button>
-  </div>
-</div>
-
 <!-- ページ: 分析 -->
 <div class="page" id="page-analysis">
   <div class="page-header">
@@ -1024,7 +973,6 @@
   <div style="display:flex;gap:6px;overflow-x:auto;margin-bottom:16px;padding-bottom:2px;">
     <button class="analysis-tab active" id="atab-summary" onclick="switchAnalysisTab('summary',this)">概要</button>
     <button class="analysis-tab" id="atab-mood" onclick="switchAnalysisTab('mood',this)">気分</button>
-    <button class="analysis-tab" id="atab-media" onclick="switchAnalysisTab('media',this)">本・映画</button>
     <button class="analysis-tab" id="atab-yearly" onclick="switchAnalysisTab('yearly',this)">年間</button>
     <button class="analysis-tab" id="atab-sentiment" onclick="switchAnalysisTab('sentiment',this)">ポジ・ネガ</button>
   </div>
@@ -1058,22 +1006,7 @@
     </div>
   </div>
 
-  <!-- 本・映画 -->
-  <div id="analysis-media" style="display:none;">
-    <div class="stat-grid" id="media-stat-grid"></div>
-    <div class="card">
-      <div class="section-title">ステータス別（本）</div>
-      <canvas id="book-status-chart"></canvas>
-    </div>
-    <div class="card">
-      <div class="section-title">ステータス別（映画）</div>
-      <canvas id="movie-status-chart"></canvas>
-    </div>
-    <div class="card">
-      <div class="section-title">月別 記録数</div>
-      <canvas id="media-month-chart"></canvas>
-    </div>
-  </div>
+  <!-- 本・映画 --></div>
 
   <!-- 年間サマリー -->
   <div id="analysis-yearly" style="display:none;">
@@ -1181,10 +1114,6 @@
   <button class="nav-btn" onclick="showPage('calendar',this)">
     <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
     カレンダー
-  </button>
-  <button class="nav-btn" onclick="showPage('media',this)">
-    <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
-    本・映画
   </button>
   <button class="nav-btn" onclick="showPage('memo',this)">
     <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
@@ -1336,8 +1265,6 @@
       <div style="display:flex;gap:8px;flex-wrap:wrap;" id="add-option-btns">
         <button class="add-option-btn" id="opt-photo" onclick="toggleAddSection('photo')">📷 写真</button>
         <button class="add-option-btn" id="opt-mood" onclick="toggleAddSection('mood')">気分</button>
-        <button class="add-option-btn" id="opt-book" onclick="toggleAddSection('book')">${bookSVG(16)} 本</button>
-        <button class="add-option-btn" id="opt-movie" onclick="toggleAddSection('movie')">${movieSVG(16)} 映画</button>
       </div>
     </div>
 
@@ -1363,31 +1290,17 @@
     </div>
 
     <!-- 展開セクション: 本 -->
-    <div class="add-section" id="section-book" style="display:none;">
-      <div class="add-section-header">
-        <span style="display:inline-flex;align-items:center;gap:4px;">${bookSVG(15)} 本</span>
-        <button class="add-section-close" onclick="toggleAddSection('book')">×</button>
-      </div>
-      <div class="search-bar" style="margin-bottom:10px;">
+    <div class="search-bar" style="margin-bottom:10px;">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         <input type="text" placeholder="本のタイトルを検索..." id="inline-book-input" oninput="inlineSearchMedia('book')">
       </div>
-      <div id="inline-book-results"></div>
-      <div id="attached-books"></div>
     </div>
 
     <!-- 展開セクション: 映画 -->
-    <div class="add-section" id="section-movie" style="display:none;">
-      <div class="add-section-header">
-        <span style="display:inline-flex;align-items:center;gap:4px;">${movieSVG(15)} 映画</span>
-        <button class="add-section-close" onclick="toggleAddSection('movie')">×</button>
-      </div>
-      <div class="search-bar" style="margin-bottom:10px;">
+    <div class="search-bar" style="margin-bottom:10px;">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         <input type="text" placeholder="映画タイトルを検索..." id="inline-movie-input" oninput="inlineSearchMedia('movie')">
       </div>
-      <div id="inline-movie-results"></div>
-      <div id="attached-movies"></div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:16px;">
@@ -1478,9 +1391,7 @@ function initDB() {
       if (!d.objectStoreNames.contains('schedules')) {
         const ss = d.createObjectStore('schedules', { keyPath: 'id' });
         ss.createIndex('date', 'date', { unique: false });
-      }
-      if (!d.objectStoreNames.contains('watchlist')) {
-        d.createObjectStore('watchlist', { keyPath: 'id' });
+      });
       }
       if (!d.objectStoreNames.contains('albums')) {
         d.createObjectStore('albums', { keyPath: 'id' });
@@ -1538,8 +1449,8 @@ let currentDetailId = null;
 let currentMood = 0;
 let pendingPhotos = []; // base64
 let attachedMedia = []; // {id,type,title,...}
-let currentMediaSearchType = 'book';
-let mediaSearchTimeout = null;
+
+
 let calendarYear, calendarMonth;
 let yearlySummaryYear = new Date().getFullYear();
 
@@ -1594,25 +1505,7 @@ function moodSVG(level, size=32, color='currentColor') {
 
 const MOODS = ['', moodSVG(1), moodSVG(2), moodSVG(3), moodSVG(4), moodSVG(5)];
 
-function bookSVG(size=20, color='currentColor') {
-  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-  </svg>`;
-}
 
-function movieSVG(size=20, color='currentColor') {
-  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/>
-    <line x1="7" y1="2" x2="7" y2="22"/>
-    <line x1="17" y1="2" x2="17" y2="22"/>
-    <line x1="2" y1="12" x2="22" y2="12"/>
-    <line x1="2" y1="7" x2="7" y2="7"/>
-    <line x1="2" y1="17" x2="7" y2="17"/>
-    <line x1="17" y1="17" x2="22" y2="17"/>
-    <line x1="17" y1="7" x2="22" y2="7"/>
-  </svg>`;
-}
 
 // =========================================================
 // ナビ・ページ
@@ -1629,7 +1522,6 @@ function showPage(name, btn) {
   else { fabBtn.onclick = openNewEntry; }
   if (name === 'diary') renderDiaryList();
   if (name === 'calendar') renderCalendar();
-  if (name === 'media') renderMediaList();
   if (name === 'analysis') renderAnalysis();
 }
 
@@ -1662,8 +1554,6 @@ async function renderDiaryList() {
   list.innerHTML = filtered.map(e => {
     const tags = [];
     if (e.photos && e.photos.length) tags.push('<span class="tag tag-photo">📷 写真</span>');
-    if (e.media && e.media.some(m=>m.type==='book')) tags.push(`<span class="tag tag-book" style="display:inline-flex;align-items:center;gap:3px;">${bookSVG(12)} 本</span>`);
-    if (e.media && e.media.some(m=>m.type==='movie')) tags.push(`<span class="tag tag-movie" style="display:inline-flex;align-items:center;gap:3px;">${movieSVG(12)} 映画</span>`);
     const weatherStr = e.weather ? `<span class="weather-badge">${e.weather.label} ${e.weather.temp}℃</span>` : '';
     return `<div class="diary-card" onclick="openDetail('${e.id}')">
       <div class="diary-card-header">
@@ -1735,14 +1625,8 @@ function openNewEntry() {
   document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
   document.querySelectorAll('.add-option-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.add-section').forEach(s => s.style.display = 'none');
-  document.getElementById('inline-book-input').value = '';
-  document.getElementById('inline-movie-input').value = '';
-  document.getElementById('inline-book-results').innerHTML = '';
-  document.getElementById('inline-movie-results').innerHTML = '';
   renderMoodSelector();
   renderPhotoPreview();
-  renderAttachedBooks();
-  renderAttachedMovies();
   // オートセーブ確認（モーダルを開く前）
   const hasDraft = localStorage.getItem(AUTOSAVE_KEY);
   if (hasDraft) {
@@ -1774,17 +1658,9 @@ async function editCurrentEntry() {
 
   if (pendingPhotos.length) { document.getElementById('section-photo').style.display='block'; document.getElementById('opt-photo').classList.add('active'); }
   if (currentMood) { document.getElementById('section-mood').style.display='block'; document.getElementById('opt-mood').classList.add('active'); }
-  if (attachedMedia.some(m=>m.type==='book')) { document.getElementById('section-book').style.display='block'; document.getElementById('opt-book').classList.add('active'); }
-  if (attachedMedia.some(m=>m.type==='movie')) { document.getElementById('section-movie').style.display='block'; document.getElementById('opt-movie').classList.add('active'); }
 
-  document.getElementById('inline-book-input').value = '';
-  document.getElementById('inline-movie-input').value = '';
-  document.getElementById('inline-book-results').innerHTML = '';
-  document.getElementById('inline-movie-results').innerHTML = '';
   renderMoodSelector();
   renderPhotoPreview();
-  renderAttachedBooks();
-  renderAttachedMovies();
   openModal('modal-entry');
 }
 
@@ -1894,228 +1770,16 @@ function toggleAddSection(type) {
 // =========================================================
 let inlineSearchTimeout = {};
 
-function inlineSearchMedia(type) {
-  clearTimeout(inlineSearchTimeout[type]);
-  inlineSearchTimeout[type] = setTimeout(async () => {
-    const input = document.getElementById(`inline-${type}-input`);
-    const q = input.value.trim();
-    const results = document.getElementById(`inline-${type}-results`);
-    if (q.length < 2) { results.innerHTML = ''; return; }
-    results.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">検索中...</div>';
-    try {
-      if (type === 'book') await inlineSearchBooks(q);
-      else await inlineSearchMovies(q);
-    } catch(e) {
-      results.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">検索に失敗しました</div>';
-    }
-  }, 400);
-}
 
-async function inlineSearchBooks(q) {
-  const results = document.getElementById('inline-book-results');
-  results.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">検索中...</div>';
-  try {
-    // 国立国会図書館 + Google Books を並列検索
-    const [ndlRes, gbRes] = await Promise.allSettled([
-      fetch(`https://ndlsearch.ndl.go.jp/api/opensearch?q=${encodeURIComponent(q)}&cnt=6&mediatype=1`),
-      fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=6`)
-    ]);
 
-    let books = [];
 
-    // 国立国会図書館の結果をパース
-    if (ndlRes.status === 'fulfilled' && ndlRes.value.ok) {
-      const text = await ndlRes.value.text();
-      const parser = new DOMParser();
-      const xml = parser.parseFromString(text, 'text/xml');
-      const items = xml.querySelectorAll('item');
-      items.forEach(item => {
-        const title = item.querySelector('title')?.textContent || '';
-        const author = item.querySelector('author')?.textContent || '';
-        const pubDate = item.querySelector('pubDate')?.textContent || '';
-        const year = pubDate ? pubDate.substring(0,4) : '';
-        const isbn = [...item.querySelectorAll('*')].find(el => el.tagName.includes('identifier'))?.textContent || '';
-        const cover = isbn ? `https://ndlsearch.ndl.go.jp/thumbnail/${isbn}.jpg` : null;
-        if (title) books.push({ title, author, year, cover, id: 'ndl_'+isbn });
-      });
-    }
 
-    // Google Booksの結果をパース
-    if (gbRes.status === 'fulfilled' && gbRes.value.ok) {
-      const data = await gbRes.value.json();
-      if (data.items) {
-        data.items.forEach(item => {
-          const info = item.volumeInfo;
-          const title = info.title || '';
-          const author = info.authors?.[0] || '';
-          const year = info.publishedDate?.substring(0,4) || '';
-          const cover = info.imageLinks?.thumbnail?.replace('http:','https:') || null;
-          // 重複チェック
-          if (title && !books.some(b => b.title === title)) {
-            books.push({ title, author, year, cover, id: 'gb_'+item.id });
-          }
-        });
-      }
-    }
 
-    if (books.length === 0) {
-      results.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">見つかりませんでした</div>';
-      return;
-    }
 
-    results.innerHTML = books.slice(0,8).map(book => {
-      const obj = encodeURIComponent(JSON.stringify({
-        id: book.id, type:'book', title:book.title, author:book.author, year:book.year, cover:book.cover, key:book.id
-      }));
-      return `<div class="media-card" style="margin-bottom:6px;" onclick="attachInlineMedia('${obj}','book')">
-        ${book.cover ? `<img class="media-thumb" src="${book.cover}" onerror="this.style.display='none'">` : `<div class="media-thumb-placeholder">${bookSVG(24, 'var(--text3)')}</div>`}
-        <div class="media-info">
-          <div class="media-title">${book.title}</div>
-          <div class="media-sub">${book.author}${book.year?' · '+book.year:''}</div>
-        </div>
-      </div>`;
-    }).join('');
-  } catch(e) {
-    results.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">検索に失敗しました</div>';
-  }
-}
 
-async function inlineSearchMovies(q) {
-  const apiKey = localStorage.getItem('omdb_key') || '';
-  const results = document.getElementById('inline-movie-results');
-  if (!apiKey) {
-    results.innerHTML = `<div style="color:var(--text3);font-size:13px;padding:8px 0;">映画検索には設定タブでOMDb APIキーが必要です（無料）</div>`;
-    return;
-  }
-  const res = await fetch(`https://www.omdbapi.com/?s=${encodeURIComponent(q)}&apikey=${apiKey}&type=movie`);
-  const data = await res.json();
-  if (data.Response === 'False' || !data.Search) {
-    results.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">見つかりませんでした</div>';
-    return;
-  }
-  results.innerHTML = data.Search.slice(0,5).map(movie => {
-    const cover = movie.Poster && movie.Poster !== 'N/A' ? movie.Poster : null;
-    const obj = encodeURIComponent(JSON.stringify({
-      id: 'movie_'+movie.imdbID, type:'movie', title:movie.Title, year:movie.Year, cover, imdbID:movie.imdbID
-    }));
-    return `<div class="media-card" style="margin-bottom:6px;" onclick="attachInlineMedia('${obj}','movie')">
-      ${cover ? `<img class="media-thumb" src="${cover}" onerror="this.style.display='none'">` : `<div class="media-thumb-placeholder">${movieSVG(24, 'var(--text3)')}</div>`}
-      <div class="media-info">
-        <div class="media-title">${movie.Title}</div>
-        <div class="media-sub">${movie.Year}</div>
-      </div>
-    </div>`;
-  }).join('');
-}
 
-function attachInlineMedia(encoded, type) {
-  const obj = JSON.parse(decodeURIComponent(encoded));
-  if (!attachedMedia.find(m => m.id === obj.id)) {
-    obj.memo = '';
-    attachedMedia.push(obj);
-  }
-  document.getElementById(`inline-${type}-results`).innerHTML = '';
-  document.getElementById(`inline-${type}-input`).value = '';
-  if (type === 'book') renderAttachedBooks();
-  else renderAttachedMovies();
-  showToast('追加しました ✓');
-}
 
-function updateMediaMemo(id, value) {
-  const m = attachedMedia.find(m => m.id === id);
-  if (m) m.memo = value;
-}
 
-const BOOK_STATUSES = [
-  { value: 'reading',  label: '📖 読中' },
-  { value: 'done',     label: '✅ 読了' },
-  { value: 'reread',   label: '🔄 再読' },
-  { value: 'stockpile',label: '📋 積読' },
-];
-const MOVIE_STATUSES = [
-  { value: 'watched',  label: '視聴済み' },
-  { value: 'rewatch',  label: '🔄 再視聴' },
-  { value: 'watchlist',label: '👀 見たい' },
-];
-
-function statusLabel(m) {
-  const list = m.type === 'book' ? BOOK_STATUSES : MOVIE_STATUSES;
-  const found = list.find(s => s.value === m.status);
-  return found ? found.label : '';
-}
-
-function updateMediaStatus(id, value) {
-  const m = attachedMedia.find(m => m.id === id);
-  if (m) m.status = value;
-}
-
-function renderAttachedBooks() {
-  const el = document.getElementById('attached-books');
-  const books = attachedMedia.filter(m => m.type === 'book');
-  el.innerHTML = books.map(m =>
-    `<div style="background:var(--bg2);border-radius:10px;margin-top:8px;overflow:hidden;">
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 10px 8px;">
-        ${m.cover ? `<img src="${m.cover}" style="width:36px;height:50px;object-fit:cover;border-radius:4px;flex-shrink:0;" onerror="this.style.display='none'">` : `<span style="flex-shrink:0;">${bookSVG(28, 'var(--text3)')}</span>`}
-        <div style="flex:1;min-width:0;">
-          <div style="font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${m.title}</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:1px;">${m.author||''}${m.year?' · '+m.year:''}</div>
-        </div>
-        <button onclick="removeAttachedById('${m.id}')" style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;flex-shrink:0;line-height:1;">×</button>
-      </div>
-      <div style="padding:0 10px 6px;display:flex;gap:6px;flex-wrap:wrap;">
-        ${BOOK_STATUSES.map(s => `
-          <button onclick="updateMediaStatus('${m.id}','${s.value}');renderAttachedBooks()"
-            style="padding:4px 10px;border-radius:20px;border:1px solid ${m.status===s.value?'var(--accent)':'var(--border)'};background:${m.status===s.value?'rgba(var(--accent-rgb),0.15)':'var(--bg3)'};color:${m.status===s.value?'var(--accent2)':'var(--text3)'};font-size:12px;cursor:pointer;">
-            ${s.label}
-          </button>`).join('')}
-      </div>
-      <div style="padding:0 10px 10px;">
-        <textarea
-          placeholder="感想メモ（任意）"
-          style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:8px 10px;font-family:inherit;resize:none;min-height:64px;outline:none;line-height:1.5;"
-          oninput="updateMediaMemo('${m.id}',this.value)"
-        >${m.memo||''}</textarea>
-      </div>
-    </div>`
-  ).join('');
-}
-
-function renderAttachedMovies() {
-  const el = document.getElementById('attached-movies');
-  const movies = attachedMedia.filter(m => m.type === 'movie');
-  el.innerHTML = movies.map(m =>
-    `<div style="background:var(--bg2);border-radius:10px;margin-top:8px;overflow:hidden;">
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 10px 8px;">
-        ${m.cover ? `<img src="${m.cover}" style="width:36px;height:50px;object-fit:cover;border-radius:4px;flex-shrink:0;" onerror="this.style.display='none'">` : `<span style="flex-shrink:0;">${movieSVG(28, 'var(--text3)')}</span>`}
-        <div style="flex:1;min-width:0;">
-          <div style="font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${m.title}</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:1px;">${m.year||''}</div>
-        </div>
-        <button onclick="removeAttachedById('${m.id}')" style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;flex-shrink:0;line-height:1;">×</button>
-      </div>
-      <div style="padding:0 10px 6px;display:flex;gap:6px;flex-wrap:wrap;">
-        ${MOVIE_STATUSES.map(s => `
-          <button onclick="updateMediaStatus('${m.id}','${s.value}');renderAttachedMovies()"
-            style="padding:4px 10px;border-radius:20px;border:1px solid ${m.status===s.value?'var(--accent)':'var(--border)'};background:${m.status===s.value?'rgba(var(--accent-rgb),0.15)':'var(--bg3)'};color:${m.status===s.value?'var(--accent2)':'var(--text3)'};font-size:12px;cursor:pointer;">
-            ${s.label}
-          </button>`).join('')}
-      </div>
-      <div style="padding:0 10px 10px;">
-        <textarea
-          placeholder="感想メモ（任意）"
-          style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:8px 10px;font-family:inherit;resize:none;min-height:64px;outline:none;line-height:1.5;"
-          oninput="updateMediaMemo('${m.id}',this.value)"
-        >${m.memo||''}</textarea>
-      </div>
-    </div>`
-  ).join('');
-}
-
-function removeAttachedById(id) {
-  attachedMedia = attachedMedia.filter(m => m.id !== id);
-  renderAttachedBooks();
-  renderAttachedMovies();
-}
 
 // =========================================================
 // 日記詳細
@@ -2130,21 +1794,7 @@ async function openDetail(id) {
   if (dateEl) dateEl.textContent = formatDate(entry.date);
   const photos = entry.photos && entry.photos.length
     ? entry.photos.map(p=>`<img src="${p}" style="width:100%;border-radius:var(--radius-sm);margin-bottom:8px;display:block;" onerror="this.style.display='none'">`).join('')
-    : '';
-  const media = entry.media && entry.media.length
-    ? `<div style="margin-top:12px;">${entry.media.map(m=>`
-        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:8px;">
-          <div style="display:flex;gap:12px;padding:12px;">
-            ${m.cover ? `<img style="width:44px;height:62px;object-fit:cover;border-radius:6px;flex-shrink:0;" src="${m.cover}" onerror="this.style.display='none'">` : `<div style="width:44px;height:62px;border-radius:6px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">${m.type==='book'?bookSVG(24,'var(--text3)'):movieSVG(24,'var(--text3)')}</div>`}
-            <div style="flex:1;min-width:0;">
-              <div style="font-size:14px;font-weight:600;color:var(--text);">${m.title}</div>
-              <div style="font-size:12px;color:var(--text3);margin-top:2px;">${m.author||''}${m.year?' · '+m.year:''}</div>
-              ${m.status ? `<div style="margin-top:6px;display:inline-block;padding:3px 10px;border-radius:20px;background:rgba(var(--accent-rgb),0.15);color:var(--accent2);font-size:11px;font-weight:600;">${statusLabel(m)}</div>` : ''}
-            </div>
-          </div>
-          ${m.memo ? `<div style="padding:0 12px 12px;font-size:13px;color:var(--text2);line-height:1.6;border-top:1px solid var(--border);padding-top:10px;white-space:pre-wrap;">${m.memo}</div>` : ''}
-        </div>`).join('')}</div>`
-    : '';
+    : '';  const media = '';
   el.innerHTML = `
     <!-- ヘッダー情報 -->
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
@@ -3098,19 +2748,13 @@ function checkAutosave() {
       document.getElementById('entry-text').value = d.text || '';
       document.querySelectorAll('.add-option-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.add-section').forEach(s => s.style.display = 'none');
-      document.getElementById('inline-book-input').value = '';
-      document.getElementById('inline-movie-input').value = '';
-      document.getElementById('inline-book-results').innerHTML = '';
-      document.getElementById('inline-movie-results').innerHTML = '';
-      if (d.weather) {
+                      if (d.weather) {
         const el = document.getElementById('weather-display');
         if (el) el.innerHTML = `<div class="weather-badge">${d.weather.label} ${d.weather.temp}℃</div>`;
       }
       renderMoodSelector();
       renderPhotoPreview();
-      renderAttachedBooks();
-      renderAttachedMovies();
-    } else {
+            } else {
       clearAutosave();
     }
     openModal('modal-entry');
@@ -3134,35 +2778,7 @@ function getAllWatchlist() {
   });
 }
 
-function switchMediaMainTab(tab, btn) {
-  document.querySelectorAll('[id^="media-main-tab-"]').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('media-log-view').style.display = tab === 'log' ? '' : 'none';
-  document.getElementById('media-watchlist-view').style.display = tab === 'watchlist' ? '' : 'none';
-  if (tab === 'watchlist') renderWatchlist();
-}
 
-async function renderWatchlist(typeFilter='all') {
-  const all = await getAllWatchlist();
-  const filtered = typeFilter === 'all' ? all : all.filter(w => w.type === typeFilter);
-  const el = document.getElementById('watchlist-list');
-  if (!filtered.length) {
-    el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">${emptyIllustration('book')}</div><div class="empty-state-text">リストが空です<br>上のボタンから追加できます</div></div>`;
-    return;
-  }
-  el.innerHTML = filtered.map(w => `
-    <div class="media-card">
-      ${w.cover?`<img class="media-thumb" src="${w.cover}" onerror="this.style.display='none'">`:` <div class="media-thumb-placeholder">${w.type==='book'?bookSVG(24,'var(--text3)'):movieSVG(24,'var(--text3)')}</div>`}
-      <div class="media-info" style="flex:1;min-width:0;">
-        <div class="media-title">${w.title}</div>
-        <div class="media-sub">${w.author||''} ${w.year?'· '+w.year:''}</div>
-        <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
-          <button onclick="markWatchlistDone('${w.id}')" style="padding:4px 10px;border-radius:20px;border:1px solid var(--accent);background:rgba(var(--accent-rgb),0.1);color:var(--accent);font-size:11px;cursor:pointer;">${w.type==='book'?'読了':'視聴済み'}にする</button>
-          <button onclick="removeWatchlist('${w.id}')" style="padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--bg3);color:var(--text3);font-size:11px;cursor:pointer;">削除</button>
-        </div>
-      </div>
-    </div>`).join('');
-}
 
 function filterWatchlist(type, btn) {
   document.querySelectorAll('#watchlist-filter-chips .chip').forEach(c => c.classList.remove('active'));
@@ -3170,89 +2786,8 @@ function filterWatchlist(type, btn) {
   renderWatchlist(type);
 }
 
-function openWatchlistSearch(type) {
-  currentWatchlistType = type;
-  document.getElementById('watchlist-search-title').textContent = type === 'book' ? '読みたい本を追加' : '見たい映画を追加';
-  document.getElementById('watchlist-search-input').value = '';
-  document.getElementById('watchlist-search-results').innerHTML = '';
-  openModal('modal-watchlist-search');
-}
 
-function searchWatchlist() {
-  clearTimeout(watchlistSearchTimeout);
-  watchlistSearchTimeout = setTimeout(async () => {
-    const q = document.getElementById('watchlist-search-input').value.trim();
-    if (q.length < 2) return;
-    const results = document.getElementById('watchlist-search-results');
-    results.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">検索中...</div>';
-    try {
-      if (currentWatchlistType === 'book') {
-        const [ndlRes, gbRes] = await Promise.allSettled([
-          fetch(`https://ndlsearch.ndl.go.jp/api/opensearch?q=${encodeURIComponent(q)}&cnt=6&mediatype=1`),
-          fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=6`)
-        ]);
-        let books = [];
-        if (ndlRes.status === 'fulfilled' && ndlRes.value.ok) {
-          const text = await ndlRes.value.text();
-          const parser = new DOMParser();
-          const xml = parser.parseFromString(text, 'text/xml');
-          xml.querySelectorAll('item').forEach(item => {
-            const title = item.querySelector('title')?.textContent || '';
-            const author = item.querySelector('author')?.textContent || '';
-            const year = item.querySelector('pubDate')?.textContent?.substring(0,4) || '';
-            const isbn = [...item.querySelectorAll('*')].find(el => el.tagName.includes('identifier'))?.textContent || '';
-            const cover = isbn ? `https://ndlsearch.ndl.go.jp/thumbnail/${isbn}.jpg` : null;
-            if (title) books.push({ title, author, year, cover, id:'wl_ndl_'+isbn });
-          });
-        }
-        if (gbRes.status === 'fulfilled' && gbRes.value.ok) {
-          const data = await gbRes.value.json();
-          if (data.items) data.items.forEach(item => {
-            const info = item.volumeInfo;
-            const title = info.title || '';
-            const author = info.authors?.[0] || '';
-            const year = info.publishedDate?.substring(0,4) || '';
-            const cover = info.imageLinks?.thumbnail?.replace('http:','https:') || null;
-            if (title && !books.some(b => b.title === title)) books.push({ title, author, year, cover, id:'wl_gb_'+item.id });
-          });
-        }
-        if (!books.length) { results.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">見つかりませんでした</div>'; return; }
-        results.innerHTML = books.slice(0,8).map(book => {
-          const obj = encodeURIComponent(JSON.stringify({ id:book.id, type:'book', title:book.title, author:book.author, year:book.year, cover:book.cover, key:book.id }));
-          return `<div class="media-card" style="cursor:pointer;" onclick="addToWatchlist('${obj}')">
-            ${book.cover?`<img class="media-thumb" src="${book.cover}" onerror="this.style.display='none'">`:`<div class="media-thumb-placeholder">${bookSVG(24, 'var(--text3)')}</div>`}
-            <div class="media-info"><div class="media-title">${book.title}</div><div class="media-sub">${book.author}${book.year?' · '+book.year:''}</div></div>
-          </div>`;
-        }).join('');
-      } else {
-        const apiKey = localStorage.getItem('omdb_key') || '';
-        if (!apiKey) { results.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">設定からOMDb APIキーを登録してください</div>'; return; }
-        const res = await fetch(`https://www.omdbapi.com/?s=${encodeURIComponent(q)}&apikey=${apiKey}&type=movie`);
-        const data = await res.json();
-        if (data.Response==='False') { results.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">見つかりませんでした</div>'; return; }
-        results.innerHTML = data.Search.slice(0,6).map(movie => {
-          const cover = movie.Poster && movie.Poster!=='N/A' ? movie.Poster : null;
-          const obj = encodeURIComponent(JSON.stringify({ id:'wl_movie_'+movie.imdbID, type:'movie', title:movie.Title, year:movie.Year, cover, imdbID:movie.imdbID }));
-          return `<div class="media-card" style="cursor:pointer;" onclick="addToWatchlist('${obj}')">
-            ${cover?`<img class="media-thumb" src="${cover}" onerror="this.style.display='none'">`:`<div class="media-thumb-placeholder">${movieSVG(24, 'var(--text3)')}</div>`}
-            <div class="media-info"><div class="media-title">${movie.Title}</div><div class="media-sub">${movie.Year}</div></div>
-          </div>`;
-        }).join('');
-      }
-    } catch(e) { results.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">検索に失敗しました</div>'; }
-  }, 400);
-}
 
-async function addToWatchlist(encoded) {
-  const item = JSON.parse(decodeURIComponent(encoded));
-  const existing = await getAllWatchlist();
-  if (existing.find(w => w.id === item.id)) { showToast('すでにリストにあります'); return; }
-  item.addedAt = new Date().toISOString();
-  await dbOp('watchlist', 'readwrite', store => store.put(item));
-  closeModal('modal-watchlist-search');
-  showToast('リストに追加しました ✓');
-  renderWatchlist();
-}
 
 async function removeWatchlist(id) {
   await dbOp('watchlist', 'readwrite', store => store.delete(id));
@@ -4076,14 +3611,6 @@ function buildSettingsHTML() {
     </div>
   </div>
 
-  <div class="settings-section-title">外部連携</div>
-  <div class="card">
-    <div class="setting-label" style="margin-bottom:8px;">OMDb APIキー（映画情報取得）</div>
-    <input type="text" class="form-input" id="omdb-key-input" placeholder="無料登録: omdbapi.com">
-    <button class="btn btn-primary" style="margin-top:8px;width:100%;" onclick="saveOmdbKey()">保存</button>
-    <div style="font-size:12px;color:var(--text3);margin-top:6px;">omdbapi.comで無料登録するとAPIキーが取得できます</div>
-  </div>
-
   <div style="text-align:center;padding:20px;color:var(--text3);font-size:12px;">My Life Log v1.0</div>
   `;
 }
@@ -4135,13 +3662,6 @@ function initSettingsValues() {
   if (tp) tp.checked = pcEnabled;
   const pcr = document.getElementById('passcode-change-row');
   if (pcr) pcr.style.display = pcEnabled ? 'flex' : 'none';
-  const omdb = document.getElementById('omdb-key-input');
-  if (omdb) omdb.value = localStorage.getItem('omdb_key') || '';
-}
-function saveOmdbKey() {
-  const k = document.getElementById('omdb-key-input').value.trim();
-  localStorage.setItem('omdb_key', k);
-  showToast('APIキーを保存しました ✓');
 }
 
 // =========================================================
