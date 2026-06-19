@@ -1336,8 +1336,8 @@
       <div style="display:flex;gap:8px;flex-wrap:wrap;" id="add-option-btns">
         <button class="add-option-btn" id="opt-photo" onclick="toggleAddSection('photo')">📷 写真</button>
         <button class="add-option-btn" id="opt-mood" onclick="toggleAddSection('mood')">気分</button>
-        <button class="add-option-btn" id="opt-book" onclick="toggleAddSection('book')">📚 本</button>
-        <button class="add-option-btn" id="opt-movie" onclick="toggleAddSection('movie')">🎬 映画</button>
+        <button class="add-option-btn" id="opt-book" onclick="toggleAddSection('book')">${bookSVG(16)} 本</button>
+        <button class="add-option-btn" id="opt-movie" onclick="toggleAddSection('movie')">${movieSVG(16)} 映画</button>
       </div>
     </div>
 
@@ -1365,7 +1365,7 @@
     <!-- 展開セクション: 本 -->
     <div class="add-section" id="section-book" style="display:none;">
       <div class="add-section-header">
-        <span>📚 本</span>
+        <span style="display:inline-flex;align-items:center;gap:4px;">${bookSVG(15)} 本</span>
         <button class="add-section-close" onclick="toggleAddSection('book')">×</button>
       </div>
       <div class="search-bar" style="margin-bottom:10px;">
@@ -1379,7 +1379,7 @@
     <!-- 展開セクション: 映画 -->
     <div class="add-section" id="section-movie" style="display:none;">
       <div class="add-section-header">
-        <span>🎬 映画</span>
+        <span style="display:inline-flex;align-items:center;gap:4px;">${movieSVG(15)} 映画</span>
         <button class="add-section-close" onclick="toggleAddSection('movie')">×</button>
       </div>
       <div class="search-bar" style="margin-bottom:10px;">
@@ -1402,11 +1402,12 @@
   <div class="modal" style="border-radius:0;max-height:100vh;height:100vh;display:flex;flex-direction:column;padding:0;">
     <!-- ヘッダー -->
     <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 16px 12px;border-bottom:1px solid var(--border);flex-shrink:0;padding-top:calc(16px + env(safe-area-inset-top));">
-      <button onclick="closeModal('modal-detail')" style="background:none;border:none;color:var(--text2);font-size:15px;cursor:pointer;display:flex;align-items:center;gap:4px;padding:0;">
-        ← 戻る
+      <button onclick="closeModal('modal-detail')" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:0;width:36px;display:flex;align-items:center;">
+        ‹
       </button>
-      <div style="display:flex;gap:8px;">
-        <button class="btn btn-primary" style="padding:6px 14px;font-size:13px;" onclick="editCurrentEntry()">編集</button>
+      <div id="detail-header-date" style="font-size:15px;font-weight:700;color:var(--text);"></div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-primary" style="padding:6px 14px;font-size:13px;" onclick="editCurrentEntry()">✏️</button>
         <button class="btn btn-danger" style="padding:6px 14px;font-size:13px;" onclick="deleteCurrentEntry()">削除</button>
       </div>
     </div>
@@ -1545,62 +1546,73 @@ let yearlySummaryYear = new Date().getFullYear();
 const MOOD_LABELS = ['','最悪','イマイチ','普通','良い','最高'];
 
 function moodSVG(level, size=32, color='currentColor') {
-  const s = size, r = s/2, cx = r, cy = r, fr = r*0.85;
-  const sw = s*0.065;
-  const eyeY = cy - fr*0.18;
-  const eyeOX = fr*0.34;
+  const s = size, cx = s/2, cy = s/2, r = s*0.42;
+  const sw = s*0.07;
+  const eyeY = cy - r*0.2;
+  const eyeX = r*0.35;
+  const eyeR = s*0.055;
 
   const faces = {
-    1: {
-      eyes: `<ellipse cx="${cx-eyeOX}" cy="${eyeY}" rx="${fr*0.1}" ry="${fr*0.13}" fill="${color}"/>
-             <ellipse cx="${cx+eyeOX}" cy="${eyeY}" rx="${fr*0.1}" ry="${fr*0.13}" fill="${color}"/>
-             <path d="M${cx-eyeOX*1.5},${eyeY-fr*0.26} Q${cx-eyeOX},${eyeY-fr*0.1} ${cx-eyeOX*0.4},${eyeY-fr*0.22}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>
-             <path d="M${cx+eyeOX*0.4},${eyeY-fr*0.22} Q${cx+eyeOX},${eyeY-fr*0.1} ${cx+eyeOX*1.5},${eyeY-fr*0.26}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>
-             <path d="M${cx-eyeOX*1.1},${eyeY+fr*0.1} Q${cx-eyeOX},${eyeY+fr*0.32} ${cx-eyeOX*0.35},${eyeY+fr*0.1}" fill="${color}" opacity="0.7"/>
-             <path d="M${cx+eyeOX*0.35},${eyeY+fr*0.1} Q${cx+eyeOX},${eyeY+fr*0.32} ${cx+eyeOX*1.1},${eyeY+fr*0.1}" fill="${color}" opacity="0.7"/>`,
-      mouth: `<path d="M${cx-fr*0.38},${cy+fr*0.42} Q${cx},${cy+fr*0.2} ${cx+fr*0.38},${cy+fr*0.42}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>`
+    1: { // 最悪 - への字口、眉をハの字
+      eyes: `<circle cx="${cx-eyeX}" cy="${eyeY}" r="${eyeR}" fill="${color}"/>
+             <circle cx="${cx+eyeX}" cy="${eyeY}" r="${eyeR}" fill="${color}"/>
+             <path d="M${cx-eyeX-r*0.22},${eyeY-r*0.32} L${cx-eyeX+r*0.1},${eyeY-r*0.18}" stroke="${color}" stroke-width="${sw*0.8}" stroke-linecap="round"/>
+             <path d="M${cx+eyeX-r*0.1},${eyeY-r*0.18} L${cx+eyeX+r*0.22},${eyeY-r*0.32}" stroke="${color}" stroke-width="${sw*0.8}" stroke-linecap="round"/>`,
+      mouth: `<path d="M${cx-r*0.35},${cy+r*0.48} Q${cx},${cy+r*0.28} ${cx+r*0.35},${cy+r*0.48}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>`
     },
-    2: {
-      eyes: `<ellipse cx="${cx-eyeOX}" cy="${eyeY}" rx="${fr*0.1}" ry="${fr*0.12}" fill="${color}"/>
-             <ellipse cx="${cx+eyeOX}" cy="${eyeY}" rx="${fr*0.1}" ry="${fr*0.12}" fill="${color}"/>
-             <path d="M${cx-eyeOX*1.4},${eyeY-fr*0.22} Q${cx-eyeOX},${eyeY-fr*0.08} ${cx-eyeOX*0.5},${eyeY-fr*0.18}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>
-             <path d="M${cx+eyeOX*0.5},${eyeY-fr*0.18} Q${cx+eyeOX},${eyeY-fr*0.08} ${cx+eyeOX*1.4},${eyeY-fr*0.22}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>`,
-      mouth: `<path d="M${cx-fr*0.3},${cy+fr*0.4} Q${cx},${cy+fr*0.26} ${cx+fr*0.3},${cy+fr*0.4}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>`
+    2: { // イマイチ - 少し下向き口
+      eyes: `<circle cx="${cx-eyeX}" cy="${eyeY}" r="${eyeR}" fill="${color}"/>
+             <circle cx="${cx+eyeX}" cy="${eyeY}" r="${eyeR}" fill="${color}"/>`,
+      mouth: `<path d="M${cx-r*0.3},${cy+r*0.44} Q${cx},${cy+r*0.3} ${cx+r*0.3},${cy+r*0.44}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>`
     },
-    3: {
-      eyes: `<circle cx="${cx-eyeOX}" cy="${eyeY}" r="${fr*0.11}" fill="${color}"/>
-             <circle cx="${cx+eyeOX}" cy="${eyeY}" r="${fr*0.11}" fill="${color}"/>
-             <path d="M${cx-eyeOX*1.4},${eyeY-fr*0.2} L${cx-eyeOX*0.55},${eyeY-fr*0.2}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>
-             <path d="M${cx+eyeOX*0.55},${eyeY-fr*0.2} L${cx+eyeOX*1.4},${eyeY-fr*0.2}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>`,
-      mouth: `<path d="M${cx-fr*0.28},${cy+fr*0.36} L${cx+fr*0.28},${cy+fr*0.36}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>`
+    3: { // 普通 - まっすぐ口
+      eyes: `<circle cx="${cx-eyeX}" cy="${eyeY}" r="${eyeR}" fill="${color}"/>
+             <circle cx="${cx+eyeX}" cy="${eyeY}" r="${eyeR}" fill="${color}"/>`,
+      mouth: `<path d="M${cx-r*0.28},${cy+r*0.38} L${cx+r*0.28},${cy+r*0.38}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>`
     },
-    4: {
-      eyes: `<path d="M${cx-eyeOX*1.35},${eyeY-fr*0.08} Q${cx-eyeOX},${eyeY+fr*0.14} ${cx-eyeOX*0.45},${eyeY-fr*0.08}" fill="none" stroke="${color}" stroke-width="${sw*1.1}" stroke-linecap="round"/>
-             <path d="M${cx+eyeOX*0.45},${eyeY-fr*0.08} Q${cx+eyeOX},${eyeY+fr*0.14} ${cx+eyeOX*1.35},${eyeY-fr*0.08}" fill="none" stroke="${color}" stroke-width="${sw*1.1}" stroke-linecap="round"/>
-             <path d="M${cx-eyeOX*1.4},${eyeY-fr*0.24} Q${cx-eyeOX},${eyeY-fr*0.12} ${cx-eyeOX*0.5},${eyeY-fr*0.22}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>
-             <path d="M${cx+eyeOX*0.5},${eyeY-fr*0.22} Q${cx+eyeOX},${eyeY-fr*0.12} ${cx+eyeOX*1.4},${eyeY-fr*0.24}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>`,
-      mouth: `<path d="M${cx-fr*0.38},${cy+fr*0.22} Q${cx},${cy+fr*0.52} ${cx+fr*0.38},${cy+fr*0.22}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>`
+    4: { // 良い - にっこり
+      eyes: `<path d="M${cx-eyeX-r*0.18},${eyeY} Q${cx-eyeX},${eyeY+r*0.2} ${cx-eyeX+r*0.18},${eyeY}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>
+             <path d="M${cx+eyeX-r*0.18},${eyeY} Q${cx+eyeX},${eyeY+r*0.2} ${cx+eyeX+r*0.18},${eyeY}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>`,
+      mouth: `<path d="M${cx-r*0.35},${cy+r*0.28} Q${cx},${cy+r*0.55} ${cx+r*0.35},${cy+r*0.28}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>`
     },
-    5: {
-      eyes: `<path d="M${cx-eyeOX*1.4},${eyeY-fr*0.06} Q${cx-eyeOX},${eyeY+fr*0.22} ${cx-eyeOX*0.4},${eyeY-fr*0.06}" fill="none" stroke="${color}" stroke-width="${sw*1.2}" stroke-linecap="round"/>
-             <path d="M${cx+eyeOX*0.4},${eyeY-fr*0.06} Q${cx+eyeOX},${eyeY+fr*0.22} ${cx+eyeOX*1.4},${eyeY-fr*0.06}" fill="none" stroke="${color}" stroke-width="${sw*1.2}" stroke-linecap="round"/>
-             <path d="M${cx-eyeOX*1.5},${eyeY-fr*0.28} Q${cx-eyeOX},${eyeY-fr*0.14} ${cx-eyeOX*0.4},${eyeY-fr*0.26}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>
-             <path d="M${cx+eyeOX*0.4},${eyeY-fr*0.26} Q${cx+eyeOX},${eyeY-fr*0.14} ${cx+eyeOX*1.5},${eyeY-fr*0.28}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>
-             <ellipse cx="${cx-fr*0.52}" cy="${cy+fr*0.1}" rx="${fr*0.16}" ry="${fr*0.1}" fill="${color}" opacity="0.25"/>
-             <ellipse cx="${cx+fr*0.52}" cy="${cy+fr*0.1}" rx="${fr*0.16}" ry="${fr*0.1}" fill="${color}" opacity="0.25"/>`,
-      mouth: `<path d="M${cx-fr*0.46},${cy+fr*0.18} Q${cx},${cy+fr*0.62} ${cx+fr*0.46},${cy+fr*0.18}" fill="${color}" opacity="0.18"/>
-              <path d="M${cx-fr*0.46},${cy+fr*0.18} Q${cx},${cy+fr*0.62} ${cx+fr*0.46},${cy+fr*0.18}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>`
+    5: { // 最高 - 目がアーチ、大きな笑顔
+      eyes: `<path d="M${cx-eyeX-r*0.2},${eyeY} Q${cx-eyeX},${eyeY+r*0.24} ${cx-eyeX+r*0.2},${eyeY}" fill="none" stroke="${color}" stroke-width="${sw*1.1}" stroke-linecap="round"/>
+             <path d="M${cx+eyeX-r*0.2},${eyeY} Q${cx+eyeX},${eyeY+r*0.24} ${cx+eyeX+r*0.2},${eyeY}" fill="none" stroke="${color}" stroke-width="${sw*1.1}" stroke-linecap="round"/>
+             <ellipse cx="${cx-r*0.48}" cy="${cy+r*0.08}" rx="${r*0.14}" ry="${r*0.08}" fill="${color}" opacity="0.3"/>
+             <ellipse cx="${cx+r*0.48}" cy="${cy+r*0.08}" rx="${r*0.14}" ry="${r*0.08}" fill="${color}" opacity="0.3"/>`,
+      mouth: `<path d="M${cx-r*0.42},${cy+r*0.22} Q${cx},${cy+r*0.62} ${cx+r*0.42},${cy+r*0.22}" fill="${color}" opacity="0.15"/>
+              <path d="M${cx-r*0.42},${cy+r*0.22} Q${cx},${cy+r*0.62} ${cx+r*0.42},${cy+r*0.22}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round"/>`
     },
   };
   const f = faces[level];
   return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="${cx}" cy="${cy}" r="${fr}" fill="none" stroke="${color}" stroke-width="${sw}"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="${sw}"/>
     ${f.eyes}
     ${f.mouth}
   </svg>`;
 }
 
 const MOODS = ['', moodSVG(1), moodSVG(2), moodSVG(3), moodSVG(4), moodSVG(5)];
+
+function bookSVG(size=20, color='currentColor') {
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+  </svg>`;
+}
+
+function movieSVG(size=20, color='currentColor') {
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/>
+    <line x1="7" y1="2" x2="7" y2="22"/>
+    <line x1="17" y1="2" x2="17" y2="22"/>
+    <line x1="2" y1="12" x2="22" y2="12"/>
+    <line x1="2" y1="7" x2="7" y2="7"/>
+    <line x1="2" y1="17" x2="7" y2="17"/>
+    <line x1="17" y1="17" x2="22" y2="17"/>
+    <line x1="17" y1="7" x2="22" y2="7"/>
+  </svg>`;
+}
 
 // =========================================================
 // ナビ・ページ
@@ -1650,8 +1662,8 @@ async function renderDiaryList() {
   list.innerHTML = filtered.map(e => {
     const tags = [];
     if (e.photos && e.photos.length) tags.push('<span class="tag tag-photo">📷 写真</span>');
-    if (e.media && e.media.some(m=>m.type==='book')) tags.push('<span class="tag tag-book">📚 本</span>');
-    if (e.media && e.media.some(m=>m.type==='movie')) tags.push('<span class="tag tag-movie">🎬 映画</span>');
+    if (e.media && e.media.some(m=>m.type==='book')) tags.push(`<span class="tag tag-book" style="display:inline-flex;align-items:center;gap:3px;">${bookSVG(12)} 本</span>`);
+    if (e.media && e.media.some(m=>m.type==='movie')) tags.push(`<span class="tag tag-movie" style="display:inline-flex;align-items:center;gap:3px;">${movieSVG(12)} 映画</span>`);
     const weatherStr = e.weather ? `<span class="weather-badge">${e.weather.label} ${e.weather.temp}℃</span>` : '';
     return `<div class="diary-card" onclick="openDetail('${e.id}')">
       <div class="diary-card-header">
@@ -1659,7 +1671,10 @@ async function renderDiaryList() {
         <span style="width:26px;height:26px;display:inline-flex;">${e.mood ? moodSVG(e.mood,26,"var(--accent)") : ''}</span>
       </div>
       ${weatherStr}
-      <div class="diary-text" style="margin-top:${e.weather?'4px':'0'}">${e.text || '<span style="color:var(--text3)">（テキストなし）</span>'}</div>
+      <div style="display:flex;gap:10px;align-items:flex-start;margin-top:${e.weather?'4px':'0'};">
+        <div class="diary-text" style="flex:1;">${e.text || '<span style="color:var(--text3)">（テキストなし）</span>'}</div>
+        ${e.photos && e.photos.length ? `<img src="${e.photos[0]}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;flex-shrink:0;" onerror="this.style.display='none'">` : ''}
+      </div>
       ${tags.length ? `<div class="diary-tags">${tags.join('')}</div>` : ''}
     </div>`;
   }).join('');
@@ -1897,29 +1912,72 @@ function inlineSearchMedia(type) {
 }
 
 async function inlineSearchBooks(q) {
-  const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=8&langRestrict=ja`);
-  const data = await res.json();
   const results = document.getElementById('inline-book-results');
-  if (!data.items || data.items.length === 0) {
-    results.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">見つかりませんでした</div>';
-    return;
+  results.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">検索中...</div>';
+  try {
+    // 国立国会図書館 + Google Books を並列検索
+    const [ndlRes, gbRes] = await Promise.allSettled([
+      fetch(`https://ndlsearch.ndl.go.jp/api/opensearch?q=${encodeURIComponent(q)}&cnt=6&mediatype=1`),
+      fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=6`)
+    ]);
+
+    let books = [];
+
+    // 国立国会図書館の結果をパース
+    if (ndlRes.status === 'fulfilled' && ndlRes.value.ok) {
+      const text = await ndlRes.value.text();
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(text, 'text/xml');
+      const items = xml.querySelectorAll('item');
+      items.forEach(item => {
+        const title = item.querySelector('title')?.textContent || '';
+        const author = item.querySelector('author')?.textContent || '';
+        const pubDate = item.querySelector('pubDate')?.textContent || '';
+        const year = pubDate ? pubDate.substring(0,4) : '';
+        const isbn = [...item.querySelectorAll('*')].find(el => el.tagName.includes('identifier'))?.textContent || '';
+        const cover = isbn ? `https://ndlsearch.ndl.go.jp/thumbnail/${isbn}.jpg` : null;
+        if (title) books.push({ title, author, year, cover, id: 'ndl_'+isbn });
+      });
+    }
+
+    // Google Booksの結果をパース
+    if (gbRes.status === 'fulfilled' && gbRes.value.ok) {
+      const data = await gbRes.value.json();
+      if (data.items) {
+        data.items.forEach(item => {
+          const info = item.volumeInfo;
+          const title = info.title || '';
+          const author = info.authors?.[0] || '';
+          const year = info.publishedDate?.substring(0,4) || '';
+          const cover = info.imageLinks?.thumbnail?.replace('http:','https:') || null;
+          // 重複チェック
+          if (title && !books.some(b => b.title === title)) {
+            books.push({ title, author, year, cover, id: 'gb_'+item.id });
+          }
+        });
+      }
+    }
+
+    if (books.length === 0) {
+      results.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">見つかりませんでした</div>';
+      return;
+    }
+
+    results.innerHTML = books.slice(0,8).map(book => {
+      const obj = encodeURIComponent(JSON.stringify({
+        id: book.id, type:'book', title:book.title, author:book.author, year:book.year, cover:book.cover, key:book.id
+      }));
+      return `<div class="media-card" style="margin-bottom:6px;" onclick="attachInlineMedia('${obj}','book')">
+        ${book.cover ? `<img class="media-thumb" src="${book.cover}" onerror="this.style.display='none'">` : `<div class="media-thumb-placeholder">${bookSVG(24, 'var(--text3)')}</div>`}
+        <div class="media-info">
+          <div class="media-title">${book.title}</div>
+          <div class="media-sub">${book.author}${book.year?' · '+book.year:''}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    results.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">検索に失敗しました</div>';
   }
-  results.innerHTML = data.items.map(item => {
-    const info = item.volumeInfo;
-    const cover = info.imageLinks ? info.imageLinks.thumbnail.replace('http:','https:') : null;
-    const author = info.authors ? info.authors[0] : '不明';
-    const year = info.publishedDate ? info.publishedDate.substring(0,4) : '';
-    const obj = encodeURIComponent(JSON.stringify({
-      id: 'book_'+item.id, type:'book', title:info.title, author, year, cover, key:item.id
-    }));
-    return `<div class="media-card" style="margin-bottom:6px;" onclick="attachInlineMedia('${obj}','book')">
-      ${cover ? `<img class="media-thumb" src="${cover}" onerror="this.style.display='none'">` : '<div class="media-thumb-placeholder">📚</div>'}
-      <div class="media-info">
-        <div class="media-title">${info.title}</div>
-        <div class="media-sub">${author}${year?' · '+year:''}</div>
-      </div>
-    </div>`;
-  }).join('');
 }
 
 async function inlineSearchMovies(q) {
@@ -1941,7 +1999,7 @@ async function inlineSearchMovies(q) {
       id: 'movie_'+movie.imdbID, type:'movie', title:movie.Title, year:movie.Year, cover, imdbID:movie.imdbID
     }));
     return `<div class="media-card" style="margin-bottom:6px;" onclick="attachInlineMedia('${obj}','movie')">
-      ${cover ? `<img class="media-thumb" src="${cover}" onerror="this.style.display='none'">` : '<div class="media-thumb-placeholder">🎬</div>'}
+      ${cover ? `<img class="media-thumb" src="${cover}" onerror="this.style.display='none'">` : `<div class="media-thumb-placeholder">${movieSVG(24, 'var(--text3)')}</div>`}
       <div class="media-info">
         <div class="media-title">${movie.Title}</div>
         <div class="media-sub">${movie.Year}</div>
@@ -1975,7 +2033,7 @@ const BOOK_STATUSES = [
   { value: 'stockpile',label: '📋 積読' },
 ];
 const MOVIE_STATUSES = [
-  { value: 'watched',  label: '🎬 視聴済み' },
+  { value: 'watched',  label: '視聴済み' },
   { value: 'rewatch',  label: '🔄 再視聴' },
   { value: 'watchlist',label: '👀 見たい' },
 ];
@@ -1997,7 +2055,7 @@ function renderAttachedBooks() {
   el.innerHTML = books.map(m =>
     `<div style="background:var(--bg2);border-radius:10px;margin-top:8px;overflow:hidden;">
       <div style="display:flex;align-items:center;gap:10px;padding:10px 10px 8px;">
-        ${m.cover ? `<img src="${m.cover}" style="width:36px;height:50px;object-fit:cover;border-radius:4px;flex-shrink:0;" onerror="this.style.display='none'">` : '<span style="font-size:20px;flex-shrink:0;">📚</span>'}
+        ${m.cover ? `<img src="${m.cover}" style="width:36px;height:50px;object-fit:cover;border-radius:4px;flex-shrink:0;" onerror="this.style.display='none'">` : `<span style="flex-shrink:0;">${bookSVG(28, 'var(--text3)')}</span>`}
         <div style="flex:1;min-width:0;">
           <div style="font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${m.title}</div>
           <div style="font-size:11px;color:var(--text3);margin-top:1px;">${m.author||''}${m.year?' · '+m.year:''}</div>
@@ -2028,7 +2086,7 @@ function renderAttachedMovies() {
   el.innerHTML = movies.map(m =>
     `<div style="background:var(--bg2);border-radius:10px;margin-top:8px;overflow:hidden;">
       <div style="display:flex;align-items:center;gap:10px;padding:10px 10px 8px;">
-        ${m.cover ? `<img src="${m.cover}" style="width:36px;height:50px;object-fit:cover;border-radius:4px;flex-shrink:0;" onerror="this.style.display='none'">` : '<span style="font-size:20px;flex-shrink:0;">🎬</span>'}
+        ${m.cover ? `<img src="${m.cover}" style="width:36px;height:50px;object-fit:cover;border-radius:4px;flex-shrink:0;" onerror="this.style.display='none'">` : `<span style="flex-shrink:0;">${movieSVG(28, 'var(--text3)')}</span>`}
         <div style="flex:1;min-width:0;">
           <div style="font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${m.title}</div>
           <div style="font-size:11px;color:var(--text3);margin-top:1px;">${m.year||''}</div>
@@ -2068,14 +2126,16 @@ async function openDetail(id) {
   const entry = currentEntries.find(e => e.id === id);
   if (!entry) return;
   const el = document.getElementById('detail-content');
+  const dateEl = document.getElementById('detail-header-date');
+  if (dateEl) dateEl.textContent = formatDate(entry.date);
   const photos = entry.photos && entry.photos.length
-    ? `<div class="detail-photos">${entry.photos.map(p=>`<img class="detail-photo" src="${p}">`).join('')}</div>`
+    ? entry.photos.map(p=>`<img src="${p}" style="width:100%;border-radius:var(--radius-sm);margin-bottom:8px;display:block;" onerror="this.style.display='none'">`).join('')
     : '';
   const media = entry.media && entry.media.length
     ? `<div style="margin-top:12px;">${entry.media.map(m=>`
         <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:8px;">
           <div style="display:flex;gap:12px;padding:12px;">
-            ${m.cover ? `<img style="width:44px;height:62px;object-fit:cover;border-radius:6px;flex-shrink:0;" src="${m.cover}" onerror="this.style.display='none'">` : `<div style="width:44px;height:62px;border-radius:6px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">${m.type==='book'?'📚':'🎬'}</div>`}
+            ${m.cover ? `<img style="width:44px;height:62px;object-fit:cover;border-radius:6px;flex-shrink:0;" src="${m.cover}" onerror="this.style.display='none'">` : `<div style="width:44px;height:62px;border-radius:6px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">${m.type==='book'?bookSVG(24,'var(--text3)'):movieSVG(24,'var(--text3)')}</div>`}
             <div style="flex:1;min-width:0;">
               <div style="font-size:14px;font-weight:600;color:var(--text);">${m.title}</div>
               <div style="font-size:12px;color:var(--text3);margin-top:2px;">${m.author||''}${m.year?' · '+m.year:''}</div>
@@ -2086,16 +2146,15 @@ async function openDetail(id) {
         </div>`).join('')}</div>`
     : '';
   el.innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-      <div>
-        <div style="font-size:18px;font-weight:700;">${formatDate(entry.date)}</div>
-        ${entry.mood ? `<div style="font-size:13px;color:var(--text3);margin-top:2px;">${MOOD_LABELS[entry.mood]}</div>` : ''}
-        ${entry.weather ? `<div class="weather-badge" style="margin-top:4px;">${entry.weather.label} ${entry.weather.temp}℃ 湿度${entry.weather.hum}%</div>` : ''}
+    <!-- ヘッダー情報 -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+      <div style="flex:1;">
+        ${entry.mood ? `<div style="width:36px;height:36px;">${moodSVG(entry.mood, 36, 'var(--accent)')}</div>` : ''}
       </div>
-      <div style="width:52px;height:52px;">${entry.mood ? moodSVG(entry.mood, 52, 'var(--accent)') : ''}</div>
+      ${entry.weather ? `<div class="weather-badge">${entry.weather.label} ${entry.weather.temp}℃</div>` : ''}
     </div>
+    <div style="font-size:15px;line-height:1.8;color:var(--text2);white-space:pre-wrap;margin-bottom:${photos?'16px':'0'};">${entry.text || ''}</div>
     ${photos}
-    <div style="font-size:15px;line-height:1.8;color:var(--text2);white-space:pre-wrap;">${entry.text || ''}</div>
     ${media}
   `;
   openModal('modal-detail');
@@ -2258,7 +2317,7 @@ async function renderMediaList(type='all') {
   }
   list.innerHTML = filtered.map(m =>
     `<div class="media-card" onclick="openDetail('${m.entryId}')">
-      ${m.cover ? `<img class="media-thumb" src="${m.cover}" onerror="this.style.display='none'">` : `<div class="media-thumb-placeholder">${m.type==='book'?'📚':'🎬'}</div>`}
+      ${m.cover ? `<img class="media-thumb" src="${m.cover}" onerror="this.style.display='none'">` : `<div class="media-thumb-placeholder">${m.type==='book'?bookSVG(24,'var(--text3)'):movieSVG(24,'var(--text3)')}</div>`}
       <div class="media-info">
         <div class="media-title">${m.title}</div>
         <div class="media-sub">${m.author||''} ${m.year?'· '+m.year:''}</div>
@@ -3093,7 +3152,7 @@ async function renderWatchlist(typeFilter='all') {
   }
   el.innerHTML = filtered.map(w => `
     <div class="media-card">
-      ${w.cover?`<img class="media-thumb" src="${w.cover}" onerror="this.style.display='none'">`:` <div class="media-thumb-placeholder">${w.type==='book'?'📚':'🎬'}</div>`}
+      ${w.cover?`<img class="media-thumb" src="${w.cover}" onerror="this.style.display='none'">`:` <div class="media-thumb-placeholder">${w.type==='book'?bookSVG(24,'var(--text3)'):movieSVG(24,'var(--text3)')}</div>`}
       <div class="media-info" style="flex:1;min-width:0;">
         <div class="media-title">${w.title}</div>
         <div class="media-sub">${w.author||''} ${w.year?'· '+w.year:''}</div>
@@ -3128,18 +3187,41 @@ function searchWatchlist() {
     results.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">検索中...</div>';
     try {
       if (currentWatchlistType === 'book') {
-        const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=8&langRestrict=ja`);
-        const data = await res.json();
-        if (!data.items?.length) { results.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">見つかりませんでした</div>'; return; }
-        results.innerHTML = data.items.map(item => {
-          const info = item.volumeInfo;
-          const cover = info.imageLinks ? info.imageLinks.thumbnail.replace('http:','https:') : null;
-          const author = info.authors?.[0] || '';
-          const year = info.publishedDate ? info.publishedDate.substring(0,4) : '';
-          const obj = encodeURIComponent(JSON.stringify({ id:'wl_book_'+item.id, type:'book', title:info.title, author, year, cover, key:item.id }));
+        const [ndlRes, gbRes] = await Promise.allSettled([
+          fetch(`https://ndlsearch.ndl.go.jp/api/opensearch?q=${encodeURIComponent(q)}&cnt=6&mediatype=1`),
+          fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=6`)
+        ]);
+        let books = [];
+        if (ndlRes.status === 'fulfilled' && ndlRes.value.ok) {
+          const text = await ndlRes.value.text();
+          const parser = new DOMParser();
+          const xml = parser.parseFromString(text, 'text/xml');
+          xml.querySelectorAll('item').forEach(item => {
+            const title = item.querySelector('title')?.textContent || '';
+            const author = item.querySelector('author')?.textContent || '';
+            const year = item.querySelector('pubDate')?.textContent?.substring(0,4) || '';
+            const isbn = [...item.querySelectorAll('*')].find(el => el.tagName.includes('identifier'))?.textContent || '';
+            const cover = isbn ? `https://ndlsearch.ndl.go.jp/thumbnail/${isbn}.jpg` : null;
+            if (title) books.push({ title, author, year, cover, id:'wl_ndl_'+isbn });
+          });
+        }
+        if (gbRes.status === 'fulfilled' && gbRes.value.ok) {
+          const data = await gbRes.value.json();
+          if (data.items) data.items.forEach(item => {
+            const info = item.volumeInfo;
+            const title = info.title || '';
+            const author = info.authors?.[0] || '';
+            const year = info.publishedDate?.substring(0,4) || '';
+            const cover = info.imageLinks?.thumbnail?.replace('http:','https:') || null;
+            if (title && !books.some(b => b.title === title)) books.push({ title, author, year, cover, id:'wl_gb_'+item.id });
+          });
+        }
+        if (!books.length) { results.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0;">見つかりませんでした</div>'; return; }
+        results.innerHTML = books.slice(0,8).map(book => {
+          const obj = encodeURIComponent(JSON.stringify({ id:book.id, type:'book', title:book.title, author:book.author, year:book.year, cover:book.cover, key:book.id }));
           return `<div class="media-card" style="cursor:pointer;" onclick="addToWatchlist('${obj}')">
-            ${cover?`<img class="media-thumb" src="${cover}" onerror="this.style.display='none'">`:' <div class="media-thumb-placeholder">📚</div>'}
-            <div class="media-info"><div class="media-title">${info.title}</div><div class="media-sub">${author}${year?' · '+year:''}</div></div>
+            ${book.cover?`<img class="media-thumb" src="${book.cover}" onerror="this.style.display='none'">`:`<div class="media-thumb-placeholder">${bookSVG(24, 'var(--text3)')}</div>`}
+            <div class="media-info"><div class="media-title">${book.title}</div><div class="media-sub">${book.author}${book.year?' · '+book.year:''}</div></div>
           </div>`;
         }).join('');
       } else {
@@ -3152,7 +3234,7 @@ function searchWatchlist() {
           const cover = movie.Poster && movie.Poster!=='N/A' ? movie.Poster : null;
           const obj = encodeURIComponent(JSON.stringify({ id:'wl_movie_'+movie.imdbID, type:'movie', title:movie.Title, year:movie.Year, cover, imdbID:movie.imdbID }));
           return `<div class="media-card" style="cursor:pointer;" onclick="addToWatchlist('${obj}')">
-            ${cover?`<img class="media-thumb" src="${cover}" onerror="this.style.display='none'">`:' <div class="media-thumb-placeholder">🎬</div>'}
+            ${cover?`<img class="media-thumb" src="${cover}" onerror="this.style.display='none'">`:`<div class="media-thumb-placeholder">${movieSVG(24, 'var(--text3)')}</div>`}
             <div class="media-info"><div class="media-title">${movie.Title}</div><div class="media-sub">${movie.Year}</div></div>
           </div>`;
         }).join('');
