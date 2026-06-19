@@ -1237,75 +1237,59 @@
 <button class="fab" id="fab-btn" onclick="openNewEntry()">＋</button>
 
 <!-- モーダル: 日記作成・編集 -->
-<div class="modal-overlay" id="modal-entry">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title" id="modal-entry-title">新しい日記</div>
+<div class="modal-overlay" id="modal-entry" style="align-items:stretch;">
+  <div class="modal" style="border-radius:0;max-height:100vh;height:100vh;display:flex;flex-direction:column;padding:0;">
 
-    <!-- 基本項目 -->
-    <div class="form-group">
-      <label class="form-label">日付</label>
-      <input type="date" class="form-input" id="entry-date">
+    <!-- ヘッダー -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 16px 12px;border-bottom:1px solid var(--border);flex-shrink:0;padding-top:calc(16px + env(safe-area-inset-top));">
+      <button onclick="closeModal('modal-entry')" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:0;width:36px;">‹</button>
+      <div id="modal-entry-title" style="font-size:15px;font-weight:700;color:var(--text);">新しい日記</div>
+      <button onclick="saveEntry()" class="btn btn-primary" style="padding:6px 16px;font-size:13px;">保存</button>
     </div>
 
-    <!-- 天気表示 -->
-    <div id="weather-display" style="margin-bottom:12px;min-height:24px;"></div>
+    <!-- スクロールエリア -->
+    <div style="flex:1;overflow-y:auto;padding:16px;">
 
-    <div class="form-group">
-      <label class="form-label">日記</label>
-      <textarea class="form-textarea" id="entry-text" placeholder="今日のことを書いてみよう..." oninput="startAutosave()"></textarea>
+      <!-- 日付・天気 -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <input type="date" class="form-input" id="entry-date" style="flex:1;">
+        <div id="weather-display" style="font-size:13px;color:var(--text3);"></div>
+      </div>
+
+      <!-- テキストエリア -->
+      <textarea class="form-textarea" id="entry-text" placeholder="今日のことを書いてみよう..." oninput="startAutosave()" style="min-height:300px;width:100%;"></textarea>
       <div id="autosave-indicator" style="font-size:11px;color:var(--text3);text-align:right;margin-top:4px;opacity:0;transition:opacity 0.3s;"></div>
-    </div>
 
-    <!-- 追加済みアイテムの表示エリア -->
-    <div id="added-items-area"></div>
+      <!-- 追加済みアイテム -->
+      <div id="added-items-area"></div>
 
-    <!-- 追加ボタン -->
-    <div id="add-options-bar" style="margin:4px 0 16px;">
-      <div style="display:flex;gap:8px;flex-wrap:wrap;" id="add-option-btns">
+      <!-- 追加ボタン -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0;" id="add-option-btns">
         <button class="add-option-btn" id="opt-photo" onclick="toggleAddSection('photo')">📷 写真</button>
         <button class="add-option-btn" id="opt-mood" onclick="toggleAddSection('mood')">気分</button>
       </div>
-    </div>
 
-    <!-- 展開セクション: 写真 -->
-    <div class="add-section" id="section-photo" style="display:none;">
-      <div class="add-section-header">
-        <span>📷 写真</span>
-        <button class="add-section-close" onclick="toggleAddSection('photo')">×</button>
+      <!-- 写真セクション -->
+      <div class="add-section" id="section-photo" style="display:none;">
+        <div class="add-section-header">
+          <span>📷 写真</span>
+          <button class="add-section-close" onclick="toggleAddSection('photo')">×</button>
+        </div>
+        <div class="photo-grid" id="photo-preview-grid">
+          <div class="photo-add-btn" onclick="document.getElementById('photo-input').click()">＋</div>
+        </div>
+        <input type="file" id="photo-input" accept="image/*" multiple style="display:none" onchange="addPhotos(event)">
       </div>
-      <div class="photo-grid" id="photo-preview-grid">
-        <div class="photo-add-btn" onclick="document.getElementById('photo-input').click()">＋</div>
-      </div>
-      <input type="file" id="photo-input" accept="image/*" multiple style="display:none" onchange="addPhotos(event)">
-    </div>
 
-    <!-- 展開セクション: 気分 -->
-    <div class="add-section" id="section-mood" style="display:none;">
-      <div class="add-section-header">
-        <span>気分</span>
-        <button class="add-section-close" onclick="toggleAddSection('mood')">×</button>
+      <!-- 気分セクション -->
+      <div class="add-section" id="section-mood" style="display:none;">
+        <div class="add-section-header">
+          <span>気分</span>
+          <button class="add-section-close" onclick="toggleAddSection('mood')">×</button>
+        </div>
+        <div class="mood-selector" id="mood-selector-btns"></div>
       </div>
-      <div class="mood-selector" id="mood-selector-btns"></div>
-    </div>
 
-    <!-- 展開セクション: 本 -->
-    <div class="search-bar" style="margin-bottom:10px;">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input type="text" placeholder="本のタイトルを検索..." id="inline-book-input" oninput="inlineSearchMedia('book')">
-      </div>
-    </div>
-
-    <!-- 展開セクション: 映画 -->
-    <div class="search-bar" style="margin-bottom:10px;">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input type="text" placeholder="映画タイトルを検索..." id="inline-movie-input" oninput="inlineSearchMedia('movie')">
-      </div>
-    </div>
-
-    <div style="display:flex;gap:10px;margin-top:16px;">
-      <button class="btn btn-secondary" onclick="closeModal('modal-entry')">キャンセル</button>
-      <button class="btn btn-primary" onclick="saveEntry()">保存</button>
     </div>
   </div>
 </div>
