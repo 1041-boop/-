@@ -1,0 +1,1901 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<title>やることリスト</title>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Todo">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#1A1C22" id="theme-meta">
+<style>
+:root {
+  --bg:       #F0F1F4;
+  --surface:  #FFFFFF;
+  --ink:      #1A1C22;
+  --ink2:     #6B6E78;
+  --ink3:     #B0B4BC;
+  --border:   #DDE0E8;
+  --border2:  #C8CBD6;
+  --accent:   #334D8A;
+  --accent-l: #EBF0FB;
+  --clay:     #A0674B;
+  --clay-l:   #F5EDE8;
+  --olive:    #5C7A4E;
+  --olive-l:  #EBF2E8;
+  --swipe-done:  #4CAF7D;
+  --swipe-del:   #E05C5C;
+  --nav-h:    58px;
+  --safe:     env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-l:   env(safe-area-inset-left, 0px);
+  --safe-r:   env(safe-area-inset-right, 0px);
+  --radius:   12px;
+}
+
+/* ── テーマ: Slate & Sage ── */
+[data-theme="slate"] {
+  --bg:       #ECEEF2;
+  --surface:  #FFFFFF;
+  --ink:      #1E2535;
+  --ink2:     #5A6378;
+  --ink3:     #A8B0C0;
+  --border:   #D8DCE8;
+  --border2:  #BFC5D4;
+  --accent:   #2E4D7A;
+  --accent-l: #E4EAF5;
+  --clay:     #7A4E38;
+  --clay-l:   #F2EAE5;
+  --olive:    #4A6E48;
+  --olive-l:  #E5F0E4;
+}
+[data-theme="slate"][data-dark="1"] {
+  --bg:       #111520;
+  --surface:  #1A1F2E;
+  --ink:      #E0E4F0;
+  --ink2:     #7A8298;
+  --ink3:     #404860;
+  --border:   #232840;
+  --border2:  #303858;
+  --accent:   #6A90D8;
+  --accent-l: #182040;
+  --clay:     #C07858;
+  --clay-l:   #281810;
+  --olive:    #72A868;
+  --olive-l:  #182010;
+}
+
+/* ── テーマ: Warm Sand ── */
+[data-theme="sand"] {
+  --bg:       #F5F0E8;
+  --surface:  #FDFAF5;
+  --ink:      #2C2418;
+  --ink2:     #7A6848;
+  --ink3:     #C0A880;
+  --border:   #E8DCC8;
+  --border2:  #D4C4A8;
+  --accent:   #8A5C2E;
+  --accent-l: #F5EDE0;
+  --clay:     #C04A30;
+  --clay-l:   #FAE8E0;
+  --olive:    #6A7A30;
+  --olive-l:  #EFF2DC;
+}
+[data-theme="sand"][data-dark="1"] {
+  --bg:       #1A1510;
+  --surface:  #241C14;
+  --ink:      #EEE4D0;
+  --ink2:     #A08060;
+  --ink3:     #584030;
+  --border:   #342818;
+  --border2:  #483820;
+  --accent:   #C88848;
+  --accent-l: #301C08;
+  --clay:     #E07050;
+  --clay-l:   #300E08;
+  --olive:    #98A840;
+  --olive-l:  #202408;
+}
+
+/* ── テーマ: Lavender Mist ── */
+[data-theme="lavender"] {
+  --bg:       #F2EFF8;
+  --surface:  #FDFCFF;
+  --ink:      #221830;
+  --ink2:     #685880;
+  --ink3:     #B8A8D0;
+  --border:   #E0D8F0;
+  --border2:  #C8BCE0;
+  --accent:   #6848A8;
+  --accent-l: #EDE8F8;
+  --clay:     #C05878;
+  --clay-l:   #FAE8F0;
+  --olive:    #507888;
+  --olive-l:  #E4EFF2;
+}
+[data-theme="lavender"][data-dark="1"] {
+  --bg:       #140E20;
+  --surface:  #1C1630;
+  --ink:      #E8E0F8;
+  --ink2:     #9080B8;
+  --ink3:     #484060;
+  --border:   #282040;
+  --border2:  #383058;
+  --accent:   #A080E0;
+  --accent-l: #201840;
+  --clay:     #E07898;
+  --clay-l:   #280C18;
+  --olive:    #68A8B8;
+  --olive-l:  #0C1E28;
+}
+
+/* ── テーマ: Ink & Coral ── */
+[data-theme="coral"] {
+  --bg:       #F4F4F4;
+  --surface:  #FFFFFF;
+  --ink:      #141414;
+  --ink2:     #686868;
+  --ink3:     #B8B8B8;
+  --border:   #E4E4E4;
+  --border2:  #CCCCCC;
+  --accent:   #E05040;
+  --accent-l: #FDF0EE;
+  --clay:     #C04830;
+  --clay-l:   #FAE8E4;
+  --olive:    #507040;
+  --olive-l:  #E8F0E4;
+}
+[data-theme="coral"][data-dark="1"] {
+  --bg:       #141414;
+  --surface:  #1E1E1E;
+  --ink:      #F0F0F0;
+  --ink2:     #909090;
+  --ink3:     #505050;
+  --border:   #2A2A2A;
+  --border2:  #3A3A3A;
+  --accent:   #FF6855;
+  --accent-l: #2A1210;
+  --clay:     #E07060;
+  --clay-l:   #280E0A;
+  --olive:    #78A858;
+  --olive-l:  #101A08;
+}
+
+/* ── デフォルトダーク ── */
+[data-theme="default"][data-dark="1"],
+:root[data-dark="1"] {
+  --bg:       #12131A;
+  --surface:  #1E2030;
+  --ink:      #E8EAF0;
+  --ink2:     #9094A8;
+  --ink3:     #555B72;
+  --border:   #2A2D40;
+  --border2:  #3A3F58;
+  --accent:   #7B9FE8;
+  --accent-l: #1C2545;
+  --clay:     #D4846A;
+  --clay-l:   #2E1C15;
+  --olive:    #7FAF6A;
+  --olive-l:  #1A2518;
+}
+
+/* ── スワイプ ── */
+.swipe-wrap { position: relative; overflow: hidden; border-radius: var(--radius); margin-bottom: 8px; }
+.swipe-bg { position: absolute; inset: 0; display: flex; align-items: center; border-radius: var(--radius); pointer-events: none; }
+.swipe-bg-done { background: var(--swipe-done); justify-content: flex-start; padding-left: 20px; }
+.swipe-bg-del  { background: var(--swipe-del);  justify-content: flex-end;   padding-right: 20px; }
+.swipe-bg svg  { color: #fff; flex-shrink: 0; }
+.swipe-card    { position: relative; transform: translateX(0); transition: transform .08s linear; cursor: pointer; touch-action: pan-y; will-change: transform; background: var(--surface); border-radius: var(--radius); box-shadow: 0 1px 3px rgba(26,28,34,.05); display: flex; overflow: hidden; }
+.swipe-card.snap-back { transition: transform .3s cubic-bezier(.25,.8,.25,1); }
+.swipe-card.fly-done  { transition: transform .3s ease, opacity .3s ease; }
+.swipe-card.fly-del   { transition: transform .3s ease, opacity .3s ease; }
+
+/* ── テーマ選択グリッド ── */
+.theme-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.theme-opt { border: 2px solid var(--border); border-radius: 10px; padding: 12px; cursor: pointer; transition: border-color .15s; background: var(--bg); }
+.theme-opt.selected { border-color: var(--accent); }
+.theme-preview { height: 36px; border-radius: 6px; margin-bottom: 8px; display: flex; gap: 4px; padding: 6px; overflow: hidden; }
+.theme-preview-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.theme-name { font-size: 12px; font-weight: 700; color: var(--ink2); letter-spacing: .04em; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { 
+  margin: 0; padding: 0; 
+  width: 100%; height: 100dvh; 
+  overflow: hidden;
+  background: var(--bg);
+}
+body { 
+  display: flex; flex-direction: column;
+  width: 100%; height: 100dvh;
+  max-width: 480px; margin: 0 auto;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  box-sizing: border-box;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: var(--bg);
+  font-family: -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
+  color: var(--ink); font-size: 15px;
+}
+button { font-family: inherit; cursor: pointer; }
+
+/* ── Screens ── */
+.screen { display: none; flex: 1; flex-direction: column; overflow: hidden; min-height: 0; }
+.screen.active { display: flex; }
+/* ── Header ── */
+.hdr { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 18px 12px; position: sticky; top: 0; z-index: 10; }
+.hdr-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.hdr-title { font-size: 20px; font-weight: 700; letter-spacing: -.4px; }
+.hdr-right { display: flex; align-items: center; gap: 8px; }
+.hdr-sub { font-size: 12px; font-weight: 600; color: var(--ink3); letter-spacing: .06em; }
+.settings-section-label { font-size: 10px; font-weight: 700; letter-spacing: .12em; color: var(--ink3); text-transform: uppercase; margin: 22px 0 6px; }
+.settings-section-label:first-child { margin-top: 4px; }
+.settings-card { background: var(--surface); border-radius: var(--radius); box-shadow: 0 1px 3px rgba(26,28,34,.05); overflow: hidden; }
+.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; cursor: pointer; gap: 12px; }
+.settings-row + .settings-row { border-top: 1px solid var(--border); }
+.settings-row:active { background: var(--bg); }
+.settings-row-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+.settings-row-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--accent-l); color: var(--accent); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.settings-row-title { font-size: 15px; font-weight: 500; }
+.settings-row-sub { font-size: 12px; color: var(--ink2); margin-top: 2px; line-height: 1.4; }
+.settings-add-btn { width: 100%; margin-top: 8px; border: 1.5px dashed var(--border2); background: transparent; color: var(--ink2); border-radius: var(--radius); padding: 12px; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; letter-spacing: .02em; transition: all .15s; }
+.settings-add-btn:active { background: var(--surface); }
+.settings-version { text-align: center; font-size: 11px; color: var(--ink3); margin-top: 32px; letter-spacing: .04em; }
+.toggle-wrap { width: 46px; height: 27px; background: var(--border2); border-radius: 14px; position: relative; cursor: pointer; transition: background .2s; flex-shrink: 0; }
+.toggle-wrap.on { background: var(--accent); }
+.toggle-knob { position: absolute; top: 3px; left: 3px; width: 21px; height: 21px; background: #fff; border-radius: 50%; box-shadow: 0 1px 4px rgba(0,0,0,.18); transition: left .2s; }
+.toggle-wrap.on .toggle-knob { left: 22px; }
+.color-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+.color-swatch { width: 100%; aspect-ratio: 1; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: transform .15s, border-color .15s; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+.color-swatch.selected { border-color: var(--ink); transform: scale(1.15); }
+.cat-settings-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
+.cat-settings-row + .cat-settings-row { border-top: 1px solid var(--border); }
+.cat-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.cat-settings-name { flex: 1; font-size: 15px; font-weight: 500; }
+.cat-settings-del { border: none; background: none; color: var(--ink3); cursor: pointer; padding: 4px; border-radius: 6px; display: flex; align-items: center; }
+.cat-settings-del:active { background: var(--bg); }
+
+/* ── Filter bar ── */
+.filter-bar { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.filter-bar::-webkit-scrollbar { display: none; }
+.pill { flex-shrink: 0; border: 1.5px solid var(--border); background: transparent; color: var(--ink2); font-size: 12px; font-weight: 600; padding: 5px 13px; border-radius: 20px; cursor: pointer; letter-spacing: .02em; transition: all .15s; white-space: nowrap; }
+.pill.on { border-color: var(--accent); background: var(--accent-l); color: var(--accent); }
+
+/* ── Search ── */
+.search-wrap { padding: 10px 16px 0; }
+.search-wrap-inner { position: relative; }
+.search-box { width: 100%; border: 1.5px solid var(--border); border-radius: 10px; padding: 9px 13px 9px 36px; font-size: 14px; font-family: inherit; background: var(--bg); color: var(--ink); outline: none; transition: border-color .15s; appearance: none; }
+.search-box:focus { border-color: var(--accent); }
+.search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--ink3); pointer-events: none; }
+
+/* ── Category tabs ── */
+.cat-bar-wrap { padding: 10px 16px 0; }
+.cat-bar { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+.cat-bar::-webkit-scrollbar { display: none; }
+.cat-chip { flex-shrink: 0; border: none; padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; letter-spacing: .02em; transition: all .15s; background: var(--bg); color: var(--ink3); white-space: nowrap; }
+.cat-chip.on { color: var(--surface); }
+
+/* ── Scroll ── */
+.scroll { flex: 1; overflow-y: auto; padding: 14px 16px 80px; }
+
+/* ── Group label ── */
+.group-label { font-size: 10px; font-weight: 700; letter-spacing: .12em; color: var(--ink3); text-transform: uppercase; margin: 18px 0 6px; display: flex; align-items: center; gap: 8px; }
+.group-label:first-child { margin-top: 2px; }
+.group-line { flex: 1; height: 1px; background: var(--border); }
+
+/* ── Task card ── */
+.tcard { background: var(--surface); border-radius: var(--radius); margin-bottom: 8px; overflow: hidden; position: relative; box-shadow: 0 1px 3px rgba(26,28,34,.05); transition: opacity .2s; cursor: pointer; display: flex; }
+.tcard.done { opacity: .35; }
+.tcard-accent { width: 3px; flex-shrink: 0; }
+.tcard-accent.h { background: var(--clay); }
+.tcard-accent.m { background: var(--olive); }
+.tcard-accent.l { background: var(--border2); }
+.tcard-inner { flex: 1; padding: 12px 12px 12px 13px; min-width: 0; }
+.tcard-top { display: flex; align-items: flex-start; gap: 10px; }
+.cb { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--border2); flex-shrink: 0; margin-top: 1px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+.cb.checked { background: var(--ink); border-color: var(--ink); }
+.cb.checked svg { display: block; }
+.cb svg { display: none; }
+.tcard-body { flex: 1; min-width: 0; }
+.tcard-title { font-size: 15px; font-weight: 500; line-height: 1.4; word-break: break-word; }
+.tcard.done .tcard-title { text-decoration: line-through; }
+.tcard-meta { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; align-items: center; }
+.tag { font-size: 10px; font-weight: 700; letter-spacing: .04em; padding: 2px 8px; border-radius: 5px; }
+.memo-mark { font-size: 10px; color: var(--ink3); }
+.del-btn { width: 28px; height: 28px; border: none; background: none; color: var(--ink3); display: flex; align-items: center; justify-content: center; border-radius: 6px; flex-shrink: 0; transition: background .15s; }
+.del-btn:active { background: var(--bg); }
+
+/* ── Drag ── */
+.drag-handle { width: 26px; display: flex; align-items: center; justify-content: center; color: var(--ink3); cursor: grab; flex-shrink: 0; touch-action: none; }
+.drag-handle:active { cursor: grabbing; }
+.tcard.dragging { opacity: .3; }
+.tcard.drag-over { outline: 2px dashed var(--accent); outline-offset: 2px; }
+
+/* ── Timeline ── */
+.timeline { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border); }
+.tl-track { position: relative; height: 10px; display: flex; align-items: center; margin: 0 2px; }
+.tl-line { position: absolute; left: 0; right: 0; height: 1px; background: var(--border2); }
+.tl-fill { position: absolute; left: 0; height: 2px; border-radius: 1px; transition: width .5s ease; }
+.tl-fill.safe { background: var(--accent); }
+.tl-fill.warn { background: var(--olive); }
+.tl-fill.over { background: var(--clay); }
+.tl-dot { position: absolute; width: 8px; height: 8px; border-radius: 50%; border: 2px solid var(--surface); background: var(--bg); top: 50%; transform: translate(-50%,-50%); transition: left .5s ease; z-index: 1; }
+.tl-dot.safe { background: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.tl-dot.warn { background: var(--olive); box-shadow: 0 0 0 1px var(--olive); }
+.tl-dot.over { background: var(--clay); box-shadow: 0 0 0 1px var(--clay); }
+.tl-start-dot { position: absolute; left: 0; width: 6px; height: 6px; border-radius: 50%; background: var(--border2); top: 50%; transform: translate(-50%,-50%); }
+.tl-end-dot { position: absolute; right: 0; width: 6px; height: 6px; border-radius: 50%; background: var(--border2); top: 50%; transform: translate(50%,-50%); }
+.tl-labels { display: flex; justify-content: space-between; margin-top: 5px; }
+.tl-lbl { font-size: 10px; color: var(--ink2); line-height: 1.2; }
+.tl-lbl span { display: block; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.tl-lbl.over span { color: var(--clay); }
+
+/* ── Archive ── */
+.archive-toggle { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; letter-spacing: .1em; color: var(--ink3); padding: 14px 0 4px; cursor: pointer; user-select: none; text-transform: uppercase; }
+.archive-toggle svg { transition: transform .2s; }
+.archive-toggle.open svg { transform: rotate(90deg); }
+.archive-list { display: none; }
+.archive-list.open { display: block; }
+
+/* ── Wish / Book / Memo cards ── */
+.wcard { background: var(--surface); border-radius: var(--radius); padding: 14px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(26,28,34,.05); display: flex; gap: 12px; align-items: flex-start; }
+.wcard.done .wcard-text { text-decoration: line-through; color: var(--ink3); }
+.wcard-text { flex: 1; font-size: 15px; font-weight: 500; word-break: break-word; line-height: 1.4; }
+.wcard-sub { font-size: 12px; color: var(--ink2); margin-top: 4px; line-height: 1.4; }
+.bcard { background: var(--surface); border-radius: var(--radius); padding: 14px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(26,28,34,.05); display: flex; gap: 13px; }
+.bcover { width: 42px; height: 56px; border-radius: 4px; flex-shrink: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); }
+.binfo { flex: 1; min-width: 0; }
+.btitle { font-size: 15px; font-weight: 600; word-break: break-word; }
+.bauthor { font-size: 12px; color: var(--ink2); margin-top: 3px; }
+.bmemo { font-size: 12px; color: var(--ink2); margin-top: 4px; font-style: italic; }
+.bstatus-row { display: flex; gap: 5px; margin-top: 10px; align-items: center; }
+.sbtn { border: 1.5px solid var(--border); background: var(--surface); color: var(--ink2); font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; cursor: pointer; letter-spacing: .02em; transition: all .15s; }
+.sbtn.want    { border-color: var(--accent); background: var(--accent-l); color: var(--accent); }
+.sbtn.reading { border-color: var(--olive); background: var(--olive-l); color: var(--olive); }
+.sbtn.done2   { border-color: var(--ink3); background: var(--bg); color: var(--ink3); }
+.mcard { background: var(--surface); border-radius: var(--radius); padding: 15px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(26,28,34,.05); cursor: pointer; }
+.mtitle { font-size: 14px; font-weight: 700; margin-bottom: 5px; letter-spacing: -.1px; }
+.mbody { font-size: 13px; color: var(--ink2); line-height: 1.6; white-space: pre-wrap; word-break: break-word; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.mdate { font-size: 10px; color: var(--ink3); margin-top: 8px; letter-spacing: .04em; }
+
+/* ── Empty ── */
+.empty { text-align: center; padding: 64px 24px; }
+.empty-icon { margin: 0 auto 14px; opacity: .2; }
+.empty-text { font-size: 14px; color: var(--ink2); line-height: 1.6; }
+
+/* ── FAB ── */
+.fab { position: fixed; bottom: calc(var(--nav-h) + var(--safe) + 14px); right: 16px; width: 52px; height: 52px; background: var(--ink); border: none; border-radius: 50%; color: #fff; z-index: 20; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(26,28,34,.28); transition: transform .1s; }
+.fab:active { transform: scale(.93); }
+
+/* ── Bottom nav ── */
+.bnav { 
+  display: flex; 
+  flex-shrink: 0;
+  height: var(--nav-h);
+  background: var(--surface); 
+  border-top: 1px solid var(--border); 
+  box-sizing: border-box;
+  z-index: 10;
+  position: relative;
+}
+/* ホームバー部分も白で埋める */
+.bnav::after {
+  content: '';
+  position: absolute;
+  top: 100%; left: 0; right: 0;
+  height: env(safe-area-inset-bottom);
+  background: var(--surface);
+}
+.nbtn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border: none; background: none; cursor: pointer; padding: 8px 0; }
+.nicon { color: var(--ink3); transition: color .15s; }
+.nlabel { font-size: 10px; font-weight: 600; color: var(--ink3); letter-spacing: .04em; transition: color .15s; }
+.nbtn.on .nicon, .nbtn.on .nlabel { color: var(--accent); }
+
+/* ── Modal ── */
+.modal-bg { display: none; position: fixed; inset: 0; background: rgba(26,28,34,.45); z-index: 100; align-items: flex-end; backdrop-filter: blur(3px); }
+.modal-bg.open { display: flex; }
+.modal { background: var(--surface); border-radius: 20px 20px 0 0; width: 100%; max-height: 92dvh; overflow-y: auto; padding: 20px 18px calc(22px + var(--safe)); animation: slideup .22s ease; }
+@keyframes slideup { from { transform: translateY(60px); opacity: 0; } to { transform: none; opacity: 1; } }
+.drag-bar { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 20px; }
+.modal-title { font-size: 17px; font-weight: 700; letter-spacing: -.2px; margin-bottom: 20px; }
+.field { margin-bottom: 15px; }
+.flabel { font-size: 11px; font-weight: 700; letter-spacing: .07em; color: var(--ink2); margin-bottom: 6px; text-transform: uppercase; }
+input.finput, textarea.finput, select.finput {
+  width: 100%; border: 1.5px solid var(--border); border-radius: 10px; padding: 11px 13px;
+  font-size: 15px; font-family: inherit; background: var(--bg); color: var(--ink); outline: none;
+  transition: border-color .15s; appearance: none;
+}
+input.finput:focus, textarea.finput:focus, select.finput:focus { border-color: var(--accent); }
+textarea.finput { min-height: 80px; resize: none; line-height: 1.55; }
+.frow { display: flex; gap: 10px; }
+.frow .field { flex: 1; }
+
+/* カテゴリ選択グリッド */
+.cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+.cat-opt { border: 1.5px solid var(--border); background: var(--bg); border-radius: 9px; padding: 9px 6px; font-size: 12px; font-weight: 700; cursor: pointer; text-align: center; transition: all .15s; color: var(--ink2); letter-spacing: .02em; }
+.cat-opt.selected { color: var(--surface); border-color: transparent; }
+.cat-opt-custom { border: 1.5px dashed var(--border2); background: transparent; border-radius: 9px; padding: 9px 6px; font-size: 12px; font-weight: 700; cursor: pointer; text-align: center; transition: all .15s; color: var(--ink3); letter-spacing: .02em; grid-column: span 3; }
+
+/* 優先度ボタン */
+.pbtns { display: flex; gap: 8px; }
+.pbtn { flex: 1; border: 1.5px solid var(--border); background: var(--surface); border-radius: 10px; padding: 9px 6px; font-size: 13px; font-weight: 700; cursor: pointer; text-align: center; letter-spacing: .02em; transition: all .15s; color: var(--ink2); }
+.pbtn.ph { border-color: var(--clay); background: var(--clay-l); color: var(--clay); }
+.pbtn.pm { border-color: var(--olive); background: var(--olive-l); color: var(--olive); }
+.pbtn.pl { border-color: var(--accent); background: var(--accent-l); color: var(--accent); }
+
+.mbtns { display: flex; gap: 10px; margin-top: 22px; }
+.bcancl { flex: 1; border: 1.5px solid var(--border); background: transparent; color: var(--ink2); font-size: 15px; font-weight: 600; padding: 13px; border-radius: 11px; }
+.bsave  { flex: 2; border: none; background: var(--ink); color: #fff; font-size: 15px; font-weight: 700; padding: 13px; border-radius: 11px; letter-spacing: .02em; transition: background .15s; }
+.bsave:active { background: #2e3340; }
+
+/* カスタムカテゴリ入力 */
+.custom-cat-row { margin-top: 8px; display: none; }
+.custom-cat-row.show { display: block; }
+
+/* ── Dashboard ── */
+.dash-section { margin-bottom: 18px; }
+.dash-section-title { font-size: 11px; font-weight: 700; letter-spacing: .1em; color: var(--ink3); text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.dash-section-title .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.dash-task { background: var(--surface); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 6px; box-shadow: 0 1px 3px rgba(26,28,34,.05); display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.dash-task-name { flex: 1; font-size: 14px; font-weight: 500; line-height: 1.4; word-break: break-word; }
+.dash-task-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 5px; flex-shrink: 0; }
+.dash-overdue-badge { background: var(--clay-l); color: var(--clay); }
+.dash-today-badge { background: var(--accent-l); color: var(--accent); }
+.dash-empty { font-size: 13px; color: var(--ink3); padding: 6px 0; }
+.stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.stat-card { background: var(--surface); border-radius: var(--radius); padding: 14px; box-shadow: 0 1px 3px rgba(26,28,34,.05); }
+.stat-num { font-size: 28px; font-weight: 700; letter-spacing: -.5px; color: var(--accent); }
+.stat-label { font-size: 11px; color: var(--ink2); margin-top: 2px; }
+.dash-reading-card { background: var(--surface); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 6px; box-shadow: 0 1px 3px rgba(26,28,34,.05); display: flex; gap: 10px; align-items: center; }
+.dash-reading-title { flex: 1; font-size: 14px; font-weight: 500; }
+.dash-reading-author { font-size: 11px; color: var(--ink2); margin-top: 2px; }
+
+/* ── Repeat button ── */
+.rbtn { flex: 1; border: 1.5px solid var(--border); background: var(--surface); border-radius: 10px; padding: 9px 6px; font-size: 12px; font-weight: 700; cursor: pointer; text-align: center; letter-spacing: .02em; transition: all .15s; color: var(--ink2); min-width: 60px; }
+.rbtn.ractive { border-color: var(--olive); background: var(--olive-l); color: var(--olive); }
+
+/* ── Export/Import ── */
+.data-btn { width: 100%; border: none; background: var(--accent-l); color: var(--accent); font-size: 14px; font-weight: 700; padding: 13px; border-radius: var(--radius); margin-bottom: 8px; cursor: pointer; letter-spacing: .02em; transition: all .15s; }
+.data-btn:active { opacity: .8; }
+.data-btn.danger { background: var(--clay-l); color: var(--clay); }
+
+.pk { width:72px;height:72px;border:1.5px solid var(--border);background:var(--surface);border-radius:50%;font-size:22px;font-weight:400;cursor:pointer;color:var(--ink);display:flex;align-items:center;justify-content:center;touch-action:manipulation; }
+.pk:active { transform:scale(.88);background:var(--accent-l); }
+.pd { width:12px;height:12px;border-radius:50%;border:2px solid var(--border2);background:transparent;transition:all .15s; }
+.pd.filled { background:var(--accent);border-color:var(--accent);transform:scale(1.2); }
+.pd.error { background:var(--clay);border-color:var(--clay); }
+@keyframes pin-shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-10px)} 40%{transform:translateX(10px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
+
+/* ── Swipe actions ── */
+.swipe-bg-actions { position: absolute; inset: 0; display: flex; align-items: center; justify-content: flex-end; border-radius: var(--radius); pointer-events: none; overflow: hidden; }
+.swipe-action-done { width: 0px; height: 100%; background: var(--swipe-done); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: width .12s; }
+.swipe-action-del  { width: 0px; height: 100%; background: var(--swipe-del);  display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: width .12s; }
+.swipe-action-done svg, .swipe-action-del svg { color: #fff; }
+</style>
+</head>
+<body>
+
+<!-- HOME (DASHBOARD) -->
+<div class="screen active" id="screen-home">
+  <div class="hdr">
+    <div class="hdr-row">
+      <span class="hdr-title">Home</span>
+      <div class="hdr-right">
+        <button class="tab-settings-btn" onclick="openSettingsModal()" style="background:none;border:none;color:var(--ink3);display:flex;align-items:center;padding:4px;border-radius:8px;cursor:pointer;" aria-label="設定">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="scroll" id="dash-scroll"></div>
+</div>
+
+<!-- TASKS -->
+<div class="screen" id="screen-tasks">
+  <div class="hdr">
+    <div class="hdr-row">
+      <span class="hdr-title">Tasks</span>
+      <div class="hdr-right">
+        <span class="hdr-sub" id="badge-tasks" style="display:none"></span>
+        <button id="tasks-settings-btn" class="tab-settings-btn" onclick="goToSettings()" style="background:none;border:none;color:var(--ink3);display:flex;align-items:center;padding:4px;border-radius:8px;cursor:pointer;" aria-label="設定">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="filter-bar">
+      <button class="pill on" data-f="all">すべて</button>
+      <button class="pill" data-f="today">今日まで</button>
+      <button class="pill" data-f="week">今週</button>
+      <button class="pill" data-f="high">優先度：高</button>
+    </div>
+  </div>
+  <div class="search-wrap">
+    <div class="search-wrap-inner">
+      <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="search-box" id="task-search" type="search" placeholder="タスクを検索">
+    </div>
+  </div>
+  <div class="cat-bar-wrap">
+    <div class="cat-bar" id="cat-filter-bar">
+      <!-- JS で生成 -->
+    </div>
+  </div>
+  <div class="scroll" id="list-tasks"></div>
+  <button class="fab" id="fab-tasks" aria-label="タスクを追加">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </button>
+</div>
+
+<!-- WISH -->
+<div class="screen" id="screen-wish">
+  <div class="hdr">
+    <div class="hdr-row">
+      <span class="hdr-title">Wishlist</span>
+      <div class="hdr-right">
+        <button class="tab-settings-btn" onclick="goToSettings()" style="background:none;border:none;color:var(--ink3);display:flex;align-items:center;padding:4px;border-radius:8px;cursor:pointer;" aria-label="設定"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
+      </div>
+    </div>
+  </div>
+  <div class="scroll" id="list-wish"></div>
+  <button class="fab" id="fab-wish" aria-label="追加">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </button>
+</div>
+
+<!-- BOOKS -->
+<div class="screen" id="screen-books">
+  <div class="hdr">
+    <div class="hdr-row">
+      <span class="hdr-title">Books</span>
+      <div class="hdr-right">
+        <button class="tab-settings-btn" onclick="goToSettings()" style="background:none;border:none;color:var(--ink3);display:flex;align-items:center;padding:4px;border-radius:8px;cursor:pointer;" aria-label="設定"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
+      </div>
+    </div>
+    <div class="filter-bar">
+      <button class="pill on" data-bf="all">すべて</button>
+      <button class="pill" data-bf="want">読みたい</button>
+      <button class="pill" data-bf="reading">読んでる</button>
+      <button class="pill" data-bf="done">読んだ</button>
+    </div>
+  </div>
+  <div class="scroll" id="list-books"></div>
+  <button class="fab" id="fab-books" aria-label="本を追加">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </button>
+</div>
+
+<!-- MEMO -->
+<div class="screen" id="screen-memo">
+  <div class="hdr">
+    <div class="hdr-row">
+      <span class="hdr-title">Memo</span>
+      <div class="hdr-right">
+        <button class="tab-settings-btn" onclick="goToSettings()" style="background:none;border:none;color:var(--ink3);display:flex;align-items:center;padding:4px;border-radius:8px;cursor:pointer;" aria-label="設定"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
+      </div>
+    </div>
+  </div>
+  <div class="scroll" id="list-memo"></div>
+  <button class="fab" id="fab-memo" aria-label="メモを追加">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </button>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div id="settings-modal" style="display:none;position:fixed;inset:0;z-index:200;background:var(--bg);flex-direction:column;">
+  <div class="hdr">
+    <div class="hdr-row">
+      <button onclick="closeSettingsModal()" style="background:none;border:none;color:var(--ink3);display:flex;align-items:center;padding:4px;border-radius:8px;cursor:pointer;margin-right:8px;" aria-label="閉じる">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      </button>
+      <span class="hdr-title">Settings</span>
+    </div>
+  </div>
+  <div class="scroll" id="settings-scroll">
+
+    <div class="settings-section-label">外観</div>
+    <div class="settings-card">
+      <div class="settings-row" id="row-dark">
+        <div class="settings-row-left">
+          <div class="settings-row-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/></svg>
+          </div>
+          <div>
+            <div class="settings-row-title">ダークモード</div>
+            <div class="settings-row-sub">画面を暗い配色に切り替えます</div>
+          </div>
+        </div>
+        <div class="toggle-wrap" id="dark-toggle">
+          <div class="toggle-knob"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section-label">テーマ</div>
+    <div class="theme-grid" id="theme-grid"></div>
+
+    <div class="settings-section-label">カテゴリ</div>
+    <div class="settings-card" id="cat-settings-list">
+      <!-- JS で生成 -->
+    </div>
+    <button class="settings-add-btn" id="cat-add-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      カテゴリを追加
+    </button>
+
+    <div class="settings-section-label">データ</div>
+    <div class="settings-card">
+      <div class="settings-row" id="row-clear-done">
+        <div class="settings-row-left">
+          <div class="settings-row-icon" style="background:var(--clay-l);color:var(--clay)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+          </div>
+          <div>
+            <div class="settings-row-title">完了済みタスクを削除</div>
+            <div class="settings-row-sub">アーカイブ内の完了タスクをすべて消去します</div>
+          </div>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink3)" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+
+    <div class="settings-section-label">データのバックアップ</div>
+    <div class="settings-card" style="padding:14px 16px;">
+      <button class="data-btn" id="btn-export">データをエクスポート（JSON）</button>
+      <button class="data-btn" id="btn-import">データをインポート（JSON）</button>
+      <input type="file" id="import-file" accept=".json" style="display:none">
+    </div>
+
+    <div class="settings-section-label">パスコード</div>
+    <div class="settings-card" id="pin-settings-list"></div>
+
+    <div class="settings-version">Todo App v15 — localStorage 保存</div>
+  </div>
+</div>
+
+<!-- PIN SCREEN -->
+<div id="pin-screen" style="display:none;position:fixed;inset:0;z-index:500;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;">
+  <div style="width:52px;height:52px;border-radius:16px;background:var(--accent-l);color:var(--accent);display:flex;align-items:center;justify-content:center;margin-bottom:14px;">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+  </div>
+  <div id="pin-title" style="font-size:18px;font-weight:700;margin-bottom:6px;color:var(--ink);">パスコードを入力</div>
+  <div id="pin-sub" style="font-size:13px;color:var(--ink2);margin-bottom:28px;text-align:center;min-height:20px;"></div>
+  <div id="pin-dots" style="display:flex;gap:18px;margin-bottom:36px;">
+    <div class="pd"></div><div class="pd"></div><div class="pd"></div><div class="pd"></div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,72px);gap:10px;">
+    <button onclick="pinKey('1')" class="pk">1</button>
+    <button onclick="pinKey('2')" class="pk">2</button>
+    <button onclick="pinKey('3')" class="pk">3</button>
+    <button onclick="pinKey('4')" class="pk">4</button>
+    <button onclick="pinKey('5')" class="pk">5</button>
+    <button onclick="pinKey('6')" class="pk">6</button>
+    <button onclick="pinKey('7')" class="pk">7</button>
+    <button onclick="pinKey('8')" class="pk">8</button>
+    <button onclick="pinKey('9')" class="pk">9</button>
+    <button class="pk" style="background:transparent;box-shadow:none;pointer-events:none;"></button>
+    <button onclick="pinKey('0')" class="pk">0</button>
+    <button onclick="pinDel()" class="pk" style="background:transparent;box-shadow:none;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 002-2V6a2 2 0 00-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>
+    </button>
+  </div>
+  <button onclick="pinCancel()" style="margin-top:20px;font-size:14px;font-weight:500;color:var(--ink3);background:none;border:none;cursor:pointer;padding:8px 24px;" id="pin-cancel-btn">キャンセル</button>
+</div>
+
+<!-- CAT EDIT MODAL -->
+<div class="modal-bg" id="modal-cat">
+  <div class="modal">
+    <div class="drag-bar"></div>
+    <div class="modal-title" id="cat-modal-ttl">カテゴリを追加</div>
+    <div class="field"><div class="flabel">カテゴリ名</div><input class="finput" id="cat-edit-name" type="text" placeholder="例：趣味、運動…"></div>
+    <div class="field">
+      <div class="flabel">カラー</div>
+      <div class="color-grid" id="color-grid"></div>
+    </div>
+    <div class="mbtns">
+      <button class="bcancl" id="cat-modal-cancel">キャンセル</button>
+      <button class="bsave" id="cat-modal-save">保存する</button>
+    </div>
+  </div>
+</div>
+<nav class="bnav">
+  <button class="nbtn on" data-screen="home">
+    <svg class="nicon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span class="nlabel">Home</span>
+  </button>
+  <button class="nbtn" data-screen="tasks">
+    <svg class="nicon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="5" width="11" height="2" rx="1"/><rect x="9" y="11" width="8" height="2" rx="1"/><rect x="9" y="17" width="6" height="2" rx="1"/><polyline points="5 6 6.5 7.5 9 5"/><polyline points="5 12 6.5 13.5 9 11"/><polyline points="5 18 6.5 19.5 9 17"/></svg>
+    <span class="nlabel">Tasks</span>
+  </button>
+  <button class="nbtn" data-screen="wish">
+    <svg class="nicon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    <span class="nlabel">Wishlist</span>
+  </button>
+  <button class="nbtn" data-screen="books">
+    <svg class="nicon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+    <span class="nlabel">Books</span>
+  </button>
+  <button class="nbtn" data-screen="memo">
+    <svg class="nicon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    <span class="nlabel">Memo</span>
+  </button>
+</nav>
+
+<!-- TASK MODAL -->
+<div class="modal-bg" id="modal-task">
+  <div class="modal">
+    <div class="drag-bar"></div>
+    <div class="modal-title" id="task-modal-ttl">タスクを追加</div>
+    <div class="field"><div class="flabel">タスク名</div><input class="finput" id="tf-name" type="text" placeholder="何をしますか？"></div>
+    <div class="field">
+      <div class="flabel">カテゴリ</div>
+      <div class="cat-grid" id="cat-grid"></div>
+      <div class="custom-cat-row" id="custom-cat-row">
+        <input class="finput" id="tf-cat-custom" type="text" placeholder="カテゴリ名を入力" style="margin-top:0">
+      </div>
+    </div>
+    <div class="field">
+      <div class="flabel">優先度</div>
+      <div class="pbtns">
+        <button class="pbtn" data-p="high">高</button>
+        <button class="pbtn" data-p="mid">中</button>
+        <button class="pbtn pl" data-p="low">低</button>
+      </div>
+    </div>
+    <div class="frow">
+      <div class="field"><div class="flabel">目標日</div><input class="finput" id="tf-target" type="date"></div>
+      <div class="field"><div class="flabel">期日</div><input class="finput" id="tf-due" type="date"></div>
+    </div>
+    <div class="field"><div class="flabel">メモ</div><textarea class="finput" id="tf-memo" placeholder="詳細・備考など"></textarea></div>
+    <div class="field">
+      <div class="flabel">繰り返し</div>
+      <div class="pbtns" style="flex-wrap:wrap;gap:6px">
+        <button class="rbtn" data-r="none">なし</button>
+        <button class="rbtn" data-r="daily">毎日</button>
+        <button class="rbtn" data-r="weekly">毎週</button>
+        <button class="rbtn" data-r="monthly">毎月</button>
+      </div>
+    </div>
+    <div class="mbtns"><button class="bcancl" id="tc-cancel">キャンセル</button><button class="bsave" id="tc-save">保存する</button></div>
+  </div>
+</div>
+
+<!-- WISH MODAL -->
+<div class="modal-bg" id="modal-wish">
+  <div class="modal">
+    <div class="drag-bar"></div>
+    <div class="modal-title">やりたいことを追加</div>
+    <div class="field"><div class="flabel">やりたいこと</div><input class="finput" id="wf-name" type="text" placeholder="例：〇〇に行く、〇〇を習う"></div>
+    <div class="field"><div class="flabel">期日</div><input class="finput" id="wf-due" type="date"></div>
+    <div class="field"><div class="flabel">メモ</div><textarea class="finput" id="wf-memo" placeholder="いつ頃、どんなふうに…" style="min-height:70px"></textarea></div>
+    <div class="mbtns"><button class="bcancl" id="wc-cancel">キャンセル</button><button class="bsave" id="wc-save">追加する</button></div>
+  </div>
+</div>
+
+<!-- BOOK MODAL -->
+<div class="modal-bg" id="modal-book">
+  <div class="modal">
+    <div class="drag-bar"></div>
+    <div class="modal-title">本を追加</div>
+    <div class="field"><div class="flabel">タイトル</div><input class="finput" id="bf-title" type="text" placeholder="本のタイトル"></div>
+    <div class="field"><div class="flabel">著者</div><input class="finput" id="bf-author" type="text" placeholder="著者名"></div>
+    <div class="field"><div class="flabel">メモ</div><textarea class="finput" id="bf-memo" placeholder="読もうと思ったきっかけなど" style="min-height:60px"></textarea></div>
+    <div class="mbtns"><button class="bcancl" id="bc-cancel">キャンセル</button><button class="bsave" id="bc-save">追加する</button></div>
+  </div>
+</div>
+
+<!-- MEMO MODAL -->
+<div class="modal-bg" id="modal-memo">
+  <div class="modal">
+    <div class="drag-bar"></div>
+    <div class="modal-title" id="memo-modal-ttl">メモを追加</div>
+    <div class="field"><div class="flabel">タイトル（省略可）</div><input class="finput" id="mf-title" type="text" placeholder="タイトル"></div>
+    <div class="field"><div class="flabel">内容</div><textarea class="finput" id="mf-body" placeholder="自由に書いてください…" style="min-height:140px"></textarea></div>
+    <div class="mbtns"><button class="bcancl" id="mc-cancel">キャンセル</button><button class="bsave" id="mc-save">保存する</button></div>
+  </div>
+</div>
+
+<script>
+// ── カテゴリ定義 ─────────────────────────────────────
+const CATEGORIES = [
+  { id: 'work',     label: '仕事',   color: '#6A8FBF' },
+  { id: 'personal', label: '個人',   color: '#B07BAC' },
+  { id: 'buy',      label: '買い物', color: '#C4875A' },
+  { id: 'health',   label: '健康',   color: '#6A9E7F' },
+  { id: 'learn',    label: '学習',   color: '#7E8FBF' },
+  { id: 'home',     label: '家事',   color: '#9E8A6A' },
+];
+
+function getCatDef(id){
+  return CATEGORIES.find(c=>c.id===id) || { id, label: id, color: '#6B6E78' };
+}
+
+// ── State ─────────────────────────────────────────────
+const S = {
+  tasks:  JSON.parse(localStorage.getItem('v2_tasks')  || '[]'),
+  wishes: JSON.parse(localStorage.getItem('v2_wishes') || '[]'),
+  books:  JSON.parse(localStorage.getItem('v2_books')  || '[]'),
+  memos:  JSON.parse(localStorage.getItem('v2_memos')  || '[]'),
+};
+function save(k){ localStorage.setItem('v2_'+k, JSON.stringify(S[k])); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function today(){ return new Date().toISOString().slice(0,10); }
+function fmtDate(d){ if(!d) return '—'; const [,m,dd]=d.split('-'); return `${+m}/${+dd}`; }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── Dark mode & Theme ─────────────────────────────────
+let dark = localStorage.getItem('v2_dark')==='1';
+let currentTheme = localStorage.getItem('v2_theme') || 'default';
+const THEMES = [
+  { id:'default',  name:'Default',      bg:'#F0F1F4', dot1:'#334D8A', dot2:'#A0674B' },
+  { id:'slate',    name:'Slate & Sage', bg:'#ECEEF2', dot1:'#2E4D7A', dot2:'#4A6E48' },
+  { id:'sand',     name:'Warm Sand',    bg:'#F5F0E8', dot1:'#8A5C2E', dot2:'#C04A30' },
+  { id:'lavender', name:'Lavender Mist',bg:'#F2EFF8', dot1:'#6848A8', dot2:'#C05878' },
+  { id:'coral',    name:'Ink & Coral',  bg:'#F4F4F4', dot1:'#141414', dot2:'#E05040' },
+];
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme', currentTheme);
+  document.documentElement.setAttribute('data-dark', dark?'1':'0');
+  const th = THEMES.find(t=>t.id===currentTheme)||THEMES[0];
+  document.getElementById('theme-meta').setAttribute('content', dark?'#12131A':th.bg);
+  localStorage.setItem('v2_dark', dark?'1':'0');
+  localStorage.setItem('v2_theme', currentTheme);
+}
+// 後方互換: applyDark も同じ関数を呼ぶ
+const applyDark = applyTheme;
+applyTheme();
+
+// ── Nav ───────────────────────────────────────────────
+document.querySelectorAll('[data-screen]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('on'));
+    document.getElementById('screen-'+btn.dataset.screen).classList.add('active');
+    btn.classList.add('on');
+    ({ home:renderDash, tasks:renderTasks, wish:renderWishes, books:renderBooks, memo:renderMemos })[btn.dataset.screen]?.();
+  });
+});
+
+// ── TASKS ─────────────────────────────────────────────
+let tf='all', editTid=null, tPrio='low', taskSearch='', catFilter='all', selectedCat='', isCustomCat=false;
+
+document.querySelectorAll('[data-f]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('[data-f]').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on'); tf=btn.dataset.f; renderTasks();
+  });
+});
+
+document.getElementById('task-search').addEventListener('input',e=>{
+  taskSearch=e.target.value.trim().toLowerCase(); renderTasks();
+});
+
+// カテゴリフィルターバー
+function renderCatFilterBar(){
+  const bar = document.getElementById('cat-filter-bar');
+  // 使用中のカテゴリを集める
+  const usedIds = [...new Set(S.tasks.filter(t=>!t.done&&t.category).map(t=>t.category))];
+  if(!usedIds.length){ bar.innerHTML=''; return; }
+  let html = `<button class="cat-chip ${catFilter==='all'?'on':''}" data-cf="all" style="${catFilter==='all'?'background:var(--ink);color:var(--surface)':''}">すべて</button>`;
+  usedIds.forEach(id=>{
+    const def = getCatDef(id);
+    const on = catFilter===id;
+    html += `<button class="cat-chip ${on?'on':''}" data-cf="${esc(id)}" style="${on?`background:${def.color};`:'color:'+def.color+';border:1.5px solid '+def.color+'20'}">${esc(def.label)}</button>`;
+  });
+  bar.innerHTML = html;
+  bar.querySelectorAll('[data-cf]').forEach(btn=>{
+    btn.addEventListener('click',()=>{ catFilter=btn.dataset.cf; renderCatFilterBar(); renderTasks(); });
+  });
+}
+
+function getFiltered(){
+  const t=today(), w=new Date(); w.setDate(w.getDate()+7); const ws=w.toISOString().slice(0,10);
+  return S.tasks.filter(x=>{
+    if(x.done) return false;
+    if(tf==='today'&&(!x.due||x.due>t)) return false;
+    if(tf==='week' &&(!x.due||x.due>ws)) return false;
+    if(tf==='high' &&x.priority!=='high') return false;
+    if(catFilter!=='all'&&x.category!==catFilter) return false;
+    if(taskSearch){
+      const hay=(x.name+' '+(x.category||'')+' '+(x.memo||'')).toLowerCase();
+      if(!hay.includes(taskSearch)) return false;
+    }
+    return true;
+  });
+}
+
+// ── カテゴリ選択グリッド（モーダル内）────────────────
+function renderCatGrid(currentCat){
+  selectedCat = currentCat || '';
+  isCustomCat = currentCat ? !CATEGORIES.find(c=>c.id===currentCat) : false;
+  const grid = document.getElementById('cat-grid');
+  grid.innerHTML = CATEGORIES.map(c=>{
+    const on = selectedCat===c.id;
+    return `<button class="cat-opt ${on?'selected':''}" data-cid="${c.id}" style="${on?`background:${c.color};`:`color:${c.color};border-color:${c.color}30`}">${c.label}</button>`;
+  }).join('')
+  + `<button class="cat-opt-custom ${isCustomCat?'selected':''}" id="cat-opt-custom-btn"${isCustomCat?` style="background:var(--ink2);color:var(--surface);border-style:solid"`:''}>+ カスタム</button>`;
+
+  const customRow = document.getElementById('custom-cat-row');
+  if(isCustomCat){
+    customRow.classList.add('show');
+    document.getElementById('tf-cat-custom').value = currentCat||'';
+  } else {
+    customRow.classList.remove('show');
+    document.getElementById('tf-cat-custom').value='';
+  }
+
+  grid.querySelectorAll('[data-cid]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      selectedCat=btn.dataset.cid; isCustomCat=false;
+      renderCatGrid(selectedCat);
+    });
+  });
+  document.getElementById('cat-opt-custom-btn').addEventListener('click',()=>{
+    isCustomCat=true; selectedCat='';
+    renderCatGrid('');
+    setTimeout(()=>document.getElementById('tf-cat-custom').focus(),50);
+  });
+}
+
+function getSelectedCat(){
+  if(isCustomCat) return document.getElementById('tf-cat-custom').value.trim();
+  return selectedCat;
+}
+
+// ── Timeline ─────────────────────────────────────────
+function timelineHTML(target,due){
+  if(!target&&!due) return '';
+  const t=today(); let pct=null, cls='safe';
+  if(target&&due){
+    const total=(new Date(due)-new Date(target))/86400000;
+    if(total>0){
+      const elapsed=(new Date(t)-new Date(target))/86400000;
+      pct=Math.max(0,Math.min(100,Math.round(elapsed/total*100)));
+      cls=due<t?'over':pct>=75?'warn':'safe';
+    }
+  }
+  const overClass=(due&&due<t)?'over':'';
+  return `<div class="timeline">
+    <div class="tl-track">
+      <div class="tl-line"></div>
+      ${target?'<div class="tl-start-dot"></div>':''}
+      ${due?'<div class="tl-end-dot"></div>':''}
+      ${pct!==null?`<div class="tl-fill ${cls}" style="width:${pct}%"></div><div class="tl-dot ${cls}" style="left:${pct}%"></div>`:''}
+    </div>
+    <div class="tl-labels">
+      <div class="tl-lbl">${target?`目標<span>${fmtDate(target)}</span>`:'<span></span>'}</div>
+      <div class="tl-lbl ${overClass}" style="text-align:right">${due?`期日<span>${fmtDate(due)}</span>`:'<span></span>'}</div>
+    </div>
+  </div>`;
+}
+
+// ── Swipe actions ────────────────────────────────────
+function setupSwipe(wrap, taskId){
+  const card = wrap.querySelector('.swipe-card');
+  if(!card) return;
+  const actDone = wrap.querySelector('.swipe-action-done');
+  const actDel  = wrap.querySelector('.swipe-action-del');
+  let startX=0, startY=0, curX=0, swiping=false, axis=null;
+  const DONE_THRESHOLD = 80;   // 完了ゾーン
+  const DEL_THRESHOLD  = 160;  // 削除ゾーン
+
+  function onStart(x,y){
+    startX=x; startY=y; curX=0; swiping=true; axis=null;
+    card.classList.remove('snap-back','fly-done','fly-del');
+  }
+  function onMove(x,y){
+    if(!swiping) return;
+    const dx=x-startX, dy=y-startY;
+    if(!axis){ if(Math.abs(dx)<6&&Math.abs(dy)<6) return; axis=Math.abs(dx)>Math.abs(dy)?'x':'y'; }
+    if(axis==='y') return;
+    curX = Math.min(0, dx); // 左方向のみ
+    card.style.transform=`translateX(${curX}px)`;
+    const absCur = Math.abs(curX);
+    // 完了ゾーン: 0〜160px
+    if(actDone) actDone.style.width = Math.min(absCur, 80) + 'px';
+    // 削除ゾーン: 80px超から拡大
+    if(actDel)  actDel.style.width  = absCur > DONE_THRESHOLD ? Math.min(absCur - DONE_THRESHOLD, 80) + 'px' : '0px';
+  }
+  function onEnd(){
+    if(!swiping||axis!=='x'){swiping=false;return;}
+    swiping=false;
+    const absCur = Math.abs(curX);
+    if(absCur > DONE_THRESHOLD){
+      // ボタンを表示して止める（LINEスタイル）
+      card.classList.add('snap-back');
+      const showDone = Math.min(absCur, 80);
+      const showDel  = absCur > DONE_THRESHOLD ? Math.min(absCur - DONE_THRESHOLD, 80) : 0;
+      const stopX = -(showDone + showDel);
+      card.style.transform = `translateX(${stopX}px)`;
+      if(actDone) actDone.style.width = showDone + 'px';
+      if(actDel)  actDel.style.width  = showDel  + 'px';
+      // ボタンにpointer-eventsを有効化
+      const bgEl = wrap.querySelector('.swipe-bg-actions');
+      if(bgEl) bgEl.style.pointerEvents = 'auto';
+      // 完了ボタン
+      if(actDone) actDone.onclick = ()=>{
+        bgEl.style.pointerEvents='none';
+        card.classList.remove('snap-back'); card.classList.add('fly-del');
+        card.style.transform='translateX(-110%)'; card.style.opacity='0';
+        setTimeout(()=>{ const t=S.tasks.find(x=>x.id===taskId); if(t){t.done=true;save('tasks');renderTasks();} },280);
+      };
+      // 削除ボタン
+      if(actDel) actDel.onclick = ()=>{
+        bgEl.style.pointerEvents='none';
+        card.classList.add('snap-back'); card.style.transform=''; curX=0;
+        if(actDone) actDone.style.width='0px';
+        if(actDel)  actDel.style.width='0px';
+        setTimeout(()=>{
+          if(!confirm('このタスクを削除しますか？')){ return; }
+          card.classList.remove('snap-back'); card.classList.add('fly-del');
+          card.style.transform='translateX(-110%)'; card.style.opacity='0';
+          setTimeout(()=>{ S.tasks=S.tasks.filter(x=>x.id!==taskId); save('tasks'); renderTasks(); },280);
+        },50);
+      };
+      // 外側タップで閉じる
+      const closeHandler = (e)=>{
+        if(!wrap.contains(e.target)){
+          bgEl.style.pointerEvents='none';
+          card.classList.add('snap-back'); card.style.transform=''; curX=0;
+          if(actDone) actDone.style.width='0px';
+          if(actDel)  actDel.style.width='0px';
+          document.removeEventListener('touchstart',closeHandler,true);
+          document.removeEventListener('mousedown',closeHandler,true);
+        }
+      };
+      document.addEventListener('touchstart',closeHandler,true);
+      document.addEventListener('mousedown',closeHandler,true);
+    } else {
+      // 戻す
+      card.classList.add('snap-back'); card.style.transform=''; curX=0;
+      if(actDone) actDone.style.width='0px';
+      if(actDel)  actDel.style.width='0px';
+    }
+  }
+  // Touch
+  card.addEventListener('touchstart',e=>{ const t=e.touches[0]; onStart(t.clientX,t.clientY); },{passive:true});
+  card.addEventListener('touchmove',e=>{ const t=e.touches[0]; onMove(t.clientX,t.clientY); },{passive:true});
+  card.addEventListener('touchend',onEnd,{passive:true});
+  // Mouse
+  card.addEventListener('mousedown',e=>{ onStart(e.clientX,e.clientY); });
+  window.addEventListener('mousemove',e=>{ if(swiping) onMove(e.clientX,e.clientY); });
+  window.addEventListener('mouseup',()=>{ if(swiping) onEnd(); });
+}
+
+// ── Drag & Drop ──────────────────────────────────────
+let dragSrcId=null;
+function setupDrag(card){
+  const handle=card.querySelector('.drag-handle'); if(!handle) return;
+  handle.addEventListener('touchstart',()=>{ dragSrcId=card.dataset.id; card.classList.add('dragging'); },{passive:true});
+  handle.addEventListener('touchend',()=>{ card.classList.remove('dragging'); dragSrcId=null; });
+  handle.addEventListener('touchmove',e=>{
+    if(!dragSrcId) return;
+    const touch=e.touches[0];
+    const tgt=document.elementFromPoint(touch.clientX,touch.clientY)?.closest('.tcard[data-id]');
+    if(tgt&&tgt.dataset.id!==dragSrcId){ reorderTask(dragSrcId,tgt.dataset.id); }
+  },{passive:true});
+  card.setAttribute('draggable','true');
+  card.addEventListener('dragstart',e=>{ if(!e.target.closest('.drag-handle')){e.preventDefault();return;} dragSrcId=card.dataset.id; card.classList.add('dragging'); });
+  card.addEventListener('dragend',()=>{ card.classList.remove('dragging'); document.querySelectorAll('.tcard').forEach(c=>c.classList.remove('drag-over')); });
+  card.addEventListener('dragover',e=>{ e.preventDefault(); card.classList.add('drag-over'); });
+  card.addEventListener('dragleave',()=>card.classList.remove('drag-over'));
+  card.addEventListener('drop',e=>{ e.preventDefault(); card.classList.remove('drag-over'); if(dragSrcId&&dragSrcId!==card.dataset.id) reorderTask(dragSrcId,card.dataset.id); });
+}
+function reorderTask(fromId,toId){
+  const fi=S.tasks.findIndex(x=>x.id===fromId), ti=S.tasks.findIndex(x=>x.id===toId);
+  if(fi<0||ti<0) return;
+  const [item]=S.tasks.splice(fi,1); S.tasks.splice(ti,0,item);
+  save('tasks'); renderTasks();
+}
+
+// ── renderTasks ──────────────────────────────────────
+function renderTasks(){
+  renderCatFilterBar();
+  const el=document.getElementById('list-tasks');
+  const items=getFiltered();
+  const doneTasks=S.tasks.filter(x=>x.done);
+  const undone=S.tasks.filter(x=>!x.done).length;
+  // badge-tasks は非表示
+
+  let html='';
+  if(!items.length&&!doneTasks.length){
+    html=`<div class="empty"><svg class="empty-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="3"/><polyline points="9 12 11 14 15 10"/></svg><div class="empty-text">${taskSearch?'一致するタスクがありません':'タスクがありません<br>右下の + から追加できます'}</div></div>`;
+  } else if(!items.length){
+    html=`<div class="empty"><div class="empty-text">絞り込み結果はありません</div></div>`;
+  } else {
+    // カテゴリでグループ化
+    const groups={};
+    items.forEach(t=>{ const g=t.category||'_none'; if(!groups[g]) groups[g]=[]; groups[g].push(t); });
+    html=Object.entries(groups).map(([g,ts])=>{
+      const def=g==='_none'?{label:'未分類',color:'var(--ink3)'}:getCatDef(g);
+      const tagColor=def.color||'var(--ink3)';
+      return `<div class="group-label"><span style="color:${tagColor}">${esc(def.label)}</span><div class="group-line"></div></div>`
+        +ts.map(t=>{
+          const ac={high:'h',mid:'m',low:'l'}[t.priority||'low']||'l';
+          const catDef=t.category?getCatDef(t.category):null;
+          return `<div class="swipe-wrap" data-id="${t.id}">
+            <div class="swipe-bg swipe-bg-actions">
+              <div class="swipe-action-done">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="swipe-action-del">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+              </div>
+            </div>
+            <div class="swipe-bg swipe-bg-del" style="display:none"></div>
+            <div class="swipe-card tcard" data-id="${t.id}" draggable="true">
+              <div class="drag-handle">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><circle cx="4" cy="2" r="1"/><circle cx="8" cy="2" r="1"/><circle cx="4" cy="6" r="1"/><circle cx="8" cy="6" r="1"/><circle cx="4" cy="10" r="1"/><circle cx="8" cy="10" r="1"/></svg>
+              </div>
+              <div class="tcard-accent ${ac}"></div>
+              <div class="tcard-inner">
+                <div class="tcard-top">
+                  <div class="cb" data-id="${t.id}">
+                    <svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 4 7 9 1"/></svg>
+                  </div>
+                  <div class="tcard-body">
+                    <div class="tcard-title">${esc(t.name)}</div>
+                    <div class="tcard-meta">
+                      ${catDef?`<span class="tag" style="background:${catDef.color}18;color:${catDef.color};border:1px solid ${catDef.color}30">${esc(catDef.label)}</span>`:''}
+                      ${t.memo?`<span class="memo-mark">メモあり</span>`:''}
+                    </div>
+                  </div>
+                </div>
+                ${timelineHTML(t.target,t.due)}
+              </div>
+            </div>
+          </div>`;
+        }).join('');
+    }).join('');
+  }
+
+  // アーカイブ
+  if(doneTasks.length){
+    const archOpen=el.querySelector('.archive-toggle')?.classList.contains('open')||false;
+    html+=`<div class="archive-toggle${archOpen?' open':''}" id="arch-toggle">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      完了済み（${doneTasks.length}件）
+    </div>
+    <div class="archive-list${archOpen?' open':''}" id="arch-list">
+      ${doneTasks.map(t=>{
+        const catDef=t.category?getCatDef(t.category):null;
+        return `<div class="tcard done" data-id="${t.id}">
+          <div class="tcard-accent l"></div>
+          <div class="tcard-inner">
+            <div class="tcard-top">
+              <div class="cb checked" data-id="${t.id}">
+                <svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 4 7 9 1"/></svg>
+              </div>
+              <div class="tcard-body">
+                <div class="tcard-title">${esc(t.name)}</div>
+                ${catDef?`<div class="tcard-meta"><span class="tag" style="background:${catDef.color}18;color:${catDef.color}">${esc(catDef.label)}</span></div>`:''}
+              </div>
+              <button class="del-btn" data-id="${t.id}" data-type="task">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+
+  el.innerHTML=html;
+
+  el.querySelector('#arch-toggle')?.addEventListener('click',function(){
+    this.classList.toggle('open');
+    el.querySelector('#arch-list')?.classList.toggle('open');
+  });
+  // チェックボックス（アーカイブ内の完了→未完了戻し）
+  el.querySelectorAll('.cb').forEach(cb=>cb.addEventListener('click',e=>{
+    e.stopPropagation();
+    const x=S.tasks.find(t=>t.id===cb.dataset.id);
+    if(x){x.done=!x.done; save('tasks'); renderTasks();}
+  }));
+  // アーカイブ内削除ボタン
+  el.querySelectorAll('[data-type="task"]').forEach(btn=>btn.addEventListener('click',e=>{
+    e.stopPropagation();
+    if(!confirm('このタスクを削除しますか？'))return;
+    S.tasks=S.tasks.filter(x=>x.id!==btn.dataset.id); save('tasks'); renderTasks();
+  }));
+  // swipe-wrap ごとにスワイプ＆ドラッグ設定
+  el.querySelectorAll('.swipe-wrap').forEach(wrap=>{
+    const card = wrap.querySelector('.swipe-card');
+    setupSwipe(wrap, wrap.dataset.id);
+    setupDrag(card);
+    card.addEventListener('click',e=>{
+      if(e.target.closest('.cb')||e.target.closest('.drag-handle')) return;
+      openEditTask(card.dataset.id);
+    });
+  });
+}
+
+// ── Task modal ────────────────────────────────────────
+function openEditTask(id){
+  const t=S.tasks.find(x=>x.id===id); if(!t) return;
+  editTid=id; tPrio=t.priority||'low';
+  document.getElementById('tf-name').value=t.name;
+  document.getElementById('tf-target').value=t.target||'';
+  document.getElementById('tf-due').value=t.due||'';
+  document.getElementById('tf-memo').value=t.memo||'';
+  document.getElementById('task-modal-ttl').textContent='タスクを編集';
+  renderCatGrid(t.category||'');
+  setPBtns();
+  document.getElementById('modal-task').classList.add('open');
+}
+function setPBtns(){
+  document.querySelectorAll('[data-p]').forEach(b=>{b.className='pbtn';});
+  const m={high:'ph',mid:'pm',low:'pl'};
+  document.querySelector(`[data-p="${tPrio}"]`)?.classList.add(m[tPrio]);
+}
+document.querySelectorAll('[data-p]').forEach(btn=>btn.addEventListener('click',()=>{ tPrio=btn.dataset.p; setPBtns(); }));
+
+document.getElementById('fab-tasks').addEventListener('click',()=>{
+  editTid=null; tPrio='low';
+  ['tf-name','tf-target','tf-due','tf-memo'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('task-modal-ttl').textContent='タスクを追加';
+  renderCatGrid('');
+  setPBtns();
+  document.getElementById('modal-task').classList.add('open');
+  setTimeout(()=>document.getElementById('tf-name').focus(),120);
+});
+document.getElementById('tc-cancel').addEventListener('click',()=>document.getElementById('modal-task').classList.remove('open'));
+document.getElementById('modal-task').addEventListener('click',e=>{ if(e.target===e.currentTarget) e.currentTarget.classList.remove('open'); });
+document.getElementById('tc-save').addEventListener('click',()=>{
+  const name=document.getElementById('tf-name').value.trim(); if(!name) return;
+  const cat=getSelectedCat();
+  const d={id:editTid||uid(),name,category:cat,priority:tPrio,
+    target:document.getElementById('tf-target').value,
+    due:document.getElementById('tf-due').value,
+    memo:document.getElementById('tf-memo').value.trim(),done:false};
+  if(editTid){ const i=S.tasks.findIndex(x=>x.id===editTid); if(i>=0){d.done=S.tasks[i].done; S.tasks[i]=d;} }
+  else S.tasks.unshift(d);
+  save('tasks'); document.getElementById('modal-task').classList.remove('open'); renderTasks();
+});
+
+// ── WISHES ────────────────────────────────────────────
+document.getElementById('fab-wish').addEventListener('click',()=>{
+  document.getElementById('wf-name').value=''; document.getElementById('wf-due').value=''; document.getElementById('wf-memo').value='';
+  document.getElementById('modal-wish').classList.add('open');
+  setTimeout(()=>document.getElementById('wf-name').focus(),120);
+});
+document.getElementById('wc-cancel').addEventListener('click',()=>document.getElementById('modal-wish').classList.remove('open'));
+document.getElementById('modal-wish').addEventListener('click',e=>{ if(e.target===e.currentTarget)e.currentTarget.classList.remove('open'); });
+document.getElementById('wc-save').addEventListener('click',()=>{
+  const name=document.getElementById('wf-name').value.trim(); if(!name)return;
+  S.wishes.unshift({id:uid(),name,due:document.getElementById('wf-due').value,memo:document.getElementById('wf-memo').value.trim(),done:false});
+  save('wishes'); document.getElementById('modal-wish').classList.remove('open'); renderWishes();
+});
+function renderWishes(){
+  const el=document.getElementById('list-wish');
+  if(!S.wishes.length){
+    el.innerHTML=`<div class="empty"><svg class="empty-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><div class="empty-text">やりたいことを追加しましょう</div></div>`;
+    return;
+  }
+  el.innerHTML=S.wishes.map(w=>`
+    <div class="wcard ${w.done?'done':''}">
+      <div class="cb ${w.done?'checked':''}" data-wid="${w.id}" style="flex-shrink:0;margin-top:2px">
+        <svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><polyline points="1 4 4 7 9 1"/></svg>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div class="wcard-text">${esc(w.name)}</div>
+        ${w.due||w.memo?`<div class="wcard-sub">${w.due?'📅 '+fmtDate(w.due)+(w.memo?' &nbsp;·&nbsp; ':'')+esc(w.memo||''):esc(w.memo||'')}</div>`:''}
+      </div>
+      <button class="del-btn" data-wid="${w.id}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>`).join('');
+  el.querySelectorAll('[data-wid]').forEach(el=>{
+    el.addEventListener('click',e=>{
+      if(el.classList.contains('del-btn')){ if(!confirm('削除しますか？'))return; S.wishes=S.wishes.filter(x=>x.id!==el.dataset.wid); save('wishes'); renderWishes(); return; }
+      const w=S.wishes.find(x=>x.id===el.dataset.wid); if(w){w.done=!w.done; save('wishes'); renderWishes();}
+    });
+  });
+}
+
+// ── BOOKS ─────────────────────────────────────────────
+let bf='all';
+document.querySelectorAll('[data-bf]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('[data-bf]').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on'); bf=btn.dataset.bf; renderBooks();
+  });
+});
+document.getElementById('fab-books').addEventListener('click',()=>{
+  ['bf-title','bf-author','bf-memo'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('modal-book').classList.add('open');
+  setTimeout(()=>document.getElementById('bf-title').focus(),120);
+});
+document.getElementById('bc-cancel').addEventListener('click',()=>document.getElementById('modal-book').classList.remove('open'));
+document.getElementById('modal-book').addEventListener('click',e=>{ if(e.target===e.currentTarget)e.currentTarget.classList.remove('open'); });
+document.getElementById('bc-save').addEventListener('click',()=>{
+  const title=document.getElementById('bf-title').value.trim(); if(!title)return;
+  S.books.unshift({id:uid(),title,author:document.getElementById('bf-author').value.trim(),memo:document.getElementById('bf-memo').value.trim(),status:'want'});
+  save('books'); document.getElementById('modal-book').classList.remove('open'); renderBooks();
+});
+function renderBooks(){
+  const el=document.getElementById('list-books');
+  const items=bf==='all'?S.books:S.books.filter(b=>b.status===bf);
+  if(!items.length){
+    el.innerHTML=`<div class="empty"><svg class="empty-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><div class="empty-text">本を追加しましょう</div></div>`;
+    return;
+  }
+  const sl={want:'読みたい',reading:'読んでる',done:'読んだ'};
+  el.innerHTML=items.map(b=>`
+    <div class="bcard">
+      <div class="bcover"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div>
+      <div class="binfo">
+        <div class="btitle">${esc(b.title)}</div>
+        ${b.author?`<div class="bauthor">${esc(b.author)}</div>`:''}
+        ${b.memo?`<div class="bmemo">${esc(b.memo)}</div>`:''}
+        <div class="bstatus-row">
+          ${['want','reading','done'].map(s=>`<button class="sbtn ${b.status===s?(s==='done'?'done2':s):''}" data-bid="${b.id}" data-s="${s}">${sl[s]}</button>`).join('')}
+          <button class="del-btn" data-bid="${b.id}" style="margin-left:auto">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>`).join('');
+  el.querySelectorAll('.sbtn').forEach(btn=>btn.addEventListener('click',()=>{
+    const b=S.books.find(x=>x.id===btn.dataset.bid); if(b){b.status=btn.dataset.s; save('books'); renderBooks();}
+  }));
+  el.querySelectorAll('.del-btn[data-bid]').forEach(btn=>btn.addEventListener('click',()=>{
+    if(!confirm('削除しますか？'))return; S.books=S.books.filter(x=>x.id!==btn.dataset.bid); save('books'); renderBooks();
+  }));
+}
+
+// ── MEMOS ─────────────────────────────────────────────
+let editMid=null;
+document.getElementById('fab-memo').addEventListener('click',()=>{
+  editMid=null; document.getElementById('mf-title').value=''; document.getElementById('mf-body').value='';
+  document.getElementById('memo-modal-ttl').textContent='メモを追加';
+  document.getElementById('modal-memo').classList.add('open');
+  setTimeout(()=>document.getElementById('mf-body').focus(),120);
+});
+document.getElementById('mc-cancel').addEventListener('click',()=>document.getElementById('modal-memo').classList.remove('open'));
+document.getElementById('modal-memo').addEventListener('click',e=>{ if(e.target===e.currentTarget)e.currentTarget.classList.remove('open'); });
+document.getElementById('mc-save').addEventListener('click',()=>{
+  const body=document.getElementById('mf-body').value.trim(); if(!body)return;
+  const d={id:editMid||uid(),title:document.getElementById('mf-title').value.trim(),body,updatedAt:today()};
+  if(editMid){ const i=S.memos.findIndex(x=>x.id===editMid); if(i>=0)S.memos[i]=d; }
+  else S.memos.unshift(d);
+  save('memos'); document.getElementById('modal-memo').classList.remove('open'); renderMemos();
+});
+function renderMemos(){
+  const el=document.getElementById('list-memo');
+  if(!S.memos.length){
+    el.innerHTML=`<div class="empty"><svg class="empty-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg><div class="empty-text">メモを追加しましょう</div></div>`;
+    return;
+  }
+  el.innerHTML=S.memos.map(m=>`
+    <div class="mcard" data-mid="${m.id}">
+      ${m.title?`<div class="mtitle">${esc(m.title)}</div>`:''}
+      <div class="mbody">${esc(m.body)}</div>
+      <div class="mdate">${m.updatedAt}</div>
+    </div>`).join('');
+  el.querySelectorAll('.mcard').forEach(card=>{
+    card.addEventListener('click',()=>{
+      const m=S.memos.find(x=>x.id===card.dataset.mid); if(!m)return;
+      editMid=m.id; document.getElementById('mf-title').value=m.title||''; document.getElementById('mf-body').value=m.body;
+      document.getElementById('memo-modal-ttl').textContent='メモを編集';
+      document.getElementById('modal-memo').classList.add('open');
+    });
+    let timer;
+    card.addEventListener('touchstart',()=>{ timer=setTimeout(()=>{ if(!confirm('このメモを削除しますか？'))return; S.memos=S.memos.filter(x=>x.id!==card.dataset.mid); save('memos'); renderMemos(); },700); });
+    card.addEventListener('touchend',()=>clearTimeout(timer));
+  });
+}
+
+renderTasks(); renderWishes(); renderBooks(); renderMemos(); renderDash();
+// 設定モーダル開閉
+function openSettingsModal(){
+  const modal = document.getElementById('settings-modal');
+  modal.style.display='flex';
+  renderSettings();
+}
+function closeSettingsModal(){
+  document.getElementById('settings-modal').style.display='none';
+}
+// 後方互換のためgoToSettingsも同じ動作
+function goToSettings(){ openSettingsModal(); }
+
+// ── ダッシュボード描画 ────────────────────────────────
+function renderDash(){
+  const el = document.getElementById('dash-scroll');
+  const t = today();
+  const undone = S.tasks.filter(x=>!x.done);
+  const done   = S.tasks.filter(x=>x.done);
+  const reading = S.books.filter(b=>b.status==='reading');
+
+  // 締め切りが近いタスク（今日・3日以内）
+  const urgent = undone.filter(x=>x.due).map(x=>{
+    const diff = Math.ceil((new Date(x.due)-new Date(t))/(1000*60*60*24));
+    return {...x, diff};
+  }).filter(x=>x.diff<=3).sort((a,b)=>a.diff-b.diff);
+
+  const statHTML = `
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-num">${done.length}</div>
+        <div class="stat-label">完了したタスク</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">${undone.length}</div>
+        <div class="stat-label">残りのタスク</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">${reading.length}</div>
+        <div class="stat-label">読書中の本</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">${S.wishes.filter(x=>!x.done).length}</div>
+        <div class="stat-label">ウィッシュリスト</div>
+      </div>
+    </div>`;
+
+  const deadlineHTML = urgent.length ? urgent.map(x=>{
+    const label = x.diff<0?'期限切れ':x.diff===0?'今日':x.diff===1?'明日':`${x.diff}日後`;
+    const badgeCls = x.diff<=0?'dash-overdue-badge':'dash-today-badge';
+    return `<div class="dash-task" onclick="goToTasks()">
+      <div class="tcard-accent ${({high:'h',mid:'m',low:'l'})[x.priority||'low']}" style="width:3px;height:36px;border-radius:2px;flex-shrink:0;margin-right:2px;"></div>
+      <div class="dash-task-name">${esc(x.name)}</div>
+      <div class="dash-task-badge ${badgeCls}">${label}</div>
+    </div>`;
+  }).join('') : `<div class="dash-empty">締め切りが近いタスクはありません ✓</div>`;
+
+  const readingHTML = reading.length ? reading.map(b=>`
+    <div class="dash-reading-card">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+      <div>
+        <div class="dash-reading-title">${esc(b.title)}</div>
+        ${b.author?`<div class="dash-reading-author">${esc(b.author)}</div>`:''}
+      </div>
+    </div>`).join('') : `<div class="dash-empty">読書中の本はありません</div>`;
+
+  el.innerHTML = `
+    <div class="dash-section">${statHTML}</div>
+    <div class="dash-section">
+      <div class="dash-section-title"><div class="dot" style="background:var(--clay)"></div>締め切りが近いタスク</div>
+      ${deadlineHTML}
+    </div>
+    <div class="dash-section">
+      <div class="dash-section-title"><div class="dot" style="background:var(--accent)"></div>読書中の本</div>
+      ${readingHTML}
+    </div>`;
+}
+function goToTasks(){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('screen-tasks').classList.add('active');
+  document.querySelector('[data-screen="tasks"]').classList.add('on');
+  renderTasks();
+}
+
+
+
+// ── 繰り返しタスク ────────────────────────────────────
+let tRepeat = 'none';
+
+function renderRBtns(){
+  document.querySelectorAll('[data-r]').forEach(b=>{
+    b.className = 'rbtn' + (b.dataset.r === tRepeat ? ' ractive' : '');
+  });
+}
+document.querySelectorAll('[data-r]').forEach(btn=>{
+  btn.addEventListener('click',()=>{ tRepeat=btn.dataset.r; renderRBtns(); });
+});
+
+// タスク保存時にrepeatを含める（tc-saveを上書き）
+const origTcSave = document.getElementById('tc-save').onclick;
+document.getElementById('tc-save').replaceWith(document.getElementById('tc-save').cloneNode(true));
+document.getElementById('tc-save').addEventListener('click',()=>{
+  const name=document.getElementById('tf-name').value.trim(); if(!name) return;
+  const cat=getSelectedCat();
+  const d={id:editTid||uid(),name,category:cat,priority:tPrio,
+    target:document.getElementById('tf-target').value,
+    due:document.getElementById('tf-due').value,
+    memo:document.getElementById('tf-memo').value.trim(),
+    repeat:tRepeat,
+    done:false};
+  if(editTid){ const i=S.tasks.findIndex(x=>x.id===editTid); if(i>=0){d.done=S.tasks[i].done; S.tasks[i]=d;} }
+  else S.tasks.unshift(d);
+  save('tasks'); document.getElementById('modal-task').classList.remove('open'); renderTasks();
+});
+
+// タスクモーダルを開く際にrepeatも復元
+const _origOpenEditTask = openEditTask;
+openEditTask = function(id){
+  _origOpenEditTask(id);
+  const t=S.tasks.find(x=>x.id===id);
+  if(t){ tRepeat=t.repeat||'none'; renderRBtns(); }
+};
+document.getElementById('fab-tasks').addEventListener('click',()=>{
+  tRepeat='none'; renderRBtns();
+},true);
+
+// 繰り返しタスクの自動生成（毎日起動時チェック）
+function processRepeatTasks(){
+  const t = today();
+  const lastCheck = localStorage.getItem('v2_repeat_check');
+  if(lastCheck === t) return;
+  localStorage.setItem('v2_repeat_check', t);
+  const newTasks = [];
+  S.tasks.filter(x=>x.done && x.repeat && x.repeat!=='none' && x.due).forEach(task=>{
+    let nextDue = null;
+    if(task.repeat==='daily'){
+      nextDue = t;
+    } else if(task.repeat==='weekly'){
+      const d=new Date(task.due); d.setDate(d.getDate()+7); nextDue=d.toISOString().slice(0,10);
+    } else if(task.repeat==='monthly'){
+      const d=new Date(task.due); d.setMonth(d.getMonth()+1); nextDue=d.toISOString().slice(0,10);
+    }
+    if(nextDue && nextDue<=t){
+      const exists = S.tasks.find(x=>!x.done&&x.name===task.name&&x.repeat===task.repeat);
+      if(!exists){
+        newTasks.push({...task, id:uid(), done:false, due:nextDue, target:''});
+      }
+    }
+  });
+  if(newTasks.length){
+    S.tasks.unshift(...newTasks);
+    save('tasks');
+  }
+}
+processRepeatTasks();
+
+// ── エクスポート / インポート ─────────────────────────
+document.getElementById('btn-export').addEventListener('click',()=>{
+  const data = JSON.stringify({tasks:S.tasks,wishes:S.wishes,books:S.books,memos:S.memos,exportedAt:today()}, null, 2);
+  const blob = new Blob([data],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download='todo_backup_'+today()+'.json'; a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('btn-import').addEventListener('click',()=>{
+  document.getElementById('import-file').click();
+});
+
+document.getElementById('import-file').addEventListener('change',e=>{
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    try{
+      const data = JSON.parse(ev.target.result);
+      if(!confirm('インポートすると現在のデータに追加されます。続けますか？')) return;
+      if(Array.isArray(data.tasks))  { data.tasks.forEach(x=>{if(!S.tasks.find(t=>t.id===x.id))S.tasks.push(x);}); save('tasks'); }
+      if(Array.isArray(data.wishes)) { data.wishes.forEach(x=>{if(!S.wishes.find(t=>t.id===x.id))S.wishes.push(x);}); save('wishes'); }
+      if(Array.isArray(data.books))  { data.books.forEach(x=>{if(!S.books.find(t=>t.id===x.id))S.books.push(x);}); save('books'); }
+      if(Array.isArray(data.memos))  { data.memos.forEach(x=>{if(!S.memos.find(t=>t.id===x.id))S.memos.push(x);}); save('memos'); }
+      alert('インポートが完了しました！');
+      renderTasks(); renderWishes(); renderBooks(); renderMemos();
+    } catch(err){ alert('ファイルの読み込みに失敗しました。正しいJSONファイルか確認してください。'); }
+  };
+  reader.readAsText(file);
+  e.target.value='';
+});
+
+// ── 初期表示 ──────────────────────────────────────────
+
+// ── SETTINGS ─────────────────────────────────────────
+const PALETTE = [
+  // ピンク・モーブ系
+  '#C47FA0','#B07BAC','#D4909A','#C47088','#A0728A',
+  // テラコッタ・ウォーム系
+  '#C4875A','#BF7B5E','#C49A6A','#B8865A','#A07858',
+  // セージ・グリーン系
+  '#6A9E7F','#7AAF8A','#5C8A72','#7A9E88','#6A8A78',
+  // ブルー・スレート系
+  '#6A8FBF','#7E8FBF','#5A7AAF','#7A9AB8','#6A85A8',
+  // ラベンダー・ライラック系
+  '#9A8FBF','#A08AAF','#8A7AAF','#B09ABF','#9080A8',
+  // ニュートラル・アース系
+  '#9E8A6A','#A09080','#8A8278','#B0A090','#907868',
+];
+let editCatId = null, selectedColor = PALETTE[0];
+
+function renderSettings(){
+  // ダークトグル同期
+  const tog = document.getElementById('dark-toggle');
+  if(dark) tog.classList.add('on'); else tog.classList.remove('on');
+
+  // テーマグリッド
+  const tgrid = document.getElementById('theme-grid');
+  if(tgrid){
+    tgrid.innerHTML = THEMES.map(th=>`
+      <div class="theme-opt ${currentTheme===th.id?'selected':''}" data-tid="${th.id}">
+        <div class="theme-preview" style="background:${th.bg}">
+          <div class="theme-preview-dot" style="background:${th.dot1}"></div>
+          <div class="theme-preview-dot" style="background:${th.dot2}"></div>
+          <div class="theme-preview-dot" style="background:${th.dot1};opacity:.4"></div>
+        </div>
+        <div class="theme-name">${th.name}</div>
+      </div>`).join('');
+    tgrid.querySelectorAll('[data-tid]').forEach(opt=>{
+      opt.addEventListener('click',()=>{
+        currentTheme=opt.dataset.tid;
+        applyTheme();
+        renderSettings();
+      });
+    });
+  }
+
+  // カテゴリ一覧
+  const list = document.getElementById('cat-settings-list');
+  const cats = JSON.parse(localStorage.getItem('v2_custom_cats') || 'null') || CATEGORIES;
+  if(!cats.length){
+    list.innerHTML='<div style="padding:14px 16px;font-size:13px;color:var(--ink3)">カテゴリがありません</div>';
+  } else {
+    list.innerHTML = cats.map((c,i)=>`
+      <div class="cat-settings-row">
+        <div class="cat-dot" style="background:${c.color}"></div>
+        <div class="cat-settings-name">${esc(c.label)}</div>
+        <button class="cat-settings-del" data-ci="${i}" title="削除">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>`).join('');
+    list.querySelectorAll('.cat-settings-del').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const cats2 = JSON.parse(localStorage.getItem('v2_custom_cats') || 'null') || CATEGORIES;
+        cats2.splice(+btn.dataset.ci, 1);
+        localStorage.setItem('v2_custom_cats', JSON.stringify(cats2));
+        syncCategories(); renderSettings();
+      });
+    });
+  }
+}
+
+function syncCategories(){
+  const saved = localStorage.getItem('v2_custom_cats');
+  if(saved){ CATEGORIES.length=0; JSON.parse(saved).forEach(c=>CATEGORIES.push(c)); }
+}
+syncCategories();
+
+// ダークモードトグル
+document.getElementById('dark-toggle').addEventListener('click',()=>{
+  dark=!dark; applyTheme();
+  const tog=document.getElementById('dark-toggle');
+  if(dark) tog.classList.add('on'); else tog.classList.remove('on');
+});
+
+// 完了タスク削除
+document.getElementById('row-clear-done').addEventListener('click',()=>{
+  const cnt = S.tasks.filter(x=>x.done).length;
+  if(!cnt){ alert('完了済みタスクはありません'); return; }
+  if(!confirm(`完了済みタスク ${cnt} 件を削除しますか？`)) return;
+  S.tasks = S.tasks.filter(x=>!x.done);
+  save('tasks'); renderTasks();
+  alert('削除しました');
+});
+
+// カテゴリ追加ボタン
+document.getElementById('cat-add-btn').addEventListener('click',()=>{
+  editCatId = null;
+  document.getElementById('cat-edit-name').value = '';
+  selectedColor = PALETTE[0];
+  document.getElementById('cat-modal-ttl').textContent = 'カテゴリを追加';
+  renderColorGrid();
+  document.getElementById('modal-cat').classList.add('open');
+  setTimeout(()=>document.getElementById('cat-edit-name').focus(),120);
+});
+
+function renderColorGrid(){
+  const grid = document.getElementById('color-grid');
+  grid.innerHTML = PALETTE.map(c=>`
+    <div class="color-swatch ${selectedColor===c?'selected':''}" data-color="${c}" style="background:${c}"></div>
+  `).join('');
+  grid.querySelectorAll('.color-swatch').forEach(sw=>{
+    sw.addEventListener('click',()=>{ selectedColor=sw.dataset.color; renderColorGrid(); });
+  });
+}
+
+document.getElementById('cat-modal-cancel').addEventListener('click',()=>document.getElementById('modal-cat').classList.remove('open'));
+document.getElementById('modal-cat').addEventListener('click',e=>{ if(e.target===e.currentTarget) e.currentTarget.classList.remove('open'); });
+document.getElementById('cat-modal-save').addEventListener('click',()=>{
+  const name = document.getElementById('cat-edit-name').value.trim();
+  if(!name) return;
+  const cats = JSON.parse(localStorage.getItem('v2_custom_cats') || 'null') || [...CATEGORIES];
+  const newCat = { id: 'c_'+uid(), label: name, color: selectedColor };
+  cats.push(newCat);
+  localStorage.setItem('v2_custom_cats', JSON.stringify(cats));
+  syncCategories();
+  document.getElementById('modal-cat').classList.remove('open');
+  renderSettings();
+});
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').then(reg => {
+    // 新しいSWが見つかったら自動でリロード
+    reg.addEventListener('updatefound', () => {
+      const newWorker = reg.installing;
+      newWorker.addEventListener('statechange', () => {
+        if(newWorker.state === 'activated'){
+          window.location.reload();
+        }
+      });
+    });
+  }).catch(()=>{});
+
+  // 定期的に更新をチェック（アプリ起動時）
+  navigator.serviceWorker.ready.then(reg => reg.update());
+}
+
+// ══════════════════════════════════════════════════
+// パスコード機能
+// ══════════════════════════════════════════════════
+const PIN_TABS = {
+  tasks: { label:'Tasks' },
+  wish:  { label:'Wishlist' },
+  books: { label:'Books' },
+  memo:  { label:'Memo' },
+};
+function getPins(){ return JSON.parse(localStorage.getItem('v2_pins')||'{}'); }
+function savePins(p){ localStorage.setItem('v2_pins',JSON.stringify(p)); }
+
+// Settings のパスコードリストを描画
+function renderPinSettings(){
+  const el = document.getElementById('pin-settings-list');
+  if(!el) return;
+  const pins = getPins();
+  el.innerHTML = Object.entries(PIN_TABS).map(([sc,info],i)=>`
+    <div class="settings-row" style="${i>0?'border-top:1px solid var(--border)':''}">
+      <div class="settings-row-left">
+        <div class="settings-row-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        </div>
+        <div>
+          <div class="settings-row-title">${info.label}</div>
+          <div class="settings-row-sub">${pins[sc]?'パスコード設定済み':'設定なし'}</div>
+        </div>
+      </div>
+      <button
+        style="border:none;background:${pins[sc]?'var(--clay-l)':'var(--accent-l)'};color:${pins[sc]?'var(--clay)':'var(--accent)'};font-size:12px;font-weight:700;padding:6px 14px;border-radius:20px;cursor:pointer;touch-action:manipulation;"
+        onclick="onPinSettingsTap('${sc}')">
+        ${pins[sc]?'解除':'設定'}
+      </button>
+    </div>`).join('');
+}
+
+function onPinSettingsTap(sc){
+  const pins = getPins();
+  if(pins[sc]){
+    pinOpen({ title: PIN_TABS[sc].label+' のパスコード解除', sub:'現在のパスコードを入力してください', cancelable:true,
+      onOk: (entered)=>{
+        if(entered === pins[sc]){ delete pins[sc]; savePins(pins); renderPinSettings(); return true; }
+        return false;
+      }
+    });
+  } else {
+    pinOpenSet(sc);
+  }
+}
+
+// ── PIN 入力処理 ──────────────────────────────────
+let _pinBuf='', _pinMode='verify', _pinCb=null, _pinFirst='', _pinCancelable=false;
+
+function pinOpen(opts){
+  _pinBuf=''; _pinMode='verify'; _pinCb=opts.onOk; _pinCancelable=!!opts.cancelable;
+  document.getElementById('pin-title').textContent = opts.title||'パスコードを入力';
+  document.getElementById('pin-sub').textContent = opts.sub||'';
+  document.getElementById('pin-sub').style.color = '';
+  document.getElementById('pin-cancel-btn').style.display = _pinCancelable?'block':'none';
+  pinUpdateDots();
+  const scr = document.getElementById('pin-screen');
+  scr.style.display = 'flex';
+}
+
+function pinOpenSet(sc){
+  _pinBuf=''; _pinMode='set1'; _pinFirst=''; _pinCancelable=true;
+  document.getElementById('pin-title').textContent = PIN_TABS[sc].label+' のパスコード設定';
+  document.getElementById('pin-sub').textContent = '新しいパスコードを入力（4桁）';
+  document.getElementById('pin-sub').style.color = '';
+  document.getElementById('pin-cancel-btn').style.display = 'block';
+  pinUpdateDots();
+  document.getElementById('pin-screen').style.display='flex';
+  _pinCb = (entered)=>{
+    if(_pinMode==='set1'){
+      _pinFirst=entered; _pinBuf=''; _pinMode='set2';
+      document.getElementById('pin-sub').textContent='もう一度入力してください';
+      pinUpdateDots();
+      return null; // まだ完了しない
+    } else {
+      if(entered===_pinFirst){
+        const pins=getPins(); pins[sc]=entered; savePins(pins);
+        document.getElementById('pin-screen').style.display='none';
+        renderPinSettings();
+        return true;
+      }
+      return false;
+    }
+  };
+}
+
+function pinClose(){
+  document.getElementById('pin-screen').style.display='none';
+  _pinBuf=''; _pinCb=null;
+}
+
+function pinCancel(){ pinClose(); }
+
+function pinUpdateDots(state=''){
+  document.querySelectorAll('.pd').forEach((d,i)=>{
+    d.className='pd';
+    if(state==='error') d.classList.add('error');
+    else if(i<_pinBuf.length) d.classList.add('filled');
+  });
+}
+
+function pinKey(k){
+  if(_pinBuf.length>=4) return;
+  _pinBuf+=k;
+  pinUpdateDots();
+  if(_pinBuf.length===4){
+    setTimeout(()=>{
+      if(!_pinCb) return;
+      const result = _pinCb(_pinBuf);
+      if(result===null){
+        // set1完了、set2へ（_pinCbが内部で状態更新済み）
+        pinUpdateDots();
+      } else if(result===true){
+        document.getElementById('pin-screen').style.display='none';
+        _pinBuf=''; _pinCb=null;
+      } else {
+        // 失敗
+        pinUpdateDots('error');
+        document.getElementById('pin-sub').style.color='var(--clay)';
+        const dots=document.getElementById('pin-dots');
+        dots.style.animation='pin-shake .4s ease';
+        setTimeout(()=>{ dots.style.animation=''; _pinBuf=''; pinUpdateDots();
+          document.getElementById('pin-sub').style.color=''; }, 450);
+      }
+    }, 80);
+  }
+}
+
+function pinDel(){
+  _pinBuf=_pinBuf.slice(0,-1);
+  pinUpdateDots();
+}
+
+// ── ナビにパスコードチェックを追加 ────────────────
+const _origNavHandlers = {};
+document.querySelectorAll('[data-screen]').forEach(btn=>{
+  const sc = btn.dataset.screen;
+  btn.addEventListener('click', e=>{
+    const pins = getPins();
+    if(['tasks','wish','books','memo'].includes(sc) && pins[sc]){
+      e.stopImmediatePropagation();
+      pinOpen({
+        title: PIN_TABS[sc]?.label+' のパスコード',
+        sub: 'パスコードを入力してください',
+        cancelable: true,
+        onOk: (entered)=>{
+          if(entered===pins[sc]){
+            // 本来のナビ動作を実行
+            document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+            document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('on'));
+            document.getElementById('screen-'+sc).classList.add('active');
+            btn.classList.add('on');
+            ({home:renderDash,tasks:renderTasks,wish:renderWishes,books:renderBooks,memo:renderMemos})[sc]?.();
+            return true;
+          }
+          return false;
+        }
+      });
+    }
+  }, true); // capture=true で先に実行
+});
+
+// Settings 画面を開くたびに renderPinSettings を呼ぶ
+const _origRenderSettings = renderSettings;
+renderSettings = function(){
+  _origRenderSettings();
+  renderPinSettings();
+};
+// 初回描画
+renderPinSettings();
+</script>
+</body>
+</html>
